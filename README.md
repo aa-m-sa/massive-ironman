@@ -21,4 +21,5 @@ Stages:
 ##project structure
 
 * `docs` required project documentation (plans, weekly reports, etc), in Finnish
+* `robo.testbot` trying out things (hello world programs, checking the motors, sensors etc work as intended, and so)
 
