@@ -15,8 +15,17 @@ Osatavoitteet:
     - [ ] läppärin softa pelaa ristinollaa tyhmästi (osaa tunnistaa tyhjän ruuduun ja piirtää siihen ruksin)
     - [ ] softa pelaa ristinollaa vähemmän tyhmästi (jonkin sortin ristinollatekoäly)
 
+##Haasteet?
+
+1. Piirtävä robo. Teknisiä haasteita (tekniikkalego-aloittelijalle):
+    - kynän nosto / laskeminen piirtopinnalle
+    - kynän liikuttaminen
+2. Paperin lukeminen webbikameralla.
+    - OpenCV:n käyttäminen
+    - Kameran sijoittelu, jotta ruudukon muodot eivät vääristy liikaa (vai selviääkö OpenCV tästä)?
+
 ##Fallback?
 
-Mitä jos tarpeeksi tarkan & toimivan merkkejä piirtävän robotin kokoaminen tarpeeksi nopeasti (ennen viikkoraportti 2 dedistä) ei onnistu?
+Mitäs sitten jos haasteet osoittautuvat liian haastellisiksi, ts jos tarpeeksi tarkan & toimivan merkkejä piirtävän robotin kokoaminen tarpeeksi nopeasti (eli jotta koodaukselle jää aikaa, siis ennen viikkoraportti 2 dedistä) ei onnistu?
 
 - [ ] Robotti joka osaa tehdä jotain ulkoisen webbikameran avulla?!
