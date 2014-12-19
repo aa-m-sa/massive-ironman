@@ -5,7 +5,9 @@
 Osatavoitteet:
 
 1. Piirtävä robo: Oikein paperin viereen sijoitettu robotti osaa piirtää 'sokeasti' jonkin ennalta määrätyn kuvion (= ruksi) oikeaan paikkaan. Piirtotoiminnallisuutta pyörittävä softa pyörii robotissa, robottia käskytetään bluetoothin yli.
-    - [ ] robotti joka pystyy piirtämään
+    - [ ] robotti joka pystyy piirtämään, rakenneideoita kaksi
+        1. kynä kiinni 'käsivarressa', joka pyörii (= x-suunnan liikkuvuus ja hieman y-liikkuvuutta) ja jonka alusta liikkuu edestakaisin (= varsinainen y-suunnan liikkuvuus)
+        2. kynä keskellä kaksipyöräistä autorobottia
     - [ ] ohjelma joka pystyy liikuttamaan piirtovälinettä
     - [ ] piirto-ohjeiden antaminen robotille läppäriltä bluetoothin yli
 2. Pelilaudan tilanteen webkameralla (+ OpenCV) tunnistava robo. Kuvantunnistukseen käytetään OpenCV:tä läppärillä, .
@@ -19,7 +21,7 @@ Osatavoitteet:
 
 1. Piirtävä robo. Teknisiä haasteita (tekniikkalego-aloittelijalle):
     - kynän nosto / laskeminen piirtopinnalle
-    - kynän liikuttaminen
+    - kynän liikuttaminen: molemmissa rakenneideoissa haasteensa
 2. Paperin lukeminen webbikameralla.
     - OpenCV:n käyttäminen
     - Kameran sijoittelu, jotta ruudukon muodot eivät vääristy liikaa (vai selviääkö OpenCV tästä)?
