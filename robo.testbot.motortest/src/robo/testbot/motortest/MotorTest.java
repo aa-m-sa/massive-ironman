@@ -11,12 +11,37 @@ import lejos.robotics.navigation.*;
  *
  */
 public class MotorTest {
+	
+	DifferentialPilot pilot;
+	
+	private void go(double speed, double dist) {
+		pilot.setTravelSpeed(speed);
+		pilot.travel(dist);
+	}
+	
+	private void turn(double speed, double angle) {
+		pilot.setRotateSpeed(speed);
+		pilot.rotate(angle);
+	}
+	
 
 	public static void main(String[] args) {
+		MotorTest ironman = new MotorTest();
+		
 		System.out.println("IRON MAN WAITS FOR COMMAND");
 		/* Kokeillaans liikkuvaa bottia*/
-		DifferentialPilot pilot = new DifferentialPilot(56, 56, 17.6, Motor.A, Motor.B, true);
+		ironman.pilot = new DifferentialPilot(56.0, 56.0, 120.0, Motor.A, Motor.C, false);
 		
+		Button.waitForPress();
+		System.out.println("BOLDLY FORWARDS!");
+		ironman.go(20, 10);
+
+		System.out.println("RETREAT!");
+		ironman.go(40, -10);
+		
+		Button.waitForPress();
+		System.out.println("TURNING TO FACE THE ENEMY!");
+		ironman.turn(20.0, 20.0);
 		Button.waitForPress();
 	}
 }
