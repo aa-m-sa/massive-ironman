@@ -13,5 +13,7 @@ Tic-Tac-Toe bot using Lego Mindstorms, Java, OpenCV and webcam.
 ##project structure
 
 * `docs` required project documentation (plans, weekly reports, etc), in Finnish
-* `robo.testbot` different 'testbots': hello world programs and checking the motors, pilots, sensors etc work as intended
+* `TestBots`: different 'testbot'  programs for testing that motors, pilots, sensors etc function as intended
+* `PenBot`: the robot client that draws Tic-Tac-Toe characters
+* todo: the game AI, webcam image processing, etc
 
