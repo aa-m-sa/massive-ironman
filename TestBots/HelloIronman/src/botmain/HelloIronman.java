@@ -1,4 +1,4 @@
-package robo.testbot.helloironman;
+package botmain;
 
 import lejos.nxt.*;
 
