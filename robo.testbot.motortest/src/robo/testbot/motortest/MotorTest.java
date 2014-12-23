@@ -30,18 +30,20 @@ public class MotorTest {
 		
 		System.out.println("IRON MAN WAITS FOR COMMAND");
 		/* Kokeillaans liikkuvaa bottia*/
-		ironman.pilot = new DifferentialPilot(56.0, 56.0, 120.0, Motor.A, Motor.C, false);
+		ironman.pilot = new DifferentialPilot(56.0, 56.0, 120.0, Motor.A, Motor.B, false);
 		
 		Button.waitForPress();
 		System.out.println("BOLDLY FORWARDS!");
-		ironman.go(20, 10);
+		ironman.go(40, 56);
 
 		System.out.println("RETREAT!");
-		ironman.go(40, -10);
+		ironman.go(40, -7);
 		
 		Button.waitForPress();
 		System.out.println("TURNING TO FACE THE ENEMY!");
-		ironman.turn(20.0, 20.0);
+		ironman.turn(20.0, 10.0);
+		Button.waitForPress();
+		ironman.turn(20.0, 10.0);
 		Button.waitForPress();
 	}
 }
