@@ -1,4 +1,4 @@
-package robo.testbot.motortest;
+package robo.testbot.pen;
 
 import java.lang.Math;
 import lejos.nxt.Motor;
