@@ -8,7 +8,14 @@ import lejos.util.Delay;
 import lejos.robotics.navigation.*;
 
 /**
- * Simple Hello World program
+ * Simple PenBot.
+ * 
+ * Quite quick hack; testing if the physical lego structure is feasible.
+ * 
+ * New idea: the PenBot is positioned on the main diagonal of tictactoe board:
+ * Drawing an X in a cell can be done just with back-forth movement + rotation.
+ * 
+ * (So PenBot can only play as X.)
  *
  */
 public class PenBot {
@@ -18,13 +25,18 @@ public class PenBot {
 	double speed = 40;
 	double turnSpeed = 40.0;
 	
-	// start position of the pen (0,0)
+	// base coord: the corner of board nearest to the bot
 	// coordinates of center of the board lower edge relative to that
 	double boardBaseX = 0.0; //mm
-	double boardBaseY = 0.0;
+	double boardBaseY = 40.0;
 	
 	// size of drawn cells on the paper, mm
 	double outerCellSize = 14.0;
+	double outerCellDiag = Math.sqrt(2*(outerCellSize * outerCellSize));
+	// length of the y line of X mark
+	double crossLine = outerCellSize;
+	// angle of the x arc line of X
+	double crossRot = 10.0;
 	
 	
 	// pen tip distance from the axis (of rotation)
@@ -33,53 +45,43 @@ public class PenBot {
 	private void drawCross(int x, int y) {
 		pilot.setRotateSpeed(turnSpeed);
 		pilot.setTravelSpeed(speed);
-		// assume pen is in the start position
-		moveToCell(x, y);
-		boolean left = true;	// sugar
-		drawCrossLine(left);
-		drawCrossLine(!left);
-		// return to base position
-	}
-	
-	private void moveToCell(int x, int y) {
-		// moves the pen to the lower left corner of the cell
-		// cell coordinates: the lower center is 0, 0
-		
-		// move to correct position in x direction
-		
-		// move to correct position in y direction
-		pilot.travel(boardBaseY + y*outerCellSize + 0.5*outerCellSize);
-		
-	}
-	
-	private void drawCrossLine(boolean leftToRight) {
-		// if leftToRight:
-		// draw a line from the lower left corner to upper right corner
-		
-		// angles calculated by hand
-		// assuming starting from forward facing position
-		double firstRotate = 67.5;
-		double secondRotate = -112.5;
-		
-		if (!leftToRight) {
-			firstRotate *= -1;
-			secondRotate *= -1;
-		}
-		
-		pilot.rotate(firstRotate);
-		double cDist = 2 * (penDist + 0.5*outerCellSize) * Math.cos(3*Math.PI/8);
-		pilot.travel(cDist);
-		pilot.rotate(secondRotate);
-		
-		// lower the pen
-		pilot.travel(outerCellSize);
-		pilot.travel(-outerCellSize);
+		moveToCellCenter(x, y);
+		//lower the pen
+		// the upper y dir line of the X
+		pilot.travel(0.5*crossLine);
+		pilot.travel(-0.5*crossLine);
+		// the x dir 'line' of the X (rotate)
+		pilot.rotate(0.5*crossRot);
+		pilot.rotate(-crossRot);
+		pilot.rotate(0.5*crossRot);
+		// the lower hald of y dir line
+		pilot.travel(-0.5*crossLine);
 		// raise the pen
 		
-		// return
-		pilot.rotate(-secondRotate);
-		pilot.travel(-cDist);
-		pilot.rotate(-firstRotate);
+		// return to base position (we are at lower diag corner)
+	}
+	
+	private void moveToCellCenter(int x, int y) {
+		// x, y = coordinates for cell
+		// x == y for diagonal, y = x = 0 for baseY, etc
+
+		pilot.travel(boardBaseY);
+
+		// quick and dirty and outright terrible to check if this works
+		// only diagonal cells implemented
+		// todo: cell objs who know the rotations associated with them?
+		double angle = 0;
+		double dist = outerCellSize;
+		if (x == 0 && x == 0) {
+			dist *= 0.5*Math.sqrt(2);
+		} else if (x == 1 && x == 1) {
+			dist *= 1.5*Math.sqrt(2);
+		} else if (x == 2 && x == 2) {
+			dist *= 2.5*Math.sqrt(2);
+		}
+
+		pilot.rotate(angle);
+		pilot.travel(dist);
 	}
 	
 
@@ -91,7 +93,7 @@ public class PenBot {
 		ironman.pilot = new DifferentialPilot(56.0, 56.0, 120.0, Motor.A, Motor.B, false);
 		
 		Button.waitForPress();
-		ironman.drawCross(0, 0);
+		ironman.drawCross(2, 2);
 		Button.waitForPress();
 	}
 }
