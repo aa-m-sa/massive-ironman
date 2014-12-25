@@ -47,18 +47,39 @@ public class Penbot {
 		pilot.setTravelSpeed(speed);
 		moveToCellCenter(x, y);
 		//lower the pen
+		lowerPen();
 		// the upper y dir line of the X
-		pilot.travel(0.5*crossLine);
-		pilot.travel(-0.5*crossLine);
+		drawVertical();
 		// the x dir 'line' of the X (rotate)
+		drawHorizontal();
+		// raise the pen
+		raisePen();
+		// return to base position
+		moveToBase(x, y);
+	}
+	
+	private void lowerPen() {
+		// TODO: not implemented yet
+	}
+	
+	private void raisePen() {
+		// TODO: not implemented yet
+	}
+	
+	private void moveToBase(int fromX, int fromY) {
+		// TODO: not implemented yet
+	}
+	
+	private void drawVertical() {
+		pilot.travel(0.5*crossLine);
+		pilot.travel(-1*crossLine);
+		pilot.travel(0.5*crossLine);
+	}
+	
+	private void drawHorizontal() {
 		pilot.rotate(0.5*crossRot);
 		pilot.rotate(-crossRot);
 		pilot.rotate(0.5*crossRot);
-		// the lower hald of y dir line
-		pilot.travel(-0.5*crossLine);
-		// raise the pen
-		
-		// return to base position (we are at lower diag corner)
 	}
 	
 	private void moveToCellCenter(int x, int y) {
