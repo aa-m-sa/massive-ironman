@@ -53,14 +53,17 @@ public class Board {
         double d = penDist;
         // cells (1,0), (0,1)
         double angle = Math.atan(s/(2*s + Math.sqrt(2)*d));
+        angle = Math.toDegrees(angle);
         cellAngles[1][0] = -angle;
         cellAngles[0][1] = angle;
         // cells (2,0), (0,2)
         angle = Math.atan((Math.sqrt(2)*s) / (3*s/Math.sqrt(2) + d));
+        angle = Math.toDegrees(angle);
         cellAngles[2][0] = -angle;
         cellAngles[0][2] = angle;
         // cells (2,1), (1,2)
         angle = Math.atan(s/(4*s + Math.sqrt(2)*d));
+        angle = Math.toDegrees(angle);
         cellAngles[2][1] = -angle;
         cellAngles[1][2] = angle;
         // rest

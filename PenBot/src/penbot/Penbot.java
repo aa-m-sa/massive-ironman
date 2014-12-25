@@ -43,6 +43,7 @@ public class Penbot {
                 Motor.B, false);
 
         //
+        this.board = board;
         this.penDist = penDist;
         this.outerCellSize = outerCellSize;
         this.crossLine = markSize;
@@ -101,6 +102,7 @@ public class Penbot {
         // distance to travel to get pen tip there
         double dist = board.getCellTargetDist(x, y);
 
+        System.out.println(angle + "," + dist);
         pilot.rotate(angle);
         pilot.travel(dist);
     }
