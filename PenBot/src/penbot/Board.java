@@ -8,8 +8,13 @@ import java.lang.Math;
  * Board and board cell representation. Mainly angle + distance information the
  * PenBot needs to move the pen tip above the center of each cell
  * 
- * Board x,y coordinate legend: 2,2|1,2|0,2 ----------- 1,2|1,1|0,1 -----------
- * 0,2|0,1|0,0 (bot)
+ * Board x,y coordinate legend:
+ * 2,2|1,2|0,2
+ * -----------
+ * 1,2|1,1|0,1
+ * -----------
+ * 0,2|0,1|0,0 
+ *            (bot)
  * 
  * 0 degree angle is the x == y diagonal
  * 
