@@ -15,31 +15,39 @@ import lejos.robotics.navigation.DifferentialPilot;
  */
 
 public class Penbot {
-	private DifferentialPilot pilot;
+	private DifferentialPilot pilot;	// leJOS class to control bot mvmt
+	private Board board;				// board cell representation
 
 	private double speed = 40;
 	private double turnSpeed = 40.0;
 	
 	// base coord: the corner of board nearest to the bot
 	// coordinates of center of the board lower edge relative to that
-	private double boardBaseX = 0.0; //mm
-	private double boardBaseY = 40.0;
+	private double boardBaseY;
 	
 	// size of drawn cells on the paper, mm
-	private double outerCellSize = 14.0;
-	private double outerCellDiag = Math.sqrt(2*(outerCellSize * outerCellSize));
+	private double outerCellSize;
 	// length of the y line of X mark
-	private double crossLine = outerCellSize;
+	private double crossLine;
 	// angle of the x arc line of X
+	// TODO calculate from crossLine + penDist
 	private double crossRot = 10.0;
 	
 	
 	// pen tip distance from the axis (of rotation)
-	double penDist = 60.0;
+	private double penDist;
 	
-	public Penbot() {
-		// set up differential pilot: wheel size 56mm, axis length 120mm
-		pilot = new DifferentialPilot(56.0, 56.0, 120.0, Motor.A, Motor.B, false);
+	public Penbot(Board board, double axis, double wheelSize, double penDist, 
+			double outerCellSize, double markSize, double distToBoard) {
+		// motor ports hardcoded
+		pilot = new DifferentialPilot(wheelSize, wheelSize, axis, Motor.A, Motor.B, false);
+		
+		//
+		this.penDist = penDist;
+		this.outerCellSize = outerCellSize;
+		this.crossLine = markSize;
+		this.boardBaseY = distToBoard;
+		
 	}
 	
 	public void drawCross(int x, int y) {
@@ -87,20 +95,12 @@ public class Penbot {
 		// x == y for diagonal, y = x = 0 for baseY, etc
 
 		pilot.travel(boardBaseY);
-
-		// quick and dirty and outright terrible to check if this works
-		// only diagonal cells implemented
-		// todo: cell objs who know the rotations associated with them?
-		double angle = 0;
-		double dist = outerCellSize;
-		if (x == 0 && x == 0) {
-			dist *= 0.5*Math.sqrt(2);
-		} else if (x == 1 && x == 1) {
-			dist *= 1.5*Math.sqrt(2);
-		} else if (x == 2 && x == 2) {
-			dist *= 2.5*Math.sqrt(2);
-		}
-
+		
+		// angle to rotate bot chassis to pen to point to cell x,y center
+		double angle = board.getCellTargetAngle(x, y);
+		// distance to travel to get pen tip there
+		double dist = board.getCellTargetDist(x, y);
+		
 		pilot.rotate(angle);
 		pilot.travel(dist);
 	}
