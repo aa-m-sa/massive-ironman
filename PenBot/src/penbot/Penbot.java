@@ -4,6 +4,16 @@ import lejos.nxt.Motor;
 import java.lang.Math;
 import lejos.robotics.navigation.DifferentialPilot;
 
+/**
+ * Simple PenBot.
+ * 
+ * Quite quick hack; testing if the physical lego structure is feasible.
+ * 
+ * New idea: the PenBot is positioned on the main diagonal of tictactoe board:
+ * Drawing an X in a cell can be done just with back-forth movement + rotation.
+ * (So PenBot can only play as X.)
+ */
+
 public class Penbot {
 	private DifferentialPilot pilot;
 
