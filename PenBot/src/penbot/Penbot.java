@@ -1,6 +1,8 @@
 package penbot;
 
 import lejos.nxt.Motor;
+import lejos.nxt.NXTRegulatedMotor;
+
 import java.lang.Math;
 import lejos.robotics.navigation.DifferentialPilot;
 
@@ -35,13 +37,17 @@ public class Penbot {
 
     // pen tip distance from the axis (of rotation)
     private double penDist;
+    
+    private NXTRegulatedMotor penMotor;
+    private int penAngle = 20;
+    private int penDown = 1; // positive if positive angle lowers the pen
 
     public Penbot(Board board, double axis, double wheelSize, double penDist,
             double outerCellSize, double markSize, double distToBoard) {
         // motor ports hardcoded
         pilot = new DifferentialPilot(wheelSize, wheelSize, axis, Motor.A,
                 Motor.B, false);
-
+        penMotor = Motor.C;
         //
         this.board = board;
         this.penDist = penDist;
@@ -67,22 +73,18 @@ public class Penbot {
         moveToBase(x, y);
     }
 
-    private void lowerPen() {
-        // TODO: not implemented yet
+    public void lowerPen() {
+        this.penMotor.rotate(penDown*penAngle);
     }
 
-    private void raisePen() {
-        // TODO: not implemented yet
-    }
-
-    private void moveToBase(int fromX, int fromY) {
-        // TODO: not implemented yet
+    public void raisePen() {
+        this.penMotor.rotate(-penDown*penAngle);
     }
 
     private void drawVertical() {
-        pilot.travel(0.5 * crossLine);
-        pilot.travel(-1 * crossLine);
-        pilot.travel(0.5 * crossLine);
+        pilot.travel(crossLine);
+        pilot.travel(-2*crossLine);
+        pilot.travel(crossLine);
     }
 
     private void drawHorizontal() {
@@ -105,6 +107,15 @@ public class Penbot {
         System.out.println(angle + "," + dist);
         pilot.rotate(angle);
         pilot.travel(dist);
+    }
+    
+    private void moveToBase(int x, int y) {
+        // moveToCellCenter in reverse
+        double angle = board.getCellTargetAngle(x, y);
+        double dist = board.getCellTargetDist(x, y);
+        pilot.travel(-dist);
+        pilot.rotate(-angle);
+        pilot.travel(-boardBaseY);
     }
 
 }

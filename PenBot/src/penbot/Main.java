@@ -1,6 +1,7 @@
 package penbot;
 
 import lejos.nxt.Button;
+import lejos.nxt.Motor;
 
 /**
  * Main function
@@ -29,8 +30,8 @@ public class Main {
 		System.out.println("I PRINT");
 		//ironman.drawCross(0, 0);
 		//ironman.drawCross(2,2);
-		//ironman.drawCross(2,1);
-		ironman.drawCross(0,2);
+		ironman.drawCross(2,1);
+		//ironman.drawCross(0,2);
 		
 		System.out.println("FIN.");
 		Button.waitForPress();
