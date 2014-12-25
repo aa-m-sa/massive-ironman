@@ -1,16 +1,14 @@
 package penbot;
 
-
 import lejos.nxt.Button;
 
-
 /**
- *  Main function
- *
+ * Main function
+ * 
  */
 public class Main {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 		// physical bot dimensions, in mm
 		double axis = 120.0;		// wheel dist for DifferentialPilot
 		double wheelSize = 56.0;	// wheel size for DifferentialPilot
