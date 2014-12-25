@@ -12,7 +12,7 @@ public class Main {
 		// physical bot dimensions, in mm
 		double axis = 120.0;		// wheel dist for DifferentialPilot
 		double wheelSize = 56.0;	// wheel size for DifferentialPilot
-		double penDist = 61.0;		// dist of pen tip to axis
+		double penDist = 64.0;		// dist of pen tip to axis
 		
 		// physical game board dimensions, also mm
 		double outerCellSize = 14.0;
