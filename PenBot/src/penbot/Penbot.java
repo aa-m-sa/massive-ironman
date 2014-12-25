@@ -41,6 +41,9 @@ public class Penbot {
     private NXTRegulatedMotor penMotor;
     private int penAngle = 20;
     private int penDown = 1; // positive if positive angle lowers the pen
+    
+    // prints some additional dots on paper for techinical debugging
+    private boolean testmarkings = true;
 
     public Penbot(Board board, double axis, double wheelSize, double penDist,
             double outerCellSize, double markSize, double distToBoard) {
@@ -80,11 +83,16 @@ public class Penbot {
     public void raisePen() {
         this.penMotor.rotate(-penDown*penAngle);
     }
+    
+    public void drawDot() {
+        lowerPen();
+        raisePen();
+    }
 
     private void drawVertical() {
-        pilot.travel(crossLine);
-        pilot.travel(-2*crossLine);
-        pilot.travel(crossLine);
+        pilot.travel(0.5*crossLine);
+        pilot.travel(-1*crossLine);
+        pilot.travel(0.5*crossLine);
     }
 
     private void drawHorizontal() {
@@ -97,7 +105,13 @@ public class Penbot {
         // x, y = coordinates for cell
         // x == y for diagonal, y = x = 0 for baseY, etc
 
+        if (this.testmarkings)
+            drawDot();
+        
         pilot.travel(boardBaseY);
+        
+        if (this.testmarkings)
+            drawDot();
 
         // angle to rotate bot chassis to pen to point to cell x,y center
         double angle = board.getCellTargetAngle(x, y);

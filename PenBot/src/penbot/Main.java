@@ -28,11 +28,15 @@ public class Main {
 		System.out.println("I AM IRON MAN");
 		Button.waitForPress();
 		System.out.println("I PRINT");
-		//ironman.drawCross(0, 0);
-		//ironman.drawCross(2,2);
-		ironman.drawCross(2,1);
-		//ironman.drawCross(0,2);
-		
+		for (int i = 0; i < 3; i++) {
+		    for (int j = 0; j < 3; j++) {
+		        ironman.drawCross(i, j);
+		        if (Button.ESCAPE.isPressed()) {
+		            System.out.println("EMERGENCY STOP; HALTING");
+		            return;
+		        }
+		    }
+		}
 		System.out.println("FIN.");
 		Button.waitForPress();
 	}
