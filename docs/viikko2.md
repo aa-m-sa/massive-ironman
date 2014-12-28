@@ -10,9 +10,13 @@
 
 4. Päivitetty suunnitelmaa asianmukaisesti.
 
+5. Koska virtuaali-rojbosin vanha Open/JavaCV aiheutti ongelmia (versiolle ?? vuodelta 2011? vaikeahkoa löytää dokumentaatiota), aloin pystyttämään LeJOS + yms ohjelmointiympäristöä suoraan omalle Mint-buntulle uusilla versioilla kirjastoista: OpenCV:n lisäksi myös -> LeJOS 0.9.1 (fläshätty brickille) ja lopultakin toimiva bluetooth (onneksi, sillä toisaalta USB-nxjupload lakkasi toimimasta LeJOSin USB3.0-bugin takia, kun ei ollut enää USB2.0aa simuloivaa VirtualBoxia).
+
 ## Seuraavaksi
 
 Ensi viikolla tarkoitus:
+
+0. Ohjelmointiympäristö vaihdettu VirtuaaliBoxi-tikulta omaan 'buntuun, joten ant- yms java-projektisysteemit tarkistettava (kirjastot eivät enää kansiossa opt/jossain, Eclipse vm.2011:n sijasta voin käyttää jotain Oikeaa Editoria, jne.)
 
 1. Järkevää testausta. Trigonometria-osuutta (`Board.java`) voisi ehkä jopa yksikkötestata JUnitilla (miten se onnistuu Lejos + Ant -kombolla, en tiedä).
 
