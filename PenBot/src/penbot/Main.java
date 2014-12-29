@@ -19,6 +19,8 @@ public class Main {
         double outerCellSize = 14.0;
         double markSize = 10.0;
 
+        // bot is located on the main tac tac toe board diagonal
+        // distance from pen tip point to the nearest board corner in mm
         double botDistToBoard = 50;
 
         Board ticpaper = new Board(outerCellSize, penDist);

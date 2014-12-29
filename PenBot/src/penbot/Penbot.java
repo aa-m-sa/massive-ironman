@@ -35,14 +35,16 @@ public class Penbot {
     // TODO calculate from crossLine + penDist
     private double crossRot = 10.0;
 
-    // pen tip distance from the axis (of rotation)
+    // distance of the pen tip to the main motor axis
     private double penDist;
 
     private NXTRegulatedMotor penMotor;
+    // angle to rotate the pen motor
+    // (to lower the pen from the upmost position to touch the paper)
     private int penAngle = 10;
     private int penDown = 1; // positive if positive angle lowers the pen
 
-    // prints some additional dots on paper for techinical debugging
+    // print some additional dots on paper for technical debugging
     private boolean testmarkings = true;
 
     public Penbot(Board board, double axis, double wheelSize, double penDist,
