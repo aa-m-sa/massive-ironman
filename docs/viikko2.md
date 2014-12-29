@@ -6,6 +6,8 @@
 
 2. Luovuin (ainakin toistaiseksi) yrityksestä rakentaa nätisti kaikenlaisia kuvioita piirtävästä 'käsivarsimaisesta' robotista. Sen sijaan autorobotti + ylös-alas liikkuva kynä -yhdistelmä oli teknisesti helppo toteuttaa. Hieman perustrigonometriaa, ja sain aikaiseksi robotin, joka piirtelee siedettävän näköisiä rukseja paperille kelvollisella tarkkuudella ruudukkoon.
 
+*Lisäys:* video [robotista joka piirtää näkymättömän 'ruudukon' täyteen rukseja](https://drive.google.com/file/d/0B1_61yv8HENsVUpUWXZodVQ4dFE/view?usp=sharing)
+
 3. Aloitin OpenCV/JavaCV:llä leikkimisen + tutoriaalien lukemisen. Rojbosin mukana tullut `Demo.java` kääntyi ja löysi webkameran.
 
 4. Päivitetty suunnitelmaa asianmukaisesti.
