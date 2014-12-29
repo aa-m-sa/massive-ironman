@@ -43,7 +43,7 @@ public class Penbot {
     private NXTRegulatedMotor penMotor;
     // angle to rotate the pen motor
     // (to lower the pen from the upmost position to touch the paper)
-    private int penAngle = 0;
+    private int penAngle = 15;  // original guesstimate
     private int penDown = 1; // positive if positive angle lowers the pen
     private int penMaxAngle = 20; // safety; max turn allowed for penMotor
 
@@ -123,7 +123,9 @@ public class Penbot {
     }
 
     public void lowerPen() {
-        this.penMotor.rotate(penDown*penAngle);
+        if (penAngle < penMaxAngle) {
+            this.penMotor.rotate(penDown*penAngle);
+        }
     }
 
     public void raisePen() {
