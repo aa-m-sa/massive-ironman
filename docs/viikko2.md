@@ -19,6 +19,7 @@
 Ensi viikolla tarkoitus:
 
 0. Ohjelmointiympäristö vaihdettu VirtuaaliBoxi-tikulta omaan 'buntuun, joten ant- yms java-projektisysteemit tarkistettava (kirjastot eivät enää kansiossa opt/jossain, Eclipse vm.2011:n sijasta voin käyttää jotain Oikeaa Editoria, jne.)
+**OK**
 
 1. Järkevää testausta. Trigonometria-osuutta (`Board.java`) voisi ehkä jopa yksikkötestata JUnitilla (miten se onnistuu Lejos + Ant -kombolla, en tiedä).
 
