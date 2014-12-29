@@ -94,12 +94,14 @@ public class Penbot {
      */
     public int calibratePenAngle() {
         // assume the pen is raised
-        int step = 3;
+        int step = 2;
+        int original = this.penAngle;
         int angle = 0;
         System.out.println("Enter accepts, Esc abort\nRight incr. angle, Left decrease.");
         while (true) {
             System.out.print("Cur: ");
             System.out.println(angle);
+            this.penAngle = angle;
             this.drawDot();
             int button = Button.waitForAnyPress();
             if (button == Button.ID_ENTER) {
@@ -110,6 +112,7 @@ public class Penbot {
                 angle += step;
             } else if (button == Button.ID_ESCAPE) {
                 // do not change the angle
+                this.penAngle = original;
                 return -1;
             }
 

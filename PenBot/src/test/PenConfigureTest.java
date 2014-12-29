@@ -12,7 +12,7 @@ import penbot.Penbot;
 
 public class PenConfigureTest {
 
-    public static void main() {
+    public static void main(String[] args) {
 
         double axis = 120.0;
         double wheelSize = 56.0;
@@ -29,8 +29,10 @@ public class PenConfigureTest {
         System.out.println("Calibrated:");
         System.out.println(cAngle);
 
-        // test by drawing a X
-        ironman.drawCross(0,0);
+        if (cAngle != -1) {
+            // test by drawing a X
+            ironman.drawCross(0,0);
+        }
 
     }
 
