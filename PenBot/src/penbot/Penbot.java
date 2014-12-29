@@ -8,9 +8,9 @@ import lejos.robotics.navigation.DifferentialPilot;
 
 /**
  * Simple PenBot.
- * 
+ *
  * Quite quick hack; testing if the physical lego structure is feasible.
- * 
+ *
  * New idea: the PenBot is positioned on the main diagonal of tictactoe board:
  * Drawing an X in a cell can be done just with back-forth movement + rotation.
  * (So PenBot can only play as X.)
@@ -37,11 +37,11 @@ public class Penbot {
 
     // pen tip distance from the axis (of rotation)
     private double penDist;
-    
+
     private NXTRegulatedMotor penMotor;
-    private int penAngle = 20;
+    private int penAngle = 10;
     private int penDown = 1; // positive if positive angle lowers the pen
-    
+
     // prints some additional dots on paper for techinical debugging
     private boolean testmarkings = true;
 
@@ -83,7 +83,7 @@ public class Penbot {
     public void raisePen() {
         this.penMotor.rotate(-penDown*penAngle);
     }
-    
+
     public void drawDot() {
         lowerPen();
         raisePen();
@@ -107,9 +107,9 @@ public class Penbot {
 
         if (this.testmarkings)
             drawDot();
-        
+
         pilot.travel(boardBaseY);
-        
+
         if (this.testmarkings)
             drawDot();
 
@@ -122,7 +122,7 @@ public class Penbot {
         pilot.rotate(angle);
         pilot.travel(dist);
     }
-    
+
     private void moveToBase(int x, int y) {
         // moveToCellCenter in reverse
         double angle = board.getCellTargetAngle(x, y);
