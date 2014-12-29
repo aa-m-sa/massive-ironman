@@ -1,9 +1,11 @@
 package penbot;
 
+import lejos.nxt.Button;
 import lejos.nxt.Motor;
 import lejos.nxt.NXTRegulatedMotor;
 
 import java.lang.Math;
+
 import lejos.robotics.navigation.DifferentialPilot;
 
 /**
@@ -23,15 +25,15 @@ public class Penbot {
     private double speed = 40;
     private double turnSpeed = 40.0;
 
-    // base coord: the corner of board nearest to the bot
-    // coordinates of center of the board lower edge relative to that
-    private double boardBaseY;
+    // base coordinates:
+    //  the coords of the board corner nearest to the bot
+    private double boardBaseY, boardBaseX;
 
     // size of drawn cells on the paper, mm
     private double outerCellSize;
-    // length of the y line of X mark
+    // length of the y line of X mark (= vertical line), mm
     private double crossLine;
-    // angle of the x arc line of X
+    // angle of the x arc line of X (= horizontal line), degrees
     // TODO calculate from crossLine + penDist
     private double crossRot = 10.0;
 
@@ -41,11 +43,17 @@ public class Penbot {
     private NXTRegulatedMotor penMotor;
     // angle to rotate the pen motor
     // (to lower the pen from the upmost position to touch the paper)
-    private int penAngle = 10;
+    private int penAngle = 0;
     private int penDown = 1; // positive if positive angle lowers the pen
+    private int penMaxAngle = 20; // safety; max turn allowed for penMotor
 
     // print some additional dots on paper for technical debugging
     private boolean testmarkings = true;
+
+    public Penbot(Board board) {
+        // use old defaults
+        this(board, 120.0, 56.0, 70.0, 14.0, 10.0, 50.0);
+    }
 
     public Penbot(Board board, double axis, double wheelSize, double penDist,
             double outerCellSize, double markSize, double distToBoard) {
@@ -53,7 +61,7 @@ public class Penbot {
         pilot = new DifferentialPilot(wheelSize, wheelSize, axis, Motor.A,
                 Motor.B, false);
         penMotor = Motor.C;
-        //
+
         this.board = board;
         this.penDist = penDist;
         this.outerCellSize = outerCellSize;
@@ -76,6 +84,39 @@ public class Penbot {
         raisePen();
         // return to base position
         moveToBase(x, y);
+    }
+
+    /**
+     * Routine to determine the angle the pen motor should rotate so that
+     * the pen is lowered from the upmost position to touch the paper.
+     *
+     * @return the final angle, -1 in case of fail
+     */
+    public int calibratePenAngle() {
+        // assume the pen is raised
+        int step = 3;
+        int angle = 0;
+        System.out.println("Enter accepts, Esc abort\nRight incr. angle, Left decrease.");
+        while (true) {
+            System.out.print("Cur: ");
+            System.out.println(angle);
+            this.drawDot();
+            int button = Button.waitForAnyPress();
+            if (button == Button.ID_ENTER) {
+                break;
+            } else if (button == Button.ID_LEFT && angle - step >= 0) {
+                angle -= step;
+            } else if (button == Button.ID_RIGHT && angle + step < penMaxAngle) {
+                angle += step;
+            } else if (button == Button.ID_ESCAPE) {
+                // do not change the angle
+                return -1;
+            }
+
+        }
+
+        this.penAngle = angle;
+        return angle;
     }
 
     public void lowerPen() {
