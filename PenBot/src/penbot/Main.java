@@ -41,12 +41,14 @@ public class Main {
         boolean quit = false;
         while (!quit) {
             com.stateOk();
+            Message msg;
             try {
-                Message msg = com.readMessage();
+                msg = com.readMessage();
             } catch (IOException e) {
                 com.stateError();
                 System.out.println("IO error reading msg.");
                 System.out.println(e);
+                continue;
             }
             com.stateBusy();
             // is there a more sane way that isn't overtly complicated?
