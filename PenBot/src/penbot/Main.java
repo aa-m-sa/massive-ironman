@@ -40,6 +40,9 @@ public class Main {
         com.open();
         boolean quit = false;
         while (!quit) {
+            if (Button.ENTER.isDown()) {
+                break;
+            }
             com.stateOk();
             Message msg;
             try {
