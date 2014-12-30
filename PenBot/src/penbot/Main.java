@@ -7,7 +7,7 @@ import lejos.nxt.Motor;
 
 import penbot.Board;
 
-import comms.BTCommander;
+import comms.BTCommunicator;
 import comms.Message;
 /**
  * Main function
@@ -36,7 +36,7 @@ public class Main {
         System.out.println("I AM IRON MAN.");
         Button.waitForAnyPress();
 
-        BTCommander com = new BTCommander();
+        BTCommunicator com = new BTCommunicator();
         com.open();
         boolean quit = false;
         while (!quit) {

@@ -11,13 +11,13 @@ import comms.Message;
 /**
  * Abstraction for Bluetooth connections
  */
-public class BTCommander {
+public class BTCommunicator {
     private NXTConnection connection;
     private DataInputStream inputStream;
     private DataOutputStream outputStream;
     private Penbot bot;
 
-    public BTCommander() {
+    public BTCommunicator() {
 
         System.out.println("Initializing connection...");
         this.connection = Bluetooth.waitForConnection();
