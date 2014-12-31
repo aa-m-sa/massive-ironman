@@ -38,22 +38,31 @@ public class Main {
 
         BTCommunicator com = new BTCommunicator();
         com.open();
+        System.out.println("Communicator ready!");
         boolean quit = false;
         while (!quit) {
             if (Button.ENTER.isDown()) {
+                System.out.println("HALT");
                 break;
             }
-            com.stateOk();
+            for (int i = 0; i < 10; i++) {
+                System.out.println("Stating OK...");
+                com.stateOk();
+                System.out.println("Sent!");
+            }
             Message msg;
             try {
                 msg = com.readMessage();
+                System.out.println("Message read!");
             } catch (IOException e) {
                 com.stateError();
                 System.out.println("IO error reading msg.");
                 System.out.println(e);
                 continue;
             }
+            System.out.println("Stating busy...");
             com.stateBusy();
+            System.out.println("Sent!");
             // is there a more sane way that isn't overtly complicated?
             if (msg == Message.DRAW_X) {
                 try {

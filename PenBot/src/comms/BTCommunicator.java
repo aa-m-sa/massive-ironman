@@ -29,8 +29,10 @@ public class BTCommunicator {
      * Open the input and output streams
      */
     public void open() {
+        System.out.println("Opening streams...");
         this.inputStream = connection.openDataInputStream();
         this.outputStream = connection.openDataOutputStream();
+        System.out.println("Streams opened!");
     }
 
     /**
@@ -59,12 +61,15 @@ public class BTCommunicator {
         // the first char identifies the type of msg
         ch = this.inputStream.readChar();
         if (ch == 'D') {
+            System.out.println("read D!");
             ch = this.inputStream.readChar();
+            System.out.println("read " + ch);
             if (ch == 'X')
                 return Message.DRAW_X;
             if (ch == 'O')
                 return Message.DRAW_O;
         } else if (ch == 'Q') {
+            System.out.println("read Q!");
             // a quitting command
             return Message.QUIT;
         }
@@ -76,6 +81,8 @@ public class BTCommunicator {
 
     public int readCoord() throws IOException {
         int c = this.inputStream.readInt();
+        System.out.println("read coord:");
+        System.out.println(c);
         if (0 <= c && c <= 2) return c;
         // else incorrect format
         throw new IOException("Illegal int in intpuStr");
@@ -83,7 +90,7 @@ public class BTCommunicator {
 
     public void stateOk() {
         try {
-            this.outputStream.write('A');
+            this.outputStream.write(1);
             this.outputStream.flush();
         } catch (IOException e) {
             System.out.println("Writing 'A' to ostr failed");
