@@ -5,7 +5,6 @@ import java.io.DataOutputStream;
 import java.io.InputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
-
 import java.util.Scanner;
 
 import lejos.pc.comm.NXTComm;
@@ -18,15 +17,7 @@ import lejos.pc.comm.NXTConnector;
 public class Main {
 
 
-    public static byte readByte(InputStream inStream) throws IOException {
-        // reads a byte from stream
-        byte[] buffer = new byte[1];
-        int n = 0;
-        while (n < 1) {
-            n = inStream.read(buffer);
-        }
-        return buffer[0];
-    }
+
 
     public static void main(String[] args) throws NXTCommException, InterruptedException {
 
@@ -59,36 +50,36 @@ public class Main {
 
             System.out.println("All set!");
 
-            while (true) {
-                // Penbot will write only chars to DataOutput (our Input)
-            	System.out.println("reading is...");
-                byte read = readByte(is);
-                System.out.println("read!");
-                System.out.println(read);
+            System.out.println(is.markSupported());
 
-                System.out.print(">");
-                String input = reader.nextLine();
-                if (input.startsWith("draw ")) {
-                    // exact syntax: "draw x,y", x,y ints
-                    int x = Character.getNumericValue(input.charAt(5));
-                    int y = Character.getNumericValue(input.charAt(7));
-                    System.out.println("Sending a draw command: ");
-                    System.out.println(x);
-                    System.out.println(y);
-                    os.write((byte) 0x12);
-                    os.write((byte) x);
-                    os.write((byte) y);
-                } else if (input.startsWith("quit")) {
-                    os.write((byte) 0x11);
-                    System.out.println(0x11);
-                    break;
-                } else if (input.startsWith("ok")) {
-                    for (int i = 0; i<10; i++) {
-                        System.out.println(0x10);
-                        os.write((byte) 0x10);
-                        Thread.sleep(500);
-                    }
+            while (true) {
+                // Receive
+                byte readByte = 0x00;
+                System.out.println("reading is...");
+                byte[] buffer = new byte[1];
+                int n = is.read(buffer);
+                readByte = buffer[0];
+                System.out.println(n);
+                if (n > 0) {
+                    System.out.print("read! : ");
+                    System.out.println(n + ", " + readByte);
+
+                    // read successfully -> send
+                    byte sendByte = 0x33;
+                    System.out.print("Writing 0x33...");
+                    os.write(sendByte);
+                    os.flush();
+                    System.out.println("...wrote " + 0x33);
+                } else {
+                    Thread.sleep(100);
                 }
+
+                if (readByte == 0x21)
+                    break;
+
+
+
+
             }
 
             System.out.println("Quitting cleanly...");
