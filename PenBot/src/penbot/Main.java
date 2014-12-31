@@ -45,19 +45,19 @@ public class Main {
                 System.out.println("HALT");
                 break;
             }
-            for (int i = 0; i < 10; i++) {
-                System.out.println("Stating OK...");
-                com.stateOk();
-                System.out.println("Sent!");
-            }
+            System.out.println("Stating OK...");
+            com.stateOk();
+            System.out.println("Sent!");
             Message msg;
             try {
+                System.out.println("Starting reading!");
                 msg = com.readMessage();
                 System.out.println("Message read!");
             } catch (IOException e) {
                 com.stateError();
                 System.out.println("IO error reading msg.");
                 System.out.println(e);
+                Button.waitForAnyPress();
                 continue;
             }
             System.out.println("Stating busy...");

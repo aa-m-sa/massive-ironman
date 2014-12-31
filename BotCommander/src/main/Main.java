@@ -17,6 +17,17 @@ import lejos.pc.comm.NXTConnector;
 
 public class Main {
 
+
+    public static byte readByte(InputStream inStream) throws IOException {
+        // reads a byte from stream
+        byte[] buffer = new byte[1];
+        int n = 0;
+        while (n < 1) {
+            n = inStream.read(buffer);
+        }
+        return buffer[0];
+    }
+
     public static void main(String[] args) throws NXTCommException {
 
         System.out.println("I AM BOTCMMDR!");
@@ -43,39 +54,37 @@ public class Main {
 
 
             InputStream is = conn.getInputStream();
-            DataInputStream inputStream = new DataInputStream(is);
             OutputStream os = conn.getOutputStream();
-            DataOutputStream outputStream = new DataOutputStream(os);
             System.out.println("Streams ok!");
 
             System.out.println("All set!");
 
-            String input = "woot";
             while (true) {
                 // Penbot will write only chars to DataOutput (our Input)
-            	System.out.println("reading a int...");
-                int readInt = inputStream.readInt();
+            	System.out.println("reading is...");
+                byte read = readByte(is);
                 System.out.println("read!");
-                System.out.println(readInt);
+                System.out.println(read);
+
                 System.out.print(">");
-                input = reader.nextLine();
-                if (input.startsWith("send ")) {
-                    // if "send ASDASFDs", send ASDASDs
-                    String toSend = input.substring(4);
-                    outputStream.writeChars(toSend.trim());
-                } else if (input.startsWith("draw ")) {
+                String input = reader.nextLine();
+                if (input.startsWith("draw ")) {
                     // exact syntax: "draw x,y", x,y ints
                     int x = Character.getNumericValue(input.charAt(5));
                     int y = Character.getNumericValue(input.charAt(7));
                     System.out.println("Sending a draw command: ");
                     System.out.println(x);
                     System.out.println(y);
-                    outputStream.writeChars("DX");
-                    outputStream.writeInt(x);
-                    outputStream.writeInt(y);
-                } else if (input.startsWith("pass")) {
-                    outputStream.writeChar('Q');
+                    os.write((byte) 0x12);
+                    os.write((byte) x);
+                    os.write((byte) y);
+                } else if (input.startsWith("quit")) {
+                    os.write((byte) 0x11);
+                    System.out.println(0x11);
                     break;
+                } else if (input.startsWith("ok")) {
+                    System.out.println(0x10);
+                    os.write((byte) 0x10);
                 }
             }
 

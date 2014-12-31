@@ -1,11 +1,15 @@
 package comms;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.OutputStream;
+import java.io.InputStream;
+
 import lejos.nxt.comm.*;
+import lejos.nxt.Button;
+import lejos.nxt.LCD;
 
 import penbot.Penbot;
+
 import comms.Message;
 
 /**
@@ -13,8 +17,8 @@ import comms.Message;
  */
 public class BTCommunicator {
     private NXTConnection connection;
-    private DataInputStream inputStream;
-    private DataOutputStream outputStream;
+    private InputStream inputStream;
+    private OutputStream outputStream;
     private Penbot bot;
 
     public BTCommunicator() {
@@ -30,8 +34,8 @@ public class BTCommunicator {
      */
     public void open() {
         System.out.println("Opening streams...");
-        this.inputStream = connection.openDataInputStream();
-        this.outputStream = connection.openDataOutputStream();
+        this.inputStream = connection.openInputStream();
+        this.outputStream = connection.openOutputStream();
         System.out.println("Streams opened!");
     }
 
@@ -56,62 +60,92 @@ public class BTCommunicator {
      *  Reads a new message from the input command stream and returns a corresponding
      *  Command.  */
     public Message readMessage() throws IOException {
-        char ch;
-
+        byte[] buffer = new byte[1];
         // the first char identifies the type of msg
-        ch = this.inputStream.readChar();
-        if (ch == 'D') {
-            System.out.println("read D!");
-            ch = this.inputStream.readChar();
-            System.out.println("read " + ch);
-            if (ch == 'X')
-                return Message.DRAW_X;
-            if (ch == 'O')
-                return Message.DRAW_O;
-        } else if (ch == 'Q') {
-            System.out.println("read Q!");
+        int numRead = 0;
+        LCD.clear();
+        LCD.drawChar('n', 1, 1);
+        try {
+            numRead = this.inputStream.read(buffer);
+        } catch (IOException ioe) {
+            LCD.refresh();
+            LCD.drawChar('e', 1,2);
+            LCD.refresh();
+            return Message.OK;
+        }
+
+        LCD.refresh();
+        LCD.drawInt(numRead, 1, 2);
+        LCD.drawChar('#', 2, 2);
+        LCD.drawInt((int)buffer[0], 3, 2);
+        LCD.drawChar('#', 4, 2);
+        LCD.refresh();
+        Button.waitForAnyPress();
+        LCD.refresh();
+        if (buffer[0] == 0x00) {
+            // 0 test, with OK
+            return Message.OK;
+        }
+        if (buffer[0] ==0x10) {
+            // 0x10 = OK
+            // empty, ok msg
+            System.out.println("Received OK");
+            return Message.OK;
+        }
+        if (buffer[0] == 0x11) {
+            // 0x11 = QUIT
+            System.out.println("Received QUIT");
             // a quitting command
             return Message.QUIT;
         }
-
+        if (buffer[0] == 0x12){
+            // 0x12 = DRAW_X
+            // next 2 bytes will specify x, y coordinates
+            // reading done by readCoord
+            System.out.println("Received DRAW_X!");
+            return Message.DRAW_X;
+        }
         // if we're here, received an unknown char in Stream; throw an Exception?
-        throw new IOException("Illegal char in inputStr.");
+        //throw new IOException("Illegal char in inputStr:\n " + buffer[0]);
+        System.out.println("ARGSASDAD");
+        LCD.refresh();
+        return Message.OK;
 
     }
 
     public int readCoord() throws IOException {
-        int c = this.inputStream.readInt();
-        System.out.println("read coord:");
-        System.out.println(c);
-        if (0 <= c && c <= 2) return c;
-        // else incorrect format
-        throw new IOException("Illegal int in intpuStr");
+        byte[] cBuffer = new byte[1];
+        int cNum = 0;
+        while (cNum < 1) {
+            cNum = inputStream.read(cBuffer);
+        }
+        return (int) cBuffer[0];
     }
 
     public void stateOk() {
         try {
-            this.outputStream.write(1);
+            this.outputStream.write(0x20);
             this.outputStream.flush();
         } catch (IOException e) {
-            System.out.println("Writing 'A' to ostr failed");
+            System.out.println("Writing OK 0x20 to ostr failed");
         }
     }
 
     public void stateBusy() {
         try {
-            this.outputStream.write('B');
+            this.outputStream.write(0x21);
             this.outputStream.flush();
         } catch (IOException e) {
-            System.out.println("Writin 'B' to ostr failed");
+            System.out.println("Writin BUSY 0x21 to ostr failed");
         }
     }
 
     public void stateError() {
         try {
-            this.outputStream.write('E');
+            this.outputStream.write(0xFF);
             this.outputStream.flush();
         } catch (IOException e) {
-            System.out.println("Writin 'E' to ostr failed");
+            System.out.println("Writin ERROR 0xFF to ostr failed");
         }
     }
 
