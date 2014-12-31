@@ -28,7 +28,7 @@ public class Main {
         return buffer[0];
     }
 
-    public static void main(String[] args) throws NXTCommException {
+    public static void main(String[] args) throws NXTCommException, InterruptedException {
 
         System.out.println("I AM BOTCMMDR!");
 
@@ -83,8 +83,11 @@ public class Main {
                     System.out.println(0x11);
                     break;
                 } else if (input.startsWith("ok")) {
-                    System.out.println(0x10);
-                    os.write((byte) 0x10);
+                    for (int i = 0; i<10; i++) {
+                        System.out.println(0x10);
+                        os.write((byte) 0x10);
+                        Thread.sleep(500);
+                    }
                 }
             }
 
