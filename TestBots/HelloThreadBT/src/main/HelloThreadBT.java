@@ -52,6 +52,15 @@ public class HelloThreadBT {
             (new MessageHandler(drop)).start();
             // TODO: do all ^this in e.g. BTCommunications constructor?
 
+
+            try {
+                istream.close();
+                ostream.close();
+            } catch (IOException ioe) {
+                System.out.print("Couldn't close streams!");
+            }
+            conn.close();
+
             System.out.println("Done");
             Button.waitForAnyPress();
         }
