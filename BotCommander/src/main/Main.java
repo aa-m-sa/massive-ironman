@@ -52,6 +52,15 @@ public class Main {
 
             System.out.println(is.markSupported());
 
+            byte sendByte = 0x33;
+            for (int i = 0; i < 10; i++) {
+                
+                System.out.print("Writing 0x33...");
+                os.write(sendByte);
+                os.flush();
+                System.out.println("...wrote " + 0x33);
+                Thread.sleep(1000);
+            }
             while (true) {
                 // user io
                 //System.out.print(">");
@@ -69,7 +78,7 @@ public class Main {
                     System.out.println(n + ", " + readByte);
 
                     // read successfully -> send
-                    byte sendByte = 0x33;
+                    sendByte = 0x33;
                     System.out.print("Writing 0x33...");
                     os.write(sendByte);
                     os.flush();
