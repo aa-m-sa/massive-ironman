@@ -30,13 +30,19 @@ public class BTReader extends Thread {
             System.out.println("reading...");
             byte[] buffer = new byte[1];
             try {
-                istream.read(buffer);
-                byte readByte = buffer[0];
-                System.out.println("read: " + readByte);
-                drop.put(readByte);
+                int n = istream.read(buffer);
+                if (n > 0) {
+                    byte readByte = buffer[0];
+                    System.out.println("read: " + readByte);
+                    drop.put(readByte);
+                } else {
+                    System.out.println("End of stream!");
+                    return;
+                }
             } catch (IOException ioe) {
                 System.out.println("IOException");
-                System.out.println(ioe);
+                //ioe.printStackTrace();
+                System.out.println(ioe.getMessage());
                 return;
             }
         }
