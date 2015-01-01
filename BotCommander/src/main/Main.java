@@ -53,8 +53,12 @@ public class Main {
             System.out.println(is.markSupported());
 
             while (true) {
+                // user io
+                //System.out.print(">");
+                //String user = reader.nextLine();
+
                 // Receive
-                byte readByte = 0x00;
+                byte readByte;
                 System.out.println("reading is...");
                 byte[] buffer = new byte[1];
                 int n = is.read(buffer);
@@ -71,18 +75,14 @@ public class Main {
                     os.flush();
                     System.out.println("...wrote " + 0x33);
                 } else {
-                    Thread.sleep(100);
+                    System.exit(1);
                 }
 
-                if (readByte == 0x21)
-                    break;
-
-
-
+                Thread.sleep(1000);
 
             }
 
-            System.out.println("Quitting cleanly...");
+            //System.out.println("Quitting cleanly...");
 
         } catch (NXTCommException e) {
             System.out.println("Connection failed");
