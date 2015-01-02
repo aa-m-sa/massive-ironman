@@ -53,16 +53,24 @@ public class Main {
             System.out.println(is.markSupported());
 
             while (true) {
+                System.out.print(">");
                 String command = reader.nextLine();
-                byte[] outBuffer = new byte[1];
+                byte[] outBuffer = new byte[3]; // initially 0
                 if (command.equals("quit")) {
+                    outBuffer[0] = 0x02;
+                    os.write(outBuffer);
+                    os.flush();
                     break;
                 } else if (command.equals("ok")) {
                     outBuffer[0] = 0x01;
                     os.write(outBuffer);
                     os.flush();
-                } else if (command.equals("draw 0,0")) {
+                } else if (command.equals("draw")) {
                     outBuffer[0] = 0x10;
+                    System.out.println("x:");
+                    outBuffer[1] = (byte)reader.nextInt();
+                    System.out.println("y:");
+                    outBuffer[2] = (byte)reader.nextInt();
                     os.write(outBuffer);
                     os.flush();
                 }
