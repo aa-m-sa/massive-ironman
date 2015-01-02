@@ -5,5 +5,6 @@
 	<classpathentry kind="var" path="NXJ_HOME/lib/pc/pccomm.jar"/>
 	<classpathentry kind="var" path="NXJ_HOME/lib/pc/3rdparty/bluecove.jar"/>
 	<classpathentry kind="var" path="NXJ_HOME/lib/pc/3rdparty/bluecove-gpl.jar"/>
+	<classpathentry kind="var" path="NXJ_HOME"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
