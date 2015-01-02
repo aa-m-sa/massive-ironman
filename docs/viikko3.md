@@ -1,1 +1,19 @@
- 
+# Viikko 3 raportti
+
+## Toteutunut
+
+1. Aikaa mennyt brick - läppäri -yhteyksien kanssa tuskailuun. Siirtyminen RojbOS:ista natiivisti läppärille ei sujunut aivan yhtä kivuttomasti kuin aluksi luulin:
+    - Bluetooth-tuskaa. Hämmästykseni oli suuri kun Data(Output|Input)Streamit bugittivat peräti omituisesti: onko tämä sitten charset / bittisyys / mikälie ongelma, mutta kun brickiltä lähetti `char`:ia 'A' (ASCII 41/ U+0041) pari kappaletta, läppäri vastaanotti vastaavasti unicode-characterin U+4141; lisäksi erilaiset yhteysviritelmät hajosivat helposti omituisiin IOExceptioniin. Erilaisia kirjastoja / Java-ympäristö -säätöjä kokeiltiin tuloksetta. Lisäksi meni aikaa sen toteamiseen, että bluetooth-yhteyksiä käyttävien koodien debuggaus `nxjconsole`:lla *ei* onnistunut.
+    - USB-tuskaa. Koska Bluetoothin kanssa oli kaikenlaisia omituisia ongelmia, päätin kokeilla josko USB:n kautta onnistuisi yhteydenpito `BotCommander`:n ja itse botin välillä helpommin. Vastaus: Ei. Useista yrityksistä huolimatta en saanut USB:tä pelittämään läppärillä  sitten mitenkään, ja ilmeisesti menin säätämään jotain vinksalleen niin että RojbOS-vboxin USB-yhteydet myös muuttuivat huomattavasti epäluotettavimmiksi.
+    - Vaikka VirtualBox+rojbOS -kombolla (huom. parin kokeilun perusteella ilmeisesti *ei* VBox+(jokin muu 'nix) -kombolla) muuten periaattessa saikin USB:n toimimaan (silloin kuin siis sattui toimimaan), VBox ei ollenkaan tykännyt USB-yhteyttä yrittävistä leJOS-ohjelmista vaan potki ne välittömästi pois. Kun aiemmin on todettu että rojbOSissa ei BT toimi, minkäänlaisen BotCommanderin tapaisen softan pyörittäminen virtuaalilootassa ei näytä olevan vaihtoehto.
+2. **Mutta!** Bytejen puskeminen puhtaiden Input/OutputStreamien kautta läppäriltä brickille kuitenkin **onnistui**: repon master-branchissa on `PenBot`:sta versio, joka varsin luotettavasti vastaanottaa Bluetoothin yli `BotCommander`:in käskyjä piirtää rukseja haluttuihin peliruudukon koordinatteihin. Samoin softaa voi siirtää läppäriltä brickille bluetoothin avulla.
+    - Hienostuneempaa viestintää (käskyjen vastaanottamisen lisäksi myös esim. kuittauksia botilta `BotCommander`:lle kun ruksi piirretty ja valmis ottamaan seuraavan komennon) en saanut toimimaan täysin luotettavasti: ainakin yhdessä kokeilussa botilta Streamiin lähtenyt byte `255` oli Commanderin vastaavasta Streamista `System.out`:iin saavuttaessa `-1`. (Kaksisuuntaiseen viestintään liittyen, tein myös aikaavievän harharetken yritykseen 'ratkaista' blokkaavan `InputStream.read()`:n aiheuttamat ongelmat eri säikeillä / Threadeilla; ei mennyt sekään ihan putkeen mutta yksi ilta kuitenkin.)
+3. Toisin sanoen, `Penbot` on nyt kuitenkin etäohjattava ruksinpiirtäjä. Menikö tähän todellakin näin monta päivää?
+
+## Seuraavaksi
+
+1. Ristinolla-pelin mallinnus `BotCommander`:in ympärille.
+2. Edelleen: Open/JavaCV-kuvantunnistus pelitilanteesta.
+    - Alustavien kokeilujen perusteella webkameran kuvasta saa melko helposti suodatettua kuvan (oletuksen kohtalaisen hyvin valaistu paperi, johon ruudukko piirretty esim. tussilla), josta ristinollaruudukon viivat on (toivottavasti) helppo tunnistaa esim. Hough-muunnoksella, ja täten (toivottavasti) hahmottaa ruudukko ja erityisesti ruudut.
+    - Koska peli tietää aina minne robotin vuorolla on piirretty ruksi, (toivottavasti) riittää vain havannoida onko (ihmis-)vastustajan vuorolla jonkin ruudun sisällä tapahtunut muutosta verrattuna muihin -> peli voi päätellä että vastustaja piirtänyt jonkin merkin (ristinollassa siis nollan) ko. ruutuun.
+    - Haaste: jos robotilta ei saa lähetettyä viestejä "aloitin piirtämisen" ja "ruksi piirretty, palattu perustilaan", kuvantunnistaja saattaa joutua vaikeuksiin kun robotti ajaa pelipaperin päälle piirtämään omaa ruksi-merkkiään. Tämä on toivottavasti vältettävissä esim. jonkinlaisella ajastinratkaisulla (lasketaan etukäteen kuinka kauan robotilta kestää piirtää merkkinsä kun piirtokäsky lähtenyt läppäriltä -> kameran feed ignoreen siksi aikaa)
