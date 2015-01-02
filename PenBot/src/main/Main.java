@@ -6,11 +6,9 @@ import comms.Command;
 
 import lejos.nxt.Button;
 import lejos.nxt.ButtonListener;
-import lejos.nxt.Motor;
 import lejos.nxt.comm.*;
 
 import penbot.Penbot;
-import penbot.Board;
 
 /**
  * Main function
@@ -20,9 +18,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Board ticpaper = new Board(outerCellSize, penDist);
-        Penbot ironman = new Penbot(ticpaper, axis, wheelSize, penDist,
-                outerCellSize, markSize, botDistToBoard);
+        Penbot ironman = new Penbot();
 
         System.out.println("I AM IRON MAN.");
         // emergency exit
