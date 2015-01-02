@@ -4,31 +4,31 @@ import java.lang.Math;
 
 /**
  * Board
- * 
+ *
  * Board and board cell representation. Mainly angle + distance information the
  * PenBot needs to move the pen tip above the center of each cell
- * 
+ *
  * Board x,y coordinate legend:
  * 2,2|1,2|0,2
  * -----------
  * 1,2|1,1|0,1
  * -----------
- * 0,2|0,1|0,0 
+ * 0,2|0,1|0,0
  *            (bot)
- * 
+ *
  * 0 degree angle is the x == y diagonal
- * 
+ *
  */
 public class Board {
     private double outerCellSize;
     private double penDist;
     private double[][] cellAngles = new double[3][3];
     private double[][] cellDists = new double[3][3];
-    
+
     public Board(double outerCellSize, double penDist) {
         this.outerCellSize = outerCellSize;
         this.penDist = penDist;
-        
+
         initAngles();
         initDists();
     }
@@ -46,7 +46,7 @@ public class Board {
         }
         return cellDists[x][y];
     }
-    
+
     private void initAngles() {
         // shorthand for readable math formulas
         double s = outerCellSize;
@@ -71,7 +71,7 @@ public class Board {
         cellAngles[1][1] = 0;
         cellAngles[2][2] = 0;
     }
-    
+
     private void initDists() {
         // shorthand for readable math formulas
         double s = outerCellSize;
@@ -94,7 +94,7 @@ public class Board {
         cellDists[2][1] = h;
         cellDists[1][2] = h;
     }
-    
+
     private double calcDist(double a, double b) {
         return Math.sqrt(a*a + b*b) - penDist;
     }

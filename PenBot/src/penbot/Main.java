@@ -1,14 +1,14 @@
 package penbot;
 
-import java.io.IOException;
+import java.io.*;
 
 import lejos.nxt.Button;
+import lejos.nxt.ButtonListener;
 import lejos.nxt.Motor;
+import lejos.nxt.comm.*;
 
 import penbot.Board;
 
-import comms.BTCommunicator;
-import comms.Message;
 /**
  * Main function
  *
@@ -34,55 +34,66 @@ public class Main {
                 outerCellSize, markSize, botDistToBoard);
 
         System.out.println("I AM IRON MAN.");
+        // emergency exit
+        Button.ESCAPE.addButtonListener(new ButtonListener() {
+            public void buttonPressed(Button b) {
+                System.out.println("EMERGENCY HALT");
+                System.exit(1);
+            }
+            public void buttonReleased(Button b) {
+                // nothing;
+            }
+        });
+
+
         Button.waitForAnyPress();
 
-        BTCommunicator com = new BTCommunicator();
-        com.open();
-        System.out.println("Communicator ready!");
+        System.out.println("Waiting for connection...");
+        NXTConnection conn = Bluetooth.waitForConnection();
+        InputStream istream = conn.openInputStream();
+
+        System.out.println("Bluetooth comms ok!");
         boolean quit = false;
         while (!quit) {
+            byte[] buffer = new byte[1];
+            byte commandByte = 0x00;
+            int bytesRead = 0;
             if (Button.ENTER.isDown()) {
-                System.out.println("HALT");
+                System.out.println("ENTER PRESSED, HALT");
                 break;
             }
-            System.out.println("Stating OK...");
-            com.stateOk();
-            System.out.println("Sent!");
-            Message msg;
             try {
                 System.out.println("Starting reading!");
-                msg = com.readMessage();
-                System.out.println("Message read!");
+                bytesRead = istream.read(buffer);
+                commandByte = buffer[0];
+                System.out.println("Byte " + commandByte +" read!");
             } catch (IOException e) {
-                com.stateError();
                 System.out.println("IO error reading msg.");
                 System.out.println(e);
                 Button.waitForAnyPress();
-                continue;
+                System.exit(1);
             }
-            System.out.println("Stating busy...");
-            com.stateBusy();
-            System.out.println("Sent!");
-            // is there a more sane way that isn't overtly complicated?
-            if (msg == Message.DRAW_X) {
-                try {
-                    int x = com.readCoord();
-                    int y = com.readCoord();
-                    ironman.drawCross(x, y);
-                } catch (IOException e) {
-                    com.stateError();
-                    System.out.println("Drawing X failed:\n error reading coordinates.");
-                    System.out.println(e);
+
+            if (bytesRead > 0) {
+                if (commandByte == 0x01) {
+                    System.out.println("OK byte read!");
+                } else if (commandByte == 0x10) {
+                    System.out.println("Draw X at 0,0 byte read!");
+                    ironman.drawCross(0,0);
+                } else {
+                    System.out.println("Unknown byte " + commandByte);
                 }
-            } else if (msg == Message.QUIT) {
-                System.out.println("Quitting.");
-                quit = true;
             } else {
-                System.out.println("Error: Unknown command");
+                System.out.println("Stream closed!");
+                break;
             }
         }
 
-        com.close();
+        try {
+            istream.close();
+        } catch (IOException ioe) {
+            System.out.println("Close failed");
+        }
         System.out.println("FIN.");
         Button.waitForAnyPress();
     }
