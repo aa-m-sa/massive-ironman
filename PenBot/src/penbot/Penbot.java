@@ -50,9 +50,11 @@ public class Penbot {
     // TODO calculate from crossLine + penDist
     private double crossRot = 10.0;
 
-    /* penMotor*/
+    /* motors*/
+    private NXTRegulatedMotor leftMotor = Motor.A;
+    private NXTRegulatedMotor rightMotor = Motor.B;
     // TODO: Separate abstraction for penMotor?
-    private NXTRegulatedMotor penMotor;
+    private NXTRegulatedMotor penMotor = Motor.C;
     // angle to rotate the pen motor
     // (to lower the pen from the upmost position to touch the paper)
     private int penAngle = 15;      // original guesstimate
@@ -63,12 +65,10 @@ public class Penbot {
     private boolean testmarkings = true;
 
     public Penbot() {
-        // motor ports hardcoded
-        pilot = new DifferentialPilot(wheelSize, wheelSize, axis, Motor.A,
-                Motor.B, false);
-        penMotor = Motor.C;
+        pilot = new DifferentialPilot(wheelSize, wheelSize, axis, leftMotor,
+                rightMotor, false);
 
-        this.board = new Board(Penbot.outerCellSize, Penbot.penDist);
+        this.board = new Board(outerCellSize, penDist);
     }
 
     /**
