@@ -23,7 +23,7 @@ public class Penbot {
     private static double penDist = 70.0;	// dist of pen tip to axis
 
     /* static physical game board dimensions, also mm */
-    private static double outerCellSize = 14.0;
+    private static double outerCellSize = 20.0;
 
     // distance from pen tip point to the nearest board corner in mm
     private double botDistToBoard = 50;
