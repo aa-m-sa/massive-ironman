@@ -45,7 +45,7 @@ public class Main {
 
         BotControl control = new BotControl(ironman, conn.openInputStream());
         // we're ready to begin!
-        System.out.println("READY! Press Enter");
+        System.out.println("READY TO READ!\n press any key");
         Button.waitForAnyPress();
 
         int exitStat = control.start();
