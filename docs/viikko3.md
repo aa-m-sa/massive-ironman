@@ -9,6 +9,7 @@
 2. **Mutta!** Bytejen puskeminen puhtaiden Input/OutputStreamien kautta läppäriltä brickille kuitenkin **onnistui**: repon master-branchissa on `PenBot`:sta versio, joka varsin luotettavasti vastaanottaa Bluetoothin yli `BotCommander`:in käskyjä piirtää rukseja haluttuihin peliruudukon koordinatteihin. Samoin softaa voi siirtää läppäriltä brickille bluetoothin avulla.
     - Hienostuneempaa viestintää (käskyjen vastaanottamisen lisäksi myös esim. kuittauksia botilta `BotCommander`:lle kun ruksi piirretty ja valmis ottamaan seuraavan komennon) en saanut toimimaan täysin luotettavasti: ainakin yhdessä kokeilussa botilta Streamiin lähtenyt byte `255` oli Commanderin vastaavasta Streamista `System.out`:iin saavuttaessa `-1`. (Kaksisuuntaiseen viestintään liittyen, tein myös aikaavievän harharetken yritykseen 'ratkaista' blokkaavan `InputStream.read()`:n aiheuttamat ongelmat eri säikeillä / Threadeilla; ei mennyt sekään ihan putkeen mutta yksi ilta kuitenkin.)
 3. Toisin sanoen, `Penbot` on nyt kuitenkin etäohjattava ruksinpiirtäjä. Menikö tähän todellakin näin monta päivää?
+4. Ai juu, `Penbot`:lla on nyt myös kynän kalibrointityökalu. (Koska kynä kiinnitetään moottorin liikuttamaan telineeseen kumilenksulla, sitä ei aina saa kiinni juuri samalle korkeudelle kuin viimeksi. Tämän vuoksi kynämoottorin kiertokulma on hyvä säätää joka kerta erikseen, jotta tussin kärki tulee laskettua paperille juuri sopivasti.)
 
 ## Seuraavaksi
 
