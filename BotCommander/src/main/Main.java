@@ -53,35 +53,21 @@ public class Main {
             System.out.println(is.markSupported());
 
             while (true) {
-                // Receive
-                byte readByte = 0x00;
-                System.out.println("reading is...");
-                byte[] buffer = new byte[1];
-                int n = is.read(buffer);
-                readByte = buffer[0];
-                System.out.println(n);
-                if (n > 0) {
-                    System.out.print("read! : ");
-                    System.out.println(n + ", " + readByte);
-
-                    // read successfully -> send
-                    byte sendByte = 0x33;
-                    System.out.print("Writing 0x33...");
-                    os.write(sendByte);
+                String command = reader.nextLine();
+                byte[] outBuffer = new byte[1];
+                if (command.equals("quit")) {
+                    break;
+                } else if (command.equals("ok")) {
+                    outBuffer[0] = 0x01;
+                    os.write(outBuffer);
                     os.flush();
-                    System.out.println("...wrote " + 0x33);
-                } else {
-                    Thread.sleep(100);
+                } else if (command.equals("draw 0,0")) {
+                    outBuffer[0] = 0x10;
+                    os.write(outBuffer);
+                    os.flush();
                 }
 
-                if (readByte == 0x21)
-                    break;
-
-
-
-
             }
-
             System.out.println("Quitting cleanly...");
 
         } catch (NXTCommException e) {
