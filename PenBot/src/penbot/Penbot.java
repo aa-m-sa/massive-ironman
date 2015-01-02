@@ -11,65 +11,69 @@ import lejos.robotics.navigation.DifferentialPilot;
 /**
  * Simple PenBot.
  *
- * Quite quick hack; testing if the physical lego structure is feasible.
- *
- * New idea: the PenBot is positioned on the main diagonal of tictactoe board:
+ * PenBot is positioned on the main diagonal of tictactoe board:
  * Drawing an X in a cell can be done just with back-forth movement + rotation.
  * (So PenBot can only play as X.)
  */
 
 public class Penbot {
-    private DifferentialPilot pilot; // leJOS class to control bot mvmt
-    private Board board; // board cell representation
+    /* static physical bot dimensions, in mm */
+    private static double axis = 120.0;		// wheel dist for DifferentialPilot
+    private static double wheelSize = 56.0;	// wheel size for DifferentialPilot
+    private static double penDist = 70.0;	// dist of pen tip to axis
 
+    /* static physical game board dimensions, also mm */
+    private static double outerCellSize = 14.0;
+
+    // distance from pen tip point to the nearest board corner in mm
+    private double botDistToBoard = 50;
+    // base coordinates:
+    //  the coords of the board corner nearest to the bot
+    private double boardBaseY = botDistToBoard;
+
+    /* leJOS DifferentialPilot for bot movement */
+    private DifferentialPilot pilot;
+
+    /* Board  abstraction*/
+    private Board board;
+
+    /* speeds; self explanatory */
     private double speed = 40;
     private double turnSpeed = 40.0;
 
-    // base coordinates:
-    //  the coords of the board corner nearest to the bot
-    private double boardBaseY, boardBaseX;
 
-    // size of drawn cells on the paper, mm
-    private double outerCellSize;
-    // length of the y line of X mark (= vertical line), mm
-    private double crossLine;
-    // angle of the x arc line of X (= horizontal line), degrees
+    /* define size of marks PenBot draws*/
+    private double markSize = 10.0;
+    // distance to move backwards - forwards
+    private double crossLine = this.markSize;
+    // angle to to rotate
     // TODO calculate from crossLine + penDist
     private double crossRot = 10.0;
 
-    // distance of the pen tip to the main motor axis
-    private double penDist;
-
+    /* penMotor*/
+    // TODO: Separate abstraction for penMotor?
     private NXTRegulatedMotor penMotor;
     // angle to rotate the pen motor
     // (to lower the pen from the upmost position to touch the paper)
-    private int penAngle = 15;  // original guesstimate
-    private int penDown = 1; // positive if positive angle lowers the pen
-    private int penMaxAngle = 20; // safety; max turn allowed for penMotor
+    private int penAngle = 15;      // original guesstimate
+    private int penDown = 1;        // > 0 if positive angle lowers the pen
+    private int penMaxAngle = 20;   // safety; max turn allowed for penMotor
 
     // print some additional dots on paper for technical debugging
     private boolean testmarkings = true;
 
-    public Penbot(Board board) {
-        // use old defaults
-        this(board, 120.0, 56.0, 70.0, 14.0, 10.0, 50.0);
-    }
-
-    public Penbot(Board board, double axis, double wheelSize, double penDist,
-            double outerCellSize, double markSize, double distToBoard) {
+    public Penbot() {
         // motor ports hardcoded
         pilot = new DifferentialPilot(wheelSize, wheelSize, axis, Motor.A,
                 Motor.B, false);
         penMotor = Motor.C;
 
-        this.board = board;
-        this.penDist = penDist;
-        this.outerCellSize = outerCellSize;
-        this.crossLine = markSize;
-        this.boardBaseY = distToBoard;
-
+        this.board = new Board(Penbot.outerCellSize, Penbot.penDist);
     }
 
+    /**
+     * Draws an X (a cross) in the specified board cell.
+     */
     public void drawCross(int x, int y) {
         pilot.setRotateSpeed(turnSpeed);
         pilot.setTravelSpeed(speed);
@@ -138,12 +142,14 @@ public class Penbot {
     }
 
     private void drawVertical() {
+        // vertical bar of the X mark
         pilot.travel(0.5*crossLine);
         pilot.travel(-1*crossLine);
         pilot.travel(0.5*crossLine);
     }
 
     private void drawHorizontal() {
+        // horizontal bar of the X mark
         pilot.rotate(0.5 * crossRot);
         pilot.rotate(-crossRot);
         pilot.rotate(0.5 * crossRot);
