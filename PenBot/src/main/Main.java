@@ -16,11 +16,7 @@ import penbot.Penbot;
  */
 public class Main {
 
-    public static void main(String[] args) {
-
-        Penbot ironman = new Penbot();
-
-        System.out.println("I AM IRON MAN.");
+    private static void setUpButtonListeners() {
         // emergency exit
         Button.ESCAPE.addButtonListener(new ButtonListener() {
             public void buttonPressed(Button b) {
@@ -31,8 +27,16 @@ public class Main {
                 // nothing;
             }
         });
+    }
 
+    public static void main(String[] args) {
 
+        Penbot ironman = new Penbot();
+
+        setUpButtonListeners();
+
+        // we're ready!
+        System.out.println("I AM IRON MAN.");
         Button.waitForAnyPress();
 
         System.out.println("Waiting for connection...");
