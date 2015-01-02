@@ -43,15 +43,15 @@ public class Main {
         NXTConnection conn = Bluetooth.waitForConnection();
         System.out.println("Bluetooth comms ok!");
 
-        BotControl control = new BotControl(ironman, conn);
+        BotControl control = new BotControl(ironman, conn.openInputStream());
         // we're ready to begin!
         System.out.println("READY! Press Enter");
         Button.waitForAnyPress();
 
         int exitStat = control.start();
 
-
-        System.out.println("FIN.");
+        conn.close();
+        System.out.println("FIN: " + exitStat);
         Button.waitForAnyPress();
     }
 }
