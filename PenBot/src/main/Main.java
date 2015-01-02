@@ -38,6 +38,14 @@ public class Main {
 
         System.out.println("I AM IRON MAN.");
         Button.waitForAnyPress();
+        boolean penCalibrate = true;
+        if (penCalibrate) {
+            System.out.println("Calibrate pen:");
+            ironman.calibratePenAngle();
+        } else {
+            System.out.println("Using pre-def pen calibration...");
+        }
+
 
         System.out.println("Waiting for connection...");
         NXTConnection conn = Bluetooth.waitForConnection();
