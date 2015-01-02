@@ -1,4 +1,4 @@
-<project name="org.lejos.example" default="uploadandrun">
+<project name="Penbot" default="uploadandrun">
 	<description>
     	org.lejos.example.HelloWorld build file
     </description>
