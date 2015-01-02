@@ -1,12 +1,15 @@
-package penbot;
+package main;
 
 import java.io.*;
+
+import comms.Command;
 
 import lejos.nxt.Button;
 import lejos.nxt.ButtonListener;
 import lejos.nxt.Motor;
 import lejos.nxt.comm.*;
 
+import penbot.Penbot;
 import penbot.Board;
 
 /**
@@ -55,12 +58,12 @@ public class Main {
         System.out.println("Bluetooth comms ok!");
         boolean quit = false;
         while (!quit) {
-            byte[] buffer = new byte[1];
+            byte[] buffer = new byte[3];
             byte commandByte = 0x00;
             int bytesRead = 0;
             if (Button.ENTER.isDown()) {
                 System.out.println("ENTER PRESSED, HALT");
-                break;
+                quit = true;
             }
             try {
                 System.out.println("Starting reading!");
@@ -74,18 +77,26 @@ public class Main {
                 System.exit(1);
             }
 
-            if (bytesRead > 0) {
-                if (commandByte == 0x01) {
+            if (bytesRead == 3) {
+                if (commandByte == Command.OK) {
                     System.out.println("OK byte read!");
-                } else if (commandByte == 0x10) {
-                    System.out.println("Draw X at 0,0 byte read!");
-                    ironman.drawCross(0,0);
+                } else if (commandByte == Command.DRAW) {
+                    System.out.println("DRAW byte read!");
+                    int x = buffer[1];
+                    int y = buffer[2];
+                    System.out.println("Drawing at " + x + "," + y );
+                    ironman.drawCross(x,y);
+                } else if (commandByte == Command.QUIT) {
+                    System.out.println("QUIT byte read!");
+                    quit = true;
                 } else {
                     System.out.println("Unknown byte " + commandByte);
                 }
+            } else if (bytesRead > 0) {
+                System.out.println("ARGH fail reading");
             } else {
                 System.out.println("Stream closed!");
-                break;
+                quit = true;
             }
         }
 
