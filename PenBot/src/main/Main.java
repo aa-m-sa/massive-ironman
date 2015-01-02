@@ -82,8 +82,8 @@ public class Main {
                     System.out.println("OK byte read!");
                 } else if (commandByte == Command.DRAW) {
                     System.out.println("DRAW byte read!");
-                    int x = buffer[1];
-                    int y = buffer[2];
+                    int x = (int)buffer[1];
+                    int y = (int)buffer[2];
                     System.out.println("Drawing at " + x + "," + y );
                     ironman.drawCross(x,y);
                 } else if (commandByte == Command.QUIT) {
