@@ -1,9 +1,10 @@
 package game;
 
 import comms.BTComms;
-import comms.Command;
 import game.Player;
 import game.GameMove;
+import game.BotControl;
+import game.ai.SimpleBotAI;
 
 /**
  * The main Tic Tac Toe Game class
@@ -17,11 +18,11 @@ public class Game {
     private Player botAi;
     private BotControl botControl;
 
-    /* create a game with a Player pl*/
+    /* create a game with a human Player pl*/
     public Game(Player pl, BTComms botConn) {
         this.player = pl;
         this.board = new Board();
-        this.botAi = new BotAI(board);
+        this.botAi = new SimpleBotAI(board, Mark.X_MARK);
         this.botControl = new BotControl(botConn);
     }
 
@@ -35,7 +36,7 @@ public class Game {
             // determine bot move
             // command penbot to move
             GameMove botMove = botAi.getMove();
-            botControl.move(botMove);
+            botControl.executeMove(botMove);
             board.update(botMove);
             // check for end condition (did the bot win?)
             if (board.hasGameEnded()) {

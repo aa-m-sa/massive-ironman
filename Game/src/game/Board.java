@@ -14,13 +14,53 @@ import game.Mark;
  */
 public class Board {
     private Mark[][] board = new Mark[3][3];
+    private boolean win = false;
+    private int emptyCells = 9;     // initially 3x3
 
     public Board() {
         initBoard();
 
     }
 
+    /**
+     * Tells if the game has ended.
+     *
+     * Fairly stupid: can only determine if either player has managed to win or if board is full.
+     */
     public boolean hasGameEnded() {
+        if (checkForVictory()) {
+            this.win = true;
+            return true;
+        }
+        if (checkForDraw())
+            return true;
+        return false;
+    }
+
+    /**
+     * @return Has the board been won by either player?
+     */
+    public boolean gameWin() {
+        return this.win;
+    }
+
+    public void update(GameMove move) {
+        int x = move.getX();
+        int y = move.getY();
+        board[x][y] = move.getMark();
+        if (!move.getMark().equals(Mark.EMPTY))
+            emptyCells--;
+    }
+
+    public boolean isCellEmpty(int x, int y) {
+        return board[x][y] == Mark.EMPTY;
+    }
+
+    private boolean checkForDraw() {
+        return emptyCells == 0;
+    }
+
+    private boolean checkForVictory() {
         if (checkRows())
             return true;
         if (checkColumns())
@@ -30,13 +70,6 @@ public class Board {
         if (checkDownDiag())
             return true;
         return false;
-    }
-
-    public void update(GameMove move) {
-        int x = move.getX();
-        int y = move.getY();
-        board[x][y] = move.getMark();
-
     }
 
     private void initBoard() {
