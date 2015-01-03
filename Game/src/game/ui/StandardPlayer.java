@@ -26,8 +26,8 @@ public class StandardPlayer implements Player {
         String input = reader.nextLine();
         String[] subs = input.split(",");
 
-        int x = Integer.parseInt(subs[1]);
-        int y = Integer.parseInt(subs[2]);
+        int x = Integer.parseInt(subs[0]);
+        int y = Integer.parseInt(subs[1]);
 
         // assume input is valid
         return new GameMove(this.mark, x, y);
