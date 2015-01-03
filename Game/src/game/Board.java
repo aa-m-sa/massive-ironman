@@ -57,16 +57,17 @@ public class Board {
     }
 
     public String toString() {
-        String out = "---\n";
+        String out = "b\n";
+        out += " ---\n";
         for (int i = 0; i < 3; i++) {
-            out += "|";
+            out += " |";
             for (int j = 0; j < 3; j++) {
                 out += board[i][j].toString();
                 out += "|";
             }
             out += "\n";
         }
-        out += "---";
+        out += " ---";
         return out;
     }
 
