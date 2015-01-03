@@ -16,6 +16,6 @@ Tic-Tac-Toe bot using Lego Mindstorms, Java, OpenCV and webcam.
 * `TestBots`: different 'testbot' programs for testing that motors, pilots, sensors etc function as intended
 * `PenBot`: the robot client that draws Tic-Tac-Toe characters
 * `BotCommander`: a utility test program for sending commands to PenBot over Bluetooth
-* `Game`: the actual game program, run on PC (currently: can read human game moves from stdin, and commands the Penbot to the draw AI moves on a paper)
+* `Game`: the actual game program, runs on PC and controls the PenBot over BT (currently can read human game moves from stdin, and command the Penbot to draw AI moves on a paper)
 * todo: the game AI, webcam image processing, etc
 
