@@ -56,6 +56,17 @@ public class Board {
         return board[x][y] == Mark.EMPTY;
     }
 
+    public String toString() {
+        String out = "";
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                out += board[i][j].toString();
+            }
+            out += "\n";
+        }
+        return out;
+    }
+
     private boolean checkForDraw() {
         return emptyCells == 0;
     }
