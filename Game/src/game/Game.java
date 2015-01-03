@@ -43,6 +43,9 @@ public class Game {
             board.update(botMove);
             // check for end condition (did the bot win?)
             if (board.hasGameEnded()) {
+                if (board.gameWin()) {
+                    System.out.println("Bot wins!");
+                }
                 break;
             }
 
@@ -57,6 +60,9 @@ public class Game {
             board.update(playerMove);
             // check again (did player win?)
             if (board.hasGameEnded()) {
+                if (board.gameWin()) {
+                    System.out.println("Human wins!");
+                }
                 break;
             }
 
