@@ -9,9 +9,9 @@ import java.lang.Math;
  * PenBot needs to move the pen tip above the center of each cell
  *
  * Board x,y coordinate legend:
- * 2,2|1,2|0,2
+ * 2,2|2,1|2,0
  * -----------
- * 1,2|1,1|0,1
+ * 1,2|1,1|1,0
  * -----------
  * 0,2|0,1|0,0
  *            (bot)
