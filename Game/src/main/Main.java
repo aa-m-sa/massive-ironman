@@ -37,7 +37,9 @@ public class Main {
         game.start();
 
         // quit cleanly
+        System.out.print("Closing connections...");
         botConn.closeConnections();
         reader.close();
+        System.out.println("OK!");
     }
 }
