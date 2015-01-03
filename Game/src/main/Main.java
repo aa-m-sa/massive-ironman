@@ -21,6 +21,7 @@ public class Main {
             System.exit(1);
         }
 
+        System.out.println("Connected!");
         // player representation: for now, get player movements form stdin
         // set up stdin input
         Scanner reader = new Scanner(System.in);
@@ -31,6 +32,8 @@ public class Main {
         // create a Game and provide it a player
         Game game = new Game(player, botConn);
         // start the game
+        System.out.println("Ready! Press enter to begin...");
+        reader.nextLine();
         game.start();
 
         // quit cleanly
