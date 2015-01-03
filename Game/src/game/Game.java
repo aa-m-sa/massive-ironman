@@ -32,9 +32,12 @@ public class Game {
     public void start() {
         // game loop
         while (true) {
+            // print board situation to stdout
+            System.out.println(board);
+
             // (bot makes the first move)
             // determine bot move
-            // command penbot to move
+            // and command penbot to move
             GameMove botMove = botAi.getMove();
             botControl.executeMove(botMove);
             board.update(botMove);
@@ -42,6 +45,10 @@ public class Game {
             if (board.hasGameEnded()) {
                 break;
             }
+
+            // print board situation to stdout after bot move
+            // (compare to actual bot movements)
+            System.out.println(board);
             // wait for player move
             // (a stdin player just gives a move by writing a cmd to stdin)
             // (a WebcamPlayer will use OpenCV to determine the player move
