@@ -35,7 +35,7 @@ public class Demo {
         // The available FrameGrabber classes include OpenCVFrameGrabber (opencv_highgui),
         // DC1394FrameGrabber, FlyCaptureFrameGrabber, OpenKinectFrameGrabber,
         // PS3EyeFrameGrabber, VideoInputFrameGrabber, and FFmpegFrameGrabber.
-        FrameGrabber grabber = FrameGrabber.createDefault(0);
+        FrameGrabber grabber = FrameGrabber.createDefault(1);
         grabber.start();
 
         // FAQ about IplImage:
