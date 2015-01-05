@@ -57,14 +57,35 @@ public class BoardReader {
         storage = CvMemStorage.create();
 
         // get width and height of the image produced with grabber
-        IplImage grabbedImage = grabber.grab();
-        width  = grabbedImage.width();
-        height = grabbedImage.height();
+        // (from Demo)
+        IplImage im = grabber.grab();
+        width  = im.width();
+        height = im.height();
+        // ??? try these:
+        //grabber.getImageWidth();
+        //grabber.getImageHeight();
 
         frame = new CanvasFrame("Tic Tac Toe Board Reader test",
                 CanvasFrame.getDefaultGamma()/grabber.getGamma());
 
 
+    }
+
+    /**
+     * Find the board.
+     *
+     * @return if a board was successfully recognized from a frame given by Grabber.
+     */
+    public boolean findBoard() {
+        // first try finding the bounding box
+        try {
+            IplImage image = grabber.grab();
+        } catch(FrameGrabber.Exception e){
+            System.out.println("FrameGrabber exception; couldn't find a board");
+            e.printStackTrace();
+            return false;
+        }
+        return false;
     }
 
     // ??
@@ -99,7 +120,14 @@ public class BoardReader {
 
     public static void main(String[] args) throws Exception {
 
+        System.out.print("trying to construct reader...");
         BoardReader reader = new BoardReader();
-        reader.run();
+        System.out.println("ok!");
+        System.out.print("trying to find a board...");
+        boolean boardFound = reader.findBoard();
+        System.out.println("finished, found:" + boardFound);
+        //reader.run();
+        System.out.println("closing...");
+        reader.closeReader();
     }
 }
