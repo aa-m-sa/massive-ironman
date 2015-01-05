@@ -33,28 +33,46 @@ import static org.bytedeco.javacpp.opencv_objdetect.*;
  * TODO: when able to read the board, combine this project with the Game
  */
 public class BoardReader {
-    public static void main(String[] args) throws Exception {
+    private FrameGrabber grabber;
+    private CvMemStorage storage;
+    private int width, height;
+
+    private CanvasFrame frame;
+
+    /**
+     * Initialize BoardReader.
+     *
+     * Creates a FrameGrabber and ...?
+     * */
+    public BoardReader() throws Exception {
+        // from Demo.java:
         // Preload the opencv_objdetect module to work around a known bug.
         Loader.load(opencv_objdetect.class);
 
         // create a default grabber for the webcam device no. 1
-        FrameGrabber grabber = FrameGrabber.createDefault(1);
+        grabber = FrameGrabber.createDefault(1);
         grabber.start();
 
         // storage, if needed (?)
-        CvMemStorage storage = CvMemStorage.create();
+        storage = CvMemStorage.create();
 
+        // get width and height of the image produced with grabber
         IplImage grabbedImage = grabber.grab();
-        int width  = grabbedImage.width();
-        int height = grabbedImage.height();
-        IplImage grayImage    = IplImage.create(width, height, IPL_DEPTH_8U, 1);
+        width  = grabbedImage.width();
+        height = grabbedImage.height();
 
-        // CanvasFrame webcam output; gamma correction as in Demo.java
-        CanvasFrame frame = new CanvasFrame("Tic Tac Toe Board Reader test",
+        frame = new CanvasFrame("Tic Tac Toe Board Reader test",
                 CanvasFrame.getDefaultGamma()/grabber.getGamma());
 
-        // loop
-        // let's first test canvas, webcam grabbing 'n stuff
+
+    }
+
+    // ??
+    public void run() throws FrameGrabber.Exception {
+        // loop: show grayed image on the canvas
+        IplImage grayImage  = IplImage.create(width, height, IPL_DEPTH_8U, 1);
+        IplImage grabbedImage;
+
         while (frame.isVisible() && (grabbedImage = grabber.grab()) != null) {
             cvClearMemStorage(storage);
 
@@ -63,9 +81,25 @@ public class BoardReader {
 
             frame.showImage(grayImage);
         }
+    }
 
+    /**
+     * Dispose frame, stop grabber etc.
+     */
+    public void closeReader() {
         // quit
         frame.dispose();
-        grabber.stop();
+        try {
+            grabber.stop();
+        } catch (FrameGrabber.Exception e) {
+            System.out.println("Couldn't stop FrameGrabber!");
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        BoardReader reader = new BoardReader();
+        reader.run();
     }
 }
