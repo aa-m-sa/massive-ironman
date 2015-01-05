@@ -46,14 +46,9 @@ public class BoardReader {
      */
     public boolean findBoard() {
         // test using the a still image
-        // ???
-        //System.out.println(getClass().getResource("/resources/test1.jpg"));
-        // ^ oikea polku tiedostoon, printtaus onnistuu
-        // mutta
-        //Mat image = Highgui.imread(getClass().getResource("/resources/test1.jpg").getPath());
-        // luo tyhjän imagen
-        // sen sijaan
-        Mat image = Highgui.imread("bin/resources/test1.jpg");  // toimii
+        // Mat image = Highgui.imread(getClass().getResource("/resources/test1.jpg").getPath());
+        // ^ weird problem
+        Mat image = Highgui.imread("bin/resources/test1.jpg");  // OK
         System.out.println(image.channels());
 
         // grayscale image will have just one channel
