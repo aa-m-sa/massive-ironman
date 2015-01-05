@@ -5,7 +5,7 @@ Joulun robokurssi 2014 @ TKTL / HY
 
 Lego Mindstroms robot course, Christmas Break 2014 @ CS / University of Helsinki
 
-[http://www.cs.helsinki.fi/courses/582326/2014/s/a/1]
+[Course webpage.](http://www.cs.helsinki.fi/courses/582326/2014/s/a/1)
 
 ##objective
 
