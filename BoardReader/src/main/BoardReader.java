@@ -57,14 +57,37 @@ public class BoardReader {
             System.out.println("error");
             return false;
         }
-        Mat grayImage = new Mat();
-        Imgproc.cvtColor(image, grayImage, Imgproc.COLOR_BGR2GRAY);
+        Mat workImage = new Mat();
+        Imgproc.cvtColor(image, workImage, Imgproc.COLOR_BGR2GRAY);
 
-        // blur the image with GaussianBlur to get rid of noise etc
-        Imgproc.GaussianBlur(grayImage, grayImage, new Size(21, 21), 0);
+        /* the following procedure adapted from aishack tutorial
+         * http://aishack.in/tutorials/sudoku-grabber-with-opencv-detection/
+         * */
 
-        System.out.println("writing blurred grayscale..");
-        Highgui.imwrite("test_blur_gray.jpg", grayImage);
+        // blur the image with GaussianBlur to reduce noise (and make the
+        // 'background' squares of the paper slightly less pronounced)
+        Imgproc.GaussianBlur(workImage, workImage, new Size(21, 21), 0);
+
+        // adaptive threshold
+        // 'extract' the bold, dark lines of the tic tac toe game area / board
+        Imgproc.adaptiveThreshold(workImage, workImage, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 11, 2);
+
+        // invert colors so that lines we're interested in are white (= large number, high intensity)
+        Core.bitwise_not(workImage, workImage);
+        Highgui.imwrite("test_work.jpg", workImage);
+
+        // try to remove small artefacts with morph. open (= dilate(erode(img)) )
+        Mat workImageOpened = new Mat();
+        Mat ekernel = new Mat();
+        ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
+        Imgproc.erode(workImage, workImageOpened, ekernel);
+
+        Mat dkernel = new Mat();
+        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(7, 7));
+        Imgproc.dilate(workImageOpened, workImageOpened, dkernel);
+
+        System.out.println("writing ...");
+        Highgui.imwrite("test_work_op.jpg", workImageOpened);
 
         return false;
     }
