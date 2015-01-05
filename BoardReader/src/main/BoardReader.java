@@ -1,6 +1,10 @@
 package main;
 
+import java.lang.Math;
+
 import org.opencv.core.Core;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -77,19 +81,54 @@ public class BoardReader {
         Highgui.imwrite("test_work.jpg", workImage);
 
         // try to remove small artefacts with morph. open (= dilate(erode(img)) )
-        Mat workImageOpened = new Mat();
+        Mat workImageOp = new Mat();
         Mat ekernel = new Mat();
         ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
-        Imgproc.erode(workImage, workImageOpened, ekernel);
+        Imgproc.erode(workImage, workImageOp, ekernel);
 
         Mat dkernel = new Mat();
         dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(7, 7));
-        Imgproc.dilate(workImageOpened, workImageOpened, dkernel);
+        Imgproc.dilate(workImageOp, workImageOp, dkernel);
 
         System.out.println("writing ...");
-        Highgui.imwrite("test_work_op.jpg", workImageOpened);
+        Highgui.imwrite("test_work_op.jpg", workImageOp);
 
+        // find lines
+        Mat lines = new Mat();
+        findLines(workImage, workImage, lines);
+        Highgui.imwrite("test_work_lines.jpg", workImage);
+        // success!
+
+        Mat linesOp = new Mat();
+        findLines(workImageOp, workImageOp, linesOp);
+        Highgui.imwrite("test_work_linesop.jpg", workImageOp);
+
+        // in retrospec morph. open wasn't that useful, even if it looks slightly better
         return false;
+    }
+
+    private void findLines(Mat source, Mat out, Mat lines) {
+        Imgproc.HoughLines(source, lines, 1, Math.PI / 180, 200);
+        for (int i = 0; i < lines.cols(); i++) {
+            // we need two points on the line to draw it with opencv
+            Point pt1 = new Point();
+            Point pt2 = new Point();
+            // normal form
+            double[] line = lines.get(0, i);
+            double rho = line[0];
+            double theta = line[1];
+
+            double k = -1/Math.tan(theta);
+            double c = rho/Math.sin(theta);
+
+            pt1.x = 0;
+            pt1.y = c;
+
+            pt2.x = source.width();
+            pt2.y = k*source.width() + c;
+
+            Core.line(out, pt1, pt2, new Scalar(255,255,255));
+        }
     }
 
     public static void main(String[] args) throws Exception {
