@@ -148,7 +148,7 @@ public class BoardReader {
             }
         }
         //printLines(extLines, workImage, new Scalar(255, 50, 50));
-        // awkward printing
+        // awkward printing, let's see if we succeeded
         Scalar rgb = new Scalar(255, 50, 50);
         Mat colorImage = new Mat();
         Imgproc.cvtColor(workImage, colorImage, Imgproc.COLOR_GRAY2BGR);
@@ -157,10 +157,39 @@ public class BoardReader {
         printLine(left[0], left[1], colorImage, rgb);
         printLine(right[0], right[1], colorImage, rgb);
         Highgui.imwrite("test_work_extrem.jpg", colorImage);
+
+        // next: the intersections of the four lines we found
+        // this I can do better than AI shack, I hope...
+        Point topRight = findIntersection(top, right, workImage.width());
+        Core.circle(colorImage, topRight, 10, new Scalar(100, 255, 80), 3);
+
+        Point topLeft = findIntersection(top, left, workImage.width());
+        Core.circle(colorImage, topLeft, 10, new Scalar(100, 255, 80), 3);
+
+        Point botLeft = findIntersection(bottom, left, workImage.width());
+        Core.circle(colorImage, botLeft, 10, new Scalar(100, 255, 80), 3);
+
+        Point botRight = findIntersection(bottom, right, workImage.width());
+        Core.circle(colorImage, botRight, 10, new Scalar(100, 255, 80), 3);
+
+        Highgui.imwrite("test_work_inters.jpg", colorImage);
+        // sort of success!
         return false;
     }
 
-    private void findExtremeLines(Mat lines) {
+    // line = [rho, theta]
+    private Point findIntersection(double[] a, double[] b, double width) {
+        Point inter = new Point();
+        double ka = -1/Math.tan(a[1]);
+        double ca = a[0]/Math.sin(a[1]);
+
+        double kb = -1/Math.tan(b[1]);
+        double cb = b[0]/Math.sin(b[1]);
+
+        inter.x = (cb - ca)/(ka - kb);
+        inter.y = ka * inter.x + ca;
+        System.out.println(inter.x + " " + inter.y);
+        return inter;
     }
 
 
