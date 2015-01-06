@@ -109,13 +109,66 @@ public class BoardReader {
         // in retrospec morph. open wasn't that useful, even if it looks slightly better
         //
 
-        // find the the extreme lines ( = bounding box, outer grid, board limits, etc)
-        Mat extLines = new Mat();
-        findExtremeLines(lines, extLines);
-        printLines(extLines, workImage, new Scalar(255, 50, 50));
+        // find the the extreme lines ( = bounding box =outer grid = board limits)
+        // argh how do I get top, bottom, etc from a fucntion neatly...?!
+        // (rho, theta) ... how I love thee, Python tuple
+        double[] top = {Double.MAX_VALUE, Double.MAX_VALUE};
+        double[] bottom = {Double.MIN_VALUE, Double.MIN_VALUE};
+        double[] left = {Double.MAX_VALUE, Double.MAX_VALUE};
+        double[] right = {Double.MIN_VALUE, Double.MIN_VALUE};
+        double rightXintercept = 0;
+        double leftXintercept = Double.MAX_VALUE;
+
+        for (int i = 0; i < lines.cols(); i++) {
+            double[] line = lines.get(0, i);
+            double rho = line[0];
+            double theta = line[1];
+            double xIntercept = rho/Math.cos(theta);
+
+            // the rho-theta normal form is useful for determining whether line
+            // is horizontal / vertical
+            if (theta > Math.PI / 4 && theta < 3 * Math.PI / 4) {
+                // vertical case
+                if (rho < top[0])
+                    top = line;
+                if (rho > bottom[0])
+                    bottom = line;
+            } else {
+                // else horizontal
+                if (xIntercept > rightXintercept) {
+                    rightXintercept = xIntercept;
+                    right = line;
+                }
+                if (xIntercept < leftXintercept) {
+                    leftXintercept = xIntercept;
+                    left = line;
+                }
+            }
+        }
+        //printLines(extLines, workImage, new Scalar(255, 50, 50));
+        // awkward printing
+        Scalar rgb = new Scalar(255, 50, 50);
+        Mat colorImage = new Mat();
+        Imgproc.cvtColor(workImage, colorImage, Imgproc.COLOR_GRAY2BGR);
+        printLine(top[0], top[1], colorImage, rgb);
+        printLine(bottom[0], bottom[1], colorImage, rgb);
+        printLine(left[0], left[1], colorImage, rgb);
+        printLine(right[0], right[1], colorImage, rgb);
+        Highgui.imwrite("test_work_extrem.jpg", colorImage);
         return false;
     }
 
+    private void findExtremeLines(Mat lines) {
+    }
+
+
+    private void printLine(double rho, double theta, Mat outImage, Scalar rgb) {
+        Point a = new Point();
+        Point b = new Point();
+        lineToPoints(rho, theta, 0, outImage.width(), a, b);
+        Core.line(outImage, a, b, rgb);
+
+    }
     private void printLines(Mat lines, Mat outImage, Scalar rgb){
         List<Point> lPts = new ArrayList<Point>();
         List<Point> rPts = new ArrayList<Point>();
@@ -128,6 +181,17 @@ public class BoardReader {
         for (int i = 0; i < pts1.size(); i++) {
             Core.line(outImage, pts1.get(i), pts2.get(i), rgb);
         }
+    }
+
+    private void lineToPoints(double rho, double theta, double left, double right, Point pt1, Point pt2) {
+        double k = -1/Math.tan(theta);
+        double c = rho/Math.sin(theta);
+
+        pt1.x = left;
+        pt1.y = c;
+
+        pt2.x = right;
+        pt2.y = k*right + c;
     }
 
     // TODO lPts, rPts lists as params are ugly hack -> better: return a list of pairs of Points
