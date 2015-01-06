@@ -223,12 +223,6 @@ public class BoardReader {
 
     }
 
-    // ewww, deprecate this
-    private void findLines(Mat source, Mat out, Mat lines, List<Point> lPts, List<Point> rPts) {
-        // adjust params. so that not *too* much lines per actual grid line, but still quite many
-        Imgproc.HoughLines(source, lines, 1, Math.PI / 180, 270);
-        linesToPoints(lines, 0, source.width(), lPts, rPts);
-    }
 
     public static void main(String[] args) throws Exception {
     	// load native library
