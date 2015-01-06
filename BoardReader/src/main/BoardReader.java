@@ -1,6 +1,8 @@
 package main;
 
 import java.lang.Math;
+import java.util.List;
+import java.util.ArrayList;
 
 import org.opencv.core.Core;
 import org.opencv.core.Point;
@@ -95,24 +97,40 @@ public class BoardReader {
 
         // find lines
         Mat lines = new Mat();
-        findLines(workImage, workImage, lines);
+        Imgproc.HoughLines(workImage, lines, 1, Math.PI / 180, 270);
+
+        List<Point> lPts = new ArrayList<Point>();
+        List<Point> rPts = new ArrayList<Point>();
+        linesToPoints(lines, 0, workImage.width(), lPts, rPts);
+        printPointLines(lPts, rPts, workImage, new Scalar(255, 255, 255));
         Highgui.imwrite("test_work_lines.jpg", workImage);
         // success!
 
-        Mat linesOp = new Mat();
-        findLines(workImageOp, workImageOp, linesOp);
-        Highgui.imwrite("test_work_linesop.jpg", workImageOp);
-
         // in retrospec morph. open wasn't that useful, even if it looks slightly better
+        //
+
+        // find the the extreme lines ( = bounding box, outer grid, board limits, etc)
+        Mat extLines = new Mat();
+        //findExtremeLines(lines, extLines);
+        //printLines(extLines, workImage new Scalar(255, 50, 50));
         return false;
     }
 
-    private void findLines(Mat source, Mat out, Mat lines) {
-        Imgproc.HoughLines(source, lines, 1, Math.PI / 180, 200);
+    // print lines (in two point form) to outImage
+    private void printPointLines(List<Point> pts1, List<Point> pts2, Mat outImage, Scalar rgb) {
+        for (int i = 0; i < pts1.size(); i++) {
+            Core.line(outImage, pts1.get(i), pts2.get(i), rgb);
+        }
+    }
+
+    // TODO lPts, rPts lists as params are ugly hack -> better: return a list of pairs of Points
+    private void linesToPoints(Mat lines, double left, double right, List<Point> lPts, List<Point> rPts) {
+        // finds two points pt1, pt2 per line:
+        // pt1 such that pt1.x = left, pt2 such that pt2.x = right
+        // assume lPts, rPts empty or at least pts can be appended to them
+
         for (int i = 0; i < lines.cols(); i++) {
             // we need two points on the line to draw it with opencv
-            Point pt1 = new Point();
-            Point pt2 = new Point();
             // normal form
             double[] line = lines.get(0, i);
             double rho = line[0];
@@ -121,14 +139,24 @@ public class BoardReader {
             double k = -1/Math.tan(theta);
             double c = rho/Math.sin(theta);
 
-            pt1.x = 0;
+            Point pt1 = new Point();
+            pt1.x = left;
             pt1.y = c;
+            lPts.add(pt1);
 
-            pt2.x = source.width();
-            pt2.y = k*source.width() + c;
-
-            Core.line(out, pt1, pt2, new Scalar(255,255,255));
+            Point pt2 = new Point();
+            pt2.x = right;
+            pt2.y = k*right + c;
+            rPts.add(pt2);
         }
+
+    }
+
+    // ewww, deprecate this
+    private void findLines(Mat source, Mat out, Mat lines, List<Point> lPts, List<Point> rPts) {
+        // adjust params. so that not *too* much lines per actual grid line, but still quite many
+        Imgproc.HoughLines(source, lines, 1, Math.PI / 180, 270);
+        linesToPoints(lines, 0, source.width(), lPts, rPts);
     }
 
     public static void main(String[] args) throws Exception {
