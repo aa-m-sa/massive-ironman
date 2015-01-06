@@ -111,9 +111,16 @@ public class BoardReader {
 
         // find the the extreme lines ( = bounding box, outer grid, board limits, etc)
         Mat extLines = new Mat();
-        //findExtremeLines(lines, extLines);
-        //printLines(extLines, workImage new Scalar(255, 50, 50));
+        findExtremeLines(lines, extLines);
+        printLines(extLines, workImage, new Scalar(255, 50, 50));
         return false;
+    }
+
+    private void printLines(Mat lines, Mat outImage, Scalar rgb){
+        List<Point> lPts = new ArrayList<Point>();
+        List<Point> rPts = new ArrayList<Point>();
+        linesToPoints(lines, 0, outImage.width(), lPts, rPts);
+        printPointLines(lPts, rPts, outImage, rgb);
     }
 
     // print lines (in two point form) to outImage
