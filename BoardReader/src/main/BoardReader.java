@@ -174,6 +174,15 @@ public class BoardReader {
 
         Highgui.imwrite("test_work_inters.jpg", colorImage);
         // sort of success!
+        // next: determine the inner grid line points from these points
+        double botDiffX = botRight.x - botLeft.x;
+        double botDiffY = botRight.y - botLeft.y;
+        Point bottomA = new Point(botLeft.x + botDiffX/3, botLeft.y + botDiffY/3);
+        Core.circle(colorImage, bottomA, 10, new Scalar(100, 255, 80), 3);
+
+        Point bottomB = new Point(botLeft.x + 2*botDiffX/3, botLeft.y + 2*botDiffY/3);
+        Core.circle(colorImage, bottomB, 10, new Scalar(100, 255, 80), 3);
+        Highgui.imwrite("test_work_grid.jpg", colorImage);
         return false;
     }
 
