@@ -97,7 +97,7 @@ public class BoardReader {
 
         // find lines
         Mat lines = new Mat();
-        Imgproc.HoughLines(workImage, lines, 1, Math.PI / 180, 270);
+        Imgproc.HoughLines(workImage, lines, 1, Math.PI / 180, 300);
 
         List<Point> lPts = new ArrayList<Point>();
         List<Point> rPts = new ArrayList<Point>();
@@ -110,6 +110,8 @@ public class BoardReader {
         //
 
         // find the the extreme lines ( = bounding box =outer grid = board limits)
+        // still from AiShack tutorial (to get something to work, fast)
+        // doesn't necessarily find the *best* extreme ones but good enough for starters
         // argh how do I get top, bottom, etc from a fucntion neatly...?!
         // (rho, theta) ... how I love thee, Python tuple
         double[] top = {Double.MAX_VALUE, Double.MAX_VALUE};
