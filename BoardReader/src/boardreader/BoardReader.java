@@ -158,7 +158,7 @@ public class BoardReader {
         botLeft = Lines.findIntersection(exLines[1], exLines[2], workImage.width());
         botRight = Lines.findIntersection(exLines[1], exLines[3], workImage.width());
 
-        return createBase(workImage);
+        return createBase(morphWorkImage(originalImage));
     }
 
 
@@ -331,14 +331,16 @@ public class BoardReader {
         return corrected;
     }
 
-    private static void morphOpen(Mat src, Mat dest) {
+    public static Mat morphOpen(Mat src) {
+        Mat dest = new Mat();
         Mat ekernel = new Mat();
-        ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
+        ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(11, 11));
         Imgproc.erode(src, dest, ekernel);
 
         Mat dkernel = new Mat();
-        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(7, 7));
+        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
         Imgproc.dilate(dest, dest, dkernel);
+        return dest;
 
     }
 

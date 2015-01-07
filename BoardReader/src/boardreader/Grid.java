@@ -17,6 +17,8 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
+import boardreader.BoardReader;
+
 /**
  * Internal representation of the game board grid as a visual object.
  * */
@@ -81,6 +83,8 @@ public class Grid {
                 double v = Imgproc.compareHist(this.cellHistograms.get(i + j*3),
                         newHistograms.get(i + j*3), Imgproc.CV_COMP_CHISQR);
                 System.out.println(j + " " + i + " " + v);
+                double norm = Core.norm(cells.get(i + j*3), newCells.get(i +j*3));
+                System.out.println(norm);
             }
         }
 
@@ -125,13 +129,15 @@ public class Grid {
         // cell: 'mask away' the image outside the shape defined by points, add
         // to list
         Mat mask = new Mat(image.size(), CvType.CV_8UC1, new Scalar(0, 0, 0));
-        int mb = 30;
+        int mb = 40;
         Point maskPt1 = new Point(ul.x + mb, ul.y + mb);
         Point maskPt2 = new Point(lr.x - mb, lr.y - mb);
 
         Core.rectangle(mask, maskPt1, maskPt2, new Scalar(255, 255, 255), -1);
         Mat cell = new Mat();
         image.copyTo(cell, mask);
+        // morph open: get rid of small artefacts
+        cell = BoardReader.morphOpen(cell);
         cellList.add(cell);
 
         // also add its histogram to list
@@ -142,6 +148,7 @@ public class Grid {
 
         Imgproc.calcHist(Arrays.asList(image), channel, mask, hist, histSize, range);
         histList.add(hist);
+
     }
 
 
