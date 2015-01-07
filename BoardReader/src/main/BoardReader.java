@@ -230,7 +230,7 @@ public class BoardReader {
 
     }
 
-    private void morphOpen(Mat src, Mat dest) {
+    private static void morphOpen(Mat src, Mat dest) {
         Mat ekernel = new Mat();
         ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
         Imgproc.erode(src, dest, ekernel);
