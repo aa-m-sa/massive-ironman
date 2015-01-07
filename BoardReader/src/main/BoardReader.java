@@ -46,6 +46,7 @@ import main.Lines;
 public class BoardReader {
     private Grid boardGrid;
     private Mat origGray;
+    private Mat workImage;
     private Mat baseBoardImage;
 
     // extreme lines of original board image
@@ -67,7 +68,7 @@ public class BoardReader {
      */
     public boolean findBoard() {
         //TODO webcam
-        Mat workImage = getWorkImage("bin/resources/test1.jpg");
+        workImage = getWorkImage("bin/resources/test1.jpg");
         origGray = new Mat();
         workImage.copyTo(origGray);
 
@@ -120,15 +121,8 @@ public class BoardReader {
         if (!linesFound)
             return false;
 
+        printExtremeLines();
         // printing, let's see if we succeeded
-        Scalar rgb = new Scalar(255, 50, 50);
-        Mat colorImage = new Mat();
-        Imgproc.cvtColor(workImage, colorImage, Imgproc.COLOR_GRAY2BGR);
-        Lines.printLine(top[0], top[1], colorImage, rgb);
-        Lines.printLine(bottom[0], bottom[1], colorImage, rgb);
-        Lines.printLine(left[0], left[1], colorImage, rgb);
-        Lines.printLine(right[0], right[1], colorImage, rgb);
-        Highgui.imwrite("test_work_extrem.jpg", colorImage);
 
         // next: find the intersections of the four lines we found
         // this I can do better than AI shack...
@@ -217,6 +211,17 @@ public class BoardReader {
         }
 
         return true;
+    }
+
+    private void printExtremeLines() {
+        Scalar rgb = new Scalar(255, 50, 50);
+        Mat colorImage = new Mat();
+        Imgproc.cvtColor(workImage, colorImage, Imgproc.COLOR_GRAY2BGR);
+        Lines.printLine(top[0], top[1], colorImage, rgb);
+        Lines.printLine(bottom[0], bottom[1], colorImage, rgb);
+        Lines.printLine(left[0], left[1], colorImage, rgb);
+        Lines.printLine(right[0], right[1], colorImage, rgb);
+        Highgui.imwrite("test_work_extrem.jpg", colorImage);
     }
 
     // for testing:
