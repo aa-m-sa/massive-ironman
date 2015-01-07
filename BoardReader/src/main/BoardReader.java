@@ -78,21 +78,14 @@ public class BoardReader {
         // 'extract' the bold, dark lines of the tic tac toe game area / board
         Imgproc.adaptiveThreshold(workImage, workImage, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 11, 2);
 
-        // invert colors so that lines we're interested in are white (= large number, high intensity)
+        // invert colors so that the lines we're interested in are white (= large number, high intensity)
         Core.bitwise_not(workImage, workImage);
         Highgui.imwrite("test_work.jpg", workImage);
 
         // try to remove small artefacts with morph. open (= dilate(erode(img)) )
         Mat workImageOp = new Mat();
-        Mat ekernel = new Mat();
-        ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
-        Imgproc.erode(workImage, workImageOp, ekernel);
+        morphOpen(workImage, workImageOp);
 
-        Mat dkernel = new Mat();
-        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(7, 7));
-        Imgproc.dilate(workImageOp, workImageOp, dkernel);
-
-        System.out.println("writing ...");
         Highgui.imwrite("test_work_op.jpg", workImageOp);
 
         // find lines
@@ -107,7 +100,6 @@ public class BoardReader {
         // success!
 
         // in retrospec morph. open wasn't that useful, even if it looks slightly better
-        //
 
         // find the the extreme lines ( = bounding box =outer grid = board limits)
         // still from AiShack tutorial (to get something to work, fast)
@@ -184,6 +176,17 @@ public class BoardReader {
         Core.circle(colorImage, bottomB, 10, new Scalar(100, 255, 80), 3);
         Highgui.imwrite("test_work_grid.jpg", colorImage);
         return false;
+    }
+
+    private void morphOpen(Mat src, Mat dest) {
+        Mat ekernel = new Mat();
+        ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
+        Imgproc.erode(src, dest, ekernel);
+
+        Mat dkernel = new Mat();
+        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(7, 7));
+        Imgproc.dilate(dest, dest, dkernel);
+
     }
 
     // line = [rho, theta]
