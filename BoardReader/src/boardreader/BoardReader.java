@@ -44,6 +44,7 @@ import boardreader.Lines;
  * TODO: when able to read the board, combine this project with the Game
  */
 public class BoardReader {
+    private String stillImagePath;
     private Grid boardGrid;
     private Mat origGray;
     private Mat workImage;
@@ -51,24 +52,31 @@ public class BoardReader {
 
     // extreme lines of original board image
     // rho theta
+    // initially impossible; set by findBoard()
     private double[] top    = {Double.MAX_VALUE, Double.MAX_VALUE};
     private double[] bottom = {Double.MIN_VALUE, Double.MIN_VALUE};
     private double[] left   = {Double.MAX_VALUE, Double.MAX_VALUE};
     private double[] right  = {Double.MIN_VALUE, Double.MIN_VALUE};
 
-    public BoardReader() {
+    public BoardReader(String imagePath) {
         // constructor
+        this.stillImagePath = imagePath;
+    }
+
+    public void updateStillImage(String newPath) {
+        this.stillImagePath = newPath;
     }
 
     /**
      * Recognize the tic tac toe board in webcam video (TODO, now use test jpg
-     * picture) and store it's features as a Grid object.
+     * picture).
+     * Stores it's features internally as a Grid object for future handling.
      *
      * @return was the board found successfully
      */
     public boolean findBoard() {
         //TODO webcam
-        workImage = getWorkImage("bin/resources/test1.jpg");
+        workImage = getWorkImage();
         origGray = new Mat();
         workImage.copyTo(origGray);
 
@@ -80,16 +88,23 @@ public class BoardReader {
         // 'background' squares of the paper slightly less pronounced)
         Imgproc.GaussianBlur(workImage, workImage, new Size(21, 21), 0);
 
-        // adaptive threshold: 'extract' the bold, dark lines of the tic tac toe game area / board
-        Imgproc.adaptiveThreshold(workImage, workImage, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 11, 2);
+        // adaptive threshold: 'extract' the bold, dark lines of the tic tac
+        // toe game area / board
+        Imgproc.adaptiveThreshold(workImage, workImage, 255,
+                Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 11, 2);
 
         // invert colors so that the lines we're interested in are white (= large number = high intensity)
         Core.bitwise_not(workImage, workImage);
         Highgui.imwrite("test_work.jpg", workImage);
 
+        // thresold 'breaks' some thin lines in the image, try to retrieve them
+        // with dilation and morph close
+        workImage = dilated(workImage, 5);
+        workImage = morphClose(workImage);
+
         // find all lines from wokrImage
         Mat lines = new Mat();
-        Imgproc.HoughLines(workImage, lines, 1, Math.PI / 180, 300);
+        Imgproc.HoughLines(workImage, lines, 1, Math.PI / 180, 350);
         if (lines.cols() < 4) {
             // couldn't find enough lines to determine a board -> return false
             return false;
@@ -216,14 +231,14 @@ public class BoardReader {
 
     // for testing:
     // get work image from a specified file
-    private Mat getWorkImage(String path) {
+    private Mat getWorkImage() {
         // test using the a still image
-        Mat image = Highgui.imread(path);  // OK
+        Mat image = Highgui.imread(stillImagePath);  // OK
         // TODO use webcam feed
 
         if (image.empty()) {
             System.out.println("error");
-            throw new IllegalArgumentException("Couldn't read image from " + path);
+            throw new IllegalArgumentException("Couldn't read image from " + stillImagePath);
         }
         Mat workImage = new Mat();
         Imgproc.cvtColor(image, workImage, Imgproc.COLOR_BGR2GRAY);
@@ -256,6 +271,28 @@ public class BoardReader {
 
     }
 
+    private static Mat morphClose(Mat src) {
+        Mat dest = new Mat();
+
+        Mat dkernel = new Mat();
+        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
+        Imgproc.dilate(src, dest, dkernel);
+
+        Mat ekernel = new Mat();
+        ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(3, 3));
+        Imgproc.erode(dest, dest, ekernel);
+
+        return dest;
+
+    }
+
+    public static Mat dilated(Mat src, int size) {
+        Mat dkernel = new Mat();
+        Mat dest = new Mat();
+        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(size, size));
+        Imgproc.dilate(src, dest, dkernel);
+        return dest;
+    }
 
 
     public static void main(String[] args) throws Exception {
@@ -265,7 +302,7 @@ public class BoardReader {
         System.out.println("ok!");
 
         System.out.println("try loading test image");
-        BoardReader breader = new BoardReader();
+        BoardReader breader = new BoardReader("bin/resources/2015-01-07-series-1.jpg");
         boolean success = breader.findBoard();
         System.out.println(success);
         System.out.println("ok!");
