@@ -15,6 +15,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
 import main.Grid;
+import main.Lines;
 
 /**
  * The actual attempt at Tic Tac Toe Board reading.
@@ -167,13 +168,13 @@ public class BoardReader {
 
         // next: find the intersections of the four lines we found
         // this I can do better than AI shack...
-        Point topRight = findIntersection(top, right, workImage.width());
+        Point topRight = Lines.findIntersection(top, right, workImage.width());
 
-        Point topLeft = findIntersection(top, left, workImage.width());
+        Point topLeft = Lines.findIntersection(top, left, workImage.width());
 
-        Point botLeft = findIntersection(bottom, left, workImage.width());
+        Point botLeft = Lines.findIntersection(bottom, left, workImage.width());
 
-        Point botRight = findIntersection(bottom, right, workImage.width());
+        Point botRight = Lines.findIntersection(bottom, right, workImage.width());
 
         // correct the perspective
         // assume bottom line is the longest
@@ -240,21 +241,6 @@ public class BoardReader {
 
     }
 
-    // line = [rho, theta]
-    // TODO currently unsafe (division by zero possible!)
-    private Point findIntersection(double[] a, double[] b, double width) {
-        Point inter = new Point();
-        double ka = -1/Math.tan(a[1]);
-        double ca = a[0]/Math.sin(a[1]);
-
-        double kb = -1/Math.tan(b[1]);
-        double cb = b[0]/Math.sin(b[1]);
-
-        inter.x = (cb - ca)/(ka - kb);
-        inter.y = ka * inter.x + ca;
-        System.out.println(inter.x + " " + inter.y);
-        return inter;
-    }
 
 
     // print a rho-theta line
