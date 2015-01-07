@@ -42,7 +42,7 @@ public class Grid {
     /**
      * Create a Grid over a image of a game board by specifying the corner points.
      */
-    public Grid(Mat baseImage, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight) {
+    public Grid(Mat baseImage, Point topLeft, Point topRight, Point bottomRight, Point bottomLeft) {
         if (!validate(topLeft, topRight, bottomLeft, bottomRight))
             throw new IllegalArgumentException("Can't construct a Grid from these points!");
         this.tl = topLeft;
@@ -52,7 +52,12 @@ public class Grid {
         this.baseImage = baseImage;
 
         determineGridPoints();
-        makeCells();
+        makeBaseCells();
+    }
+
+    public Grid(Mat baseImage, List<Point> points) {
+        // there's got to be a better way, but anyway
+        this(baseImage, points.get(0), points.get(1), points.get(2), points.get(3));
     }
 
     public void printPoints(Mat outImage) {
@@ -62,6 +67,22 @@ public class Grid {
             Core.circle(outImage, secondRowPts[i], 10, new Scalar(100, 255, 80), 3);
             Core.circle(outImage, thirdRowPts[i], 10, new Scalar(100, 255, 80), 3);
         }
+    }
+
+    public boolean findChanges(Mat newImage) {
+        List<Mat> newCells = new ArrayList<Mat>();
+        List<Mat> newHistograms = new ArrayList<Mat>();
+        makeCells(newImage, newCells, newHistograms, "new");
+
+        System.out.println("finding changes");
+        for (int i = 0; i < 9; i++) {
+            // compare histograms
+            double v = Imgproc.compareHist(this.cellHistograms.get(i),
+                    newHistograms.get(i), Imgproc.CV_COMP_CORREL);
+            System.out.println(v);
+        }
+
+        return false;
     }
 
     // TODO
@@ -80,23 +101,32 @@ public class Grid {
 
     }
 
-    private void makeCells() {
+    private void makeBaseCells() {
+        makeCells(this.baseImage, this.cells, this.cellHistograms, "base");
+    }
+
+    private void makeCells(Mat image, List<Mat> cellList, List<Mat> histList, String imStr) {
         Point[][] cellPoints = {topPts, secondRowPts, thirdRowPts, bottomPts};
         for (int j = 0; j < 3; j++) {
             for (int i = 0; i < 3; i++) {
-                makeCell(cellPoints[j][i], cellPoints[j][i+1], cellPoints[j+1][i], cellPoints[j+1][i+1]);
-                Highgui.imwrite("test_cell_mask" + i + j + ".jpg", cells.get(i+j*3));
+                makeCell(image, cellPoints[j][i], cellPoints[j][i+1],
+                        cellPoints[j+1][i], cellPoints[j+1][i+1], cellList, histList);
+                Highgui.imwrite(
+                        "test_cell_" + imStr  + j + i +
+                        ".jpg", cellList.get(i+j*3));
             }
         }
     }
 
-    private void makeCell(Point ul, Point ur, Point ll, Point lr) {
-        // cell: 'mask away' the image outside the shape defined by points, add to list
-        Mat mask = new Mat(baseImage.size(), CvType.CV_8UC1, new Scalar(0, 0, 0));
+    private void makeCell(Mat image, Point ul, Point ur, Point ll, Point lr,
+            List<Mat> cellList, List<Mat> histList) {
+        // cell: 'mask away' the image outside the shape defined by points, add
+        // to list
+        Mat mask = new Mat(image.size(), CvType.CV_8UC1, new Scalar(0, 0, 0));
         Core.rectangle(mask, ul, lr, new Scalar(255, 255, 255), -1);
         Mat cell = new Mat();
-        baseImage.copyTo(cell, mask);
-        cells.add(cell);
+        image.copyTo(cell, mask);
+        cellList.add(cell);
 
         // also add its histogram to list
         Mat hist = new Mat();
@@ -104,8 +134,8 @@ public class Grid {
         MatOfInt histSize = new MatOfInt(256);
         MatOfFloat range = new MatOfFloat(0, 255);
 
-        Imgproc.calcHist(Arrays.asList(baseImage), channel, mask, hist, histSize, range);
-        cellHistograms.add(hist);
+        Imgproc.calcHist(Arrays.asList(image), channel, mask, hist, histSize, range);
+        histList.add(hist);
     }
 
 
