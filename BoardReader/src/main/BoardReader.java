@@ -187,6 +187,7 @@ public class BoardReader {
     }
 
     // line = [rho, theta]
+    // TODO currently unsafe (division by zero possible!)
     private Point findIntersection(double[] a, double[] b, double width) {
         Point inter = new Point();
         double ka = -1/Math.tan(a[1]);
@@ -202,6 +203,7 @@ public class BoardReader {
     }
 
 
+    // print a rho-theta line
     private void printLine(double rho, double theta, Mat outImage, Scalar rgb) {
         Point a = new Point();
         Point b = new Point();
@@ -209,6 +211,8 @@ public class BoardReader {
         Core.line(outImage, a, b, rgb);
 
     }
+
+    // print multiple rho-theta lines (given as a Mat)
     private void printLines(Mat lines, Mat outImage, Scalar rgb){
         List<Point> lPts = new ArrayList<Point>();
         List<Point> rPts = new ArrayList<Point>();
@@ -223,6 +227,8 @@ public class BoardReader {
         }
     }
 
+    // get two points on the rho-theta line (at horizontal coordinates left and right)
+    // TODO return points instead of changing Points given as parmas? (seel below)
     private void lineToPoints(double rho, double theta, double left, double right, Point pt1, Point pt2) {
         double k = -1/Math.tan(theta);
         double c = rho/Math.sin(theta);
@@ -234,7 +240,7 @@ public class BoardReader {
         pt2.y = k*right + c;
     }
 
-    // TODO lPts, rPts lists as params are ugly hack -> better: return a list of pairs of Points
+    // TODO lPts, rPts lists as params are ugly hack -> better: return a list of pairs of Points (?)
     private void linesToPoints(Mat lines, double left, double right, List<Point> lPts, List<Point> rPts) {
         // finds two points pt1, pt2 per line:
         // pt1 such that pt1.x = left, pt2 such that pt2.x = right
@@ -247,17 +253,11 @@ public class BoardReader {
             double rho = line[0];
             double theta = line[1];
 
-            double k = -1/Math.tan(theta);
-            double c = rho/Math.sin(theta);
-
             Point pt1 = new Point();
-            pt1.x = left;
-            pt1.y = c;
-            lPts.add(pt1);
-
             Point pt2 = new Point();
-            pt2.x = right;
-            pt2.y = k*right + c;
+
+            lineToPoints(rho, theta, left, right, pt1, pt2);
+            lPts.add(pt1);
             rPts.add(pt2);
         }
 
