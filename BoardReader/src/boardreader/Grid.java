@@ -1,5 +1,8 @@
 package boardreader;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import org.opencv.core.Point;
 import org.opencv.core.Mat;
 import org.opencv.core.Core;
@@ -15,9 +18,19 @@ public class Grid {
     private Point br;
 
     private Point[] topPts;
+    private Point[] secondRowPts;
+    private Point[] thirdRowPts;
     private Point[] bottomPts;
     private Point[] leftPts;
     private Point[] rightPts;
+
+    /* cell naming scheme
+     * 1 2 3
+     * 4 5 6
+     * 7 8 9
+     */
+
+    private List<Mat> cells = new ArrayList<Mat>();
 
     private Mat boardImage;
 
@@ -34,14 +47,15 @@ public class Grid {
         this.boardImage = boardImage;
 
         determineGridPoints();
+        findCells();
     }
 
     public void printPoints(Mat outImage) {
         for (int i = 0; i < 4; i++) {
             Core.circle(outImage, topPts[i], 10, new Scalar(100, 255, 80), 3);
             Core.circle(outImage, bottomPts[i], 10, new Scalar(100, 255, 80), 3);
-            Core.circle(outImage, leftPts[i], 10, new Scalar(100, 255, 80), 3);
-            Core.circle(outImage, rightPts[i], 10, new Scalar(100, 255, 80), 3);
+            Core.circle(outImage, secondRowPts[i], 10, new Scalar(100, 255, 80), 3);
+            Core.circle(outImage, thirdRowPts[i], 10, new Scalar(100, 255, 80), 3);
         }
     }
 
@@ -56,7 +70,13 @@ public class Grid {
         topPts = getPointsOnLine(tl, tr);
         leftPts = getPointsOnLine(tl, bl);
         rightPts =  getPointsOnLine(tr, br);
+        secondRowPts = getPointsOnLine(leftPts[1], rightPts[1]);
+        thirdRowPts = getPointsOnLine(leftPts[2], rightPts[2]);
 
+    }
+
+    private void findCells() {
+    
     }
 
     // Point a should be closer to (0,0) than b

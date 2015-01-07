@@ -166,9 +166,19 @@ public class BoardReader {
         baseBoardImage = perspectiveCorrected(srcPts, targetPts, maxLen);
         Highgui.imwrite("test_persp.jpg", baseBoardImage);
 
-        this.boardGrid = new Grid(baseBoardImage, newTopLeft, newTopRight, newBotRight, newBotLeft);
+        this.boardGrid = new Grid(baseBoardImage, newTopLeft, newTopRight, newBotLeft, newBotRight);
         boardGrid.printPoints(baseBoardImage);
         Highgui.imwrite("test_work_grid.jpg", baseBoardImage);
+    }
+
+    /**
+     * Try to find if any cell in the board has changed.
+     *
+     * @return if a change was detected
+     */
+    public boolean readBoardChanges() {
+
+        return false;
     }
 
     // find the board edges (== extreme lines) from all lines
@@ -306,6 +316,7 @@ public class BoardReader {
         boolean success = breader.findBoard();
         System.out.println(success);
         System.out.println("ok!");
+        breader.updateStillImage("bin/resources/2015-01-07-series-2.jpg");
 
     }
 }
