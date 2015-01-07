@@ -12,6 +12,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.utils.Converters;
 
 import main.Grid;
 
@@ -57,6 +58,8 @@ public class BoardReader {
     public boolean findBoard() {
         //TODO webcam
         Mat workImage = getWorkImage("bin/resources/test1.jpg");
+        Mat origGray = new Mat();
+        workImage.copyTo(origGray);
 
         /* the following procedure adapted from aishack tutorial
          * http://aishack.in/tutorials/sudoku-grabber-with-opencv-detection/
@@ -172,11 +175,36 @@ public class BoardReader {
 
         Point botRight = findIntersection(bottom, right, workImage.width());
 
-        // sort of success!
-        this.boardGrid = new Grid(topLeft, topRight, botLeft, botRight);
+        // correct the perspective
+        // assume bottom line is the longest
+        double dx = botLeft.x - botRight.x;
+        double dy = botLeft.y - botLeft.y;
+        double maxLen = Math.sqrt(dx * dx + dy * dy);
 
-        boardGrid.printPoints(colorImage);
-        Highgui.imwrite("test_work_grid.jpg", colorImage);
+
+        List<Point> srcPts = new ArrayList<Point>();
+        srcPts.add(topLeft);
+        srcPts.add(topRight);
+        srcPts.add(botRight);
+        srcPts.add(botLeft);
+
+        Mat src = Converters.vector_Point2f_to_Mat(srcPts);
+
+        List<Point> targetPts = new ArrayList<Point>();
+        targetPts.add(new Point(0,0));
+        targetPts.add(new Point(maxLen - 1, 0));
+        targetPts.add(new Point(maxLen - 1, maxLen - 1));
+        targetPts.add(new Point(0, maxLen - 1));
+        Mat target = Converters.vector_Point2f_to_Mat(targetPts);
+
+        Mat corrected = new Mat();
+        Imgproc.warpPerspective(origGray, corrected,
+                Imgproc.getPerspectiveTransform(src, target), new Size(maxLen, maxLen));
+        Highgui.imwrite("test_persp.jpg", corrected);
+
+        //this.boardGrid = new Grid(topLeft, topRight, botLeft, botRight);
+        //boardGrid.printPoints(colorImage);
+        //Highgui.imwrite("test_work_grid.jpg", colorImage);
         return true;
     }
 
