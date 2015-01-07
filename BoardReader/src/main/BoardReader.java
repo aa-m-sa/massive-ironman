@@ -51,20 +51,8 @@ public class BoardReader {
      * @return was the board found successfully
      */
     public boolean findBoard() {
-        // test using the a still image
-        // Mat image = Highgui.imread(getClass().getResource("/resources/test1.jpg").getPath());
-        // ^ weird problem
-        Mat image = Highgui.imread("bin/resources/test1.jpg");  // OK
-        System.out.println(image.channels());
-
-        // grayscale image will have just one channel
-        //Mat grayImage = new Mat(image.height(), image.width(), CvType.CV_8UC1);
-        if (image.empty()) {
-            System.out.println("error");
-            return false;
-        }
-        Mat workImage = new Mat();
-        Imgproc.cvtColor(image, workImage, Imgproc.COLOR_BGR2GRAY);
+        //TODO webcam
+        Mat workImage = getWorkImage("bin/resources/test1.jpg");
 
         /* the following procedure adapted from aishack tutorial
          * http://aishack.in/tutorials/sudoku-grabber-with-opencv-detection/
@@ -104,7 +92,9 @@ public class BoardReader {
         // find the the extreme lines ( = bounding box =outer grid = board limits)
         // still from AiShack tutorial (to get something to work, fast)
         // doesn't necessarily find the *best* extreme ones but good enough for starters
-        // argh how do I get top, bottom, etc from a fucntion neatly...?!
+        // argh how would I get top, bottom, etc returned from a function neatly...?!
+
+        // extreme lines
         // (rho, theta) ... how I love thee, Python tuple
         double[] top = {Double.MAX_VALUE, Double.MAX_VALUE};
         double[] bottom = {Double.MIN_VALUE, Double.MIN_VALUE};
@@ -176,6 +166,23 @@ public class BoardReader {
         Core.circle(colorImage, bottomB, 10, new Scalar(100, 255, 80), 3);
         Highgui.imwrite("test_work_grid.jpg", colorImage);
         return false;
+    }
+
+    // for testing:
+    // get work image from a specified file
+    private Mat getWorkImage(String path) {
+        // test using the a still image
+        Mat image = Highgui.imread(path);  // OK
+        // TODO use webcam feed
+
+        if (image.empty()) {
+            System.out.println("error");
+            throw new IllegalArgumentException("Couldn't read image from " + path);
+        }
+        Mat workImage = new Mat();
+        Imgproc.cvtColor(image, workImage, Imgproc.COLOR_BGR2GRAY);
+        return workImage;
+
     }
 
     private void morphOpen(Mat src, Mat dest) {
