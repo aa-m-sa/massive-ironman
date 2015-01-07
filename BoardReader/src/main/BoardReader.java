@@ -94,8 +94,8 @@ public class BoardReader {
 
         List<Point> lPts = new ArrayList<Point>();
         List<Point> rPts = new ArrayList<Point>();
-        linesToPoints(lines, 0, workImage.width(), lPts, rPts);
-        printPointLines(lPts, rPts, workImage, new Scalar(255, 255, 255));
+        Lines.linesToPoints(lines, 0, workImage.width(), lPts, rPts);
+        Lines.printPointLines(lPts, rPts, workImage, new Scalar(255, 255, 255));
         Highgui.imwrite("test_work_lines.jpg", workImage);
         // success!
 
@@ -160,10 +160,10 @@ public class BoardReader {
         Scalar rgb = new Scalar(255, 50, 50);
         Mat colorImage = new Mat();
         Imgproc.cvtColor(workImage, colorImage, Imgproc.COLOR_GRAY2BGR);
-        printLine(top[0], top[1], colorImage, rgb);
-        printLine(bottom[0], bottom[1], colorImage, rgb);
-        printLine(left[0], left[1], colorImage, rgb);
-        printLine(right[0], right[1], colorImage, rgb);
+        Lines.printLine(top[0], top[1], colorImage, rgb);
+        Lines.printLine(bottom[0], bottom[1], colorImage, rgb);
+        Lines.printLine(left[0], left[1], colorImage, rgb);
+        Lines.printLine(right[0], right[1], colorImage, rgb);
         Highgui.imwrite("test_work_extrem.jpg", colorImage);
 
         // next: find the intersections of the four lines we found
@@ -241,67 +241,6 @@ public class BoardReader {
 
     }
 
-
-
-    // print a rho-theta line
-    private void printLine(double rho, double theta, Mat outImage, Scalar rgb) {
-        Point a = new Point();
-        Point b = new Point();
-        lineToPoints(rho, theta, 0, outImage.width(), a, b);
-        Core.line(outImage, a, b, rgb);
-
-    }
-
-    // print multiple rho-theta lines (given as a Mat)
-    private void printLines(Mat lines, Mat outImage, Scalar rgb){
-        List<Point> lPts = new ArrayList<Point>();
-        List<Point> rPts = new ArrayList<Point>();
-        linesToPoints(lines, 0, outImage.width(), lPts, rPts);
-        printPointLines(lPts, rPts, outImage, rgb);
-    }
-
-    // print lines (in two point form) to outImage
-    private void printPointLines(List<Point> pts1, List<Point> pts2, Mat outImage, Scalar rgb) {
-        for (int i = 0; i < pts1.size(); i++) {
-            Core.line(outImage, pts1.get(i), pts2.get(i), rgb);
-        }
-    }
-
-    // get two points on the rho-theta line (at horizontal coordinates left and right)
-    // TODO return points instead of changing Points given as parmas? (seel below)
-    private void lineToPoints(double rho, double theta, double left, double right, Point pt1, Point pt2) {
-        double k = -1/Math.tan(theta);
-        double c = rho/Math.sin(theta);
-
-        pt1.x = left;
-        pt1.y = c;
-
-        pt2.x = right;
-        pt2.y = k*right + c;
-    }
-
-    // TODO lPts, rPts lists as params are ugly hack -> better: return a list of pairs of Points (?)
-    private void linesToPoints(Mat lines, double left, double right, List<Point> lPts, List<Point> rPts) {
-        // finds two points pt1, pt2 per line:
-        // pt1 such that pt1.x = left, pt2 such that pt2.x = right
-        // assume lPts, rPts empty or at least pts can be appended to them
-
-        for (int i = 0; i < lines.cols(); i++) {
-            // we need two points on the line to draw it with opencv
-            // normal form
-            double[] line = lines.get(0, i);
-            double rho = line[0];
-            double theta = line[1];
-
-            Point pt1 = new Point();
-            Point pt2 = new Point();
-
-            lineToPoints(rho, theta, left, right, pt1, pt2);
-            lPts.add(pt1);
-            rPts.add(pt2);
-        }
-
-    }
 
 
     public static void main(String[] args) throws Exception {
