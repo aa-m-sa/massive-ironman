@@ -19,16 +19,19 @@ public class Grid {
     private Point[] leftPts;
     private Point[] rightPts;
 
+    private Mat boardImage;
+
     /**
-     * Create a Grid by specifying the corner points.
+     * Create a Grid over a image of a game board by specifying the corner points.
      */
-    public Grid(Point topLeft, Point topRight, Point bottomLeft, Point bottomRight) {
+    public Grid(Mat boardImage, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight) {
         if (!validate(topLeft, topRight, bottomLeft, bottomRight))
             throw new IllegalArgumentException("Can't construct a Grid from these points!");
         this.tl = topLeft;
         this.tr = topRight;
         this.bl = bottomLeft;
         this.br = bottomRight;
+        this.boardImage = boardImage;
 
         determineGridPoints();
     }
