@@ -45,6 +45,7 @@ import main.Lines;
  */
 public class BoardReader {
     private Grid boardGrid;
+    private Mat origGray;
 
     public BoardReader() {
         // constructor
@@ -59,7 +60,7 @@ public class BoardReader {
     public boolean findBoard() {
         //TODO webcam
         Mat workImage = getWorkImage("bin/resources/test1.jpg");
-        Mat origGray = new Mat();
+        origGray = new Mat();
         workImage.copyTo(origGray);
 
         /* the following procedure adapted from aishack tutorial
@@ -84,7 +85,7 @@ public class BoardReader {
 
         Highgui.imwrite("test_work_op.jpg", workImageOp);
 
-        // find lines from wokrImage
+        // find all lines from wokrImage
         Mat lines = new Mat();
         Imgproc.HoughLines(workImage, lines, 1, Math.PI / 180, 300);
         if (lines.cols() < 4) {
@@ -176,35 +177,30 @@ public class BoardReader {
 
         Point botRight = Lines.findIntersection(bottom, right, workImage.width());
 
-        // correct the perspective
         // assume bottom line is the longest
         double dx = botLeft.x - botRight.x;
         double dy = botLeft.y - botLeft.y;
         double maxLen = Math.sqrt(dx * dx + dy * dy);
 
-
+        // correct the perspective
         List<Point> srcPts = new ArrayList<Point>();
         srcPts.add(topLeft);
         srcPts.add(topRight);
         srcPts.add(botRight);
         srcPts.add(botLeft);
 
-        Mat src = Converters.vector_Point2f_to_Mat(srcPts);
-
         Point newTopLeft = new Point(0,0);
         Point newTopRight = new Point(maxLen - 1, 0);
         Point newBotRight = new Point(maxLen - 1, maxLen - 1);
         Point newBotLeft = new Point(0, maxLen - 1);
+
         List<Point> targetPts = new ArrayList<Point>();
         targetPts.add(newTopLeft);
         targetPts.add(newTopRight);
         targetPts.add(newBotRight);
         targetPts.add(newBotLeft);
-        Mat target = Converters.vector_Point2f_to_Mat(targetPts);
 
-        Mat corrected = new Mat();
-        Imgproc.warpPerspective(origGray, corrected,
-                Imgproc.getPerspectiveTransform(src, target), new Size(maxLen, maxLen));
+        Mat corrected = perspectiveCorrected(srcPts, targetPts, maxLen);
         Highgui.imwrite("test_persp.jpg", corrected);
 
         this.boardGrid = new Grid(newTopLeft, newTopRight, newBotRight, newBotLeft);
@@ -228,6 +224,20 @@ public class BoardReader {
         Imgproc.cvtColor(image, workImage, Imgproc.COLOR_BGR2GRAY);
         return workImage;
 
+    }
+
+    // use the board corner points to create a perspective corrected (and
+    // cropped) image from the original grayscale image
+    private Mat perspectiveCorrected(List<Point> srcPts, List<Point> targetPts, double width) {
+
+        Mat src = Converters.vector_Point2f_to_Mat(srcPts);
+
+        Mat target = Converters.vector_Point2f_to_Mat(targetPts);
+
+        Mat corrected = new Mat();
+        Imgproc.warpPerspective(origGray, corrected,
+                Imgproc.getPerspectiveTransform(src, target), new Size(width, width));
+        return corrected;
     }
 
     private static void morphOpen(Mat src, Mat dest) {
