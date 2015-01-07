@@ -13,6 +13,8 @@ import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
+import main.Grid;
+
 /**
  * The actual attempt at Tic Tac Toe Board reading.
  *
@@ -40,13 +42,15 @@ import org.opencv.imgproc.Imgproc;
  * TODO: when able to read the board, combine this project with the Game
  */
 public class BoardReader {
+    private Grid boardGrid;
 
     public BoardReader() {
         // constructor
     }
 
     /**
-     * Recognize the tic tac toe board in webcam video (TODO, now use test jpg picture)
+     * Recognize the tic tac toe board in webcam video (TODO, now use test jpg
+     * picture) and store it's features as a Grid object.
      *
      * @return was the board found successfully
      */
@@ -76,9 +80,13 @@ public class BoardReader {
 
         Highgui.imwrite("test_work_op.jpg", workImageOp);
 
-        // find lines
+        // find lines from wokrImage
         Mat lines = new Mat();
         Imgproc.HoughLines(workImage, lines, 1, Math.PI / 180, 300);
+        if (lines.cols() < 4) {
+            // couldn't find enough lines to determine a board -> return false
+            return false;
+        }
 
         List<Point> lPts = new ArrayList<Point>();
         List<Point> rPts = new ArrayList<Point>();
@@ -89,17 +97,21 @@ public class BoardReader {
 
         // in retrospec morph. open wasn't that useful, even if it looks slightly better
 
+        // next:
         // find the the extreme lines ( = bounding box =outer grid = board limits)
         // still from AiShack tutorial (to get something to work, fast)
         // doesn't necessarily find the *best* extreme ones but good enough for starters
         // argh how would I get top, bottom, etc returned from a function neatly...?!
 
-        // extreme lines
+        // extreme lines as double[2] arrays
         // (rho, theta) ... how I love thee, Python tuple
         double[] top = {Double.MAX_VALUE, Double.MAX_VALUE};
         double[] bottom = {Double.MIN_VALUE, Double.MIN_VALUE};
         double[] left = {Double.MAX_VALUE, Double.MAX_VALUE};
         double[] right = {Double.MIN_VALUE, Double.MIN_VALUE};
+        // another hackish solution
+        boolean topFound, bottomFound, leftFound, rightFound;
+        topFound = bottomFound = leftFound = rightFound = false;
         double rightXintercept = 0;
         double leftXintercept = Double.MAX_VALUE;
 
@@ -111,25 +123,35 @@ public class BoardReader {
 
             // the rho-theta normal form is useful for determining whether line
             // is horizontal / vertical
-            if (theta > Math.PI / 4 && theta < 3 * Math.PI / 4) {
+            if (theta > Math.PI * 3 / 8 && theta <  Math.PI * 5 / 8 ) {
                 // vertical case
-                if (rho < top[0])
+                if (rho < top[0]) {
                     top = line;
-                if (rho > bottom[0])
+                    topFound = true;
+                }
+                if (rho > bottom[0]) {
                     bottom = line;
-            } else {
+                    bottomFound = true;
+                }
+            } else if (theta < Math.PI * 1 / 8 || theta > Math.PI * 7 / 8) {
                 // else horizontal
                 if (xIntercept > rightXintercept) {
                     rightXintercept = xIntercept;
                     right = line;
+                    rightFound = true;
                 }
                 if (xIntercept < leftXintercept) {
                     leftXintercept = xIntercept;
                     left = line;
+                    leftFound = true;
                 }
             }
         }
-        //printLines(extLines, workImage, new Scalar(255, 50, 50));
+        if (!topFound || !bottomFound || !leftFound || !rightFound) {
+            // couldn't find some of the top/bottom/left/right extreme lines
+            return false;
+        }
+
         // awkward printing, let's see if we succeeded
         Scalar rgb = new Scalar(255, 50, 50);
         Mat colorImage = new Mat();
@@ -140,32 +162,22 @@ public class BoardReader {
         printLine(right[0], right[1], colorImage, rgb);
         Highgui.imwrite("test_work_extrem.jpg", colorImage);
 
-        // next: the intersections of the four lines we found
-        // this I can do better than AI shack, I hope...
+        // next: find the intersections of the four lines we found
+        // this I can do better than AI shack...
         Point topRight = findIntersection(top, right, workImage.width());
-        Core.circle(colorImage, topRight, 10, new Scalar(100, 255, 80), 3);
 
         Point topLeft = findIntersection(top, left, workImage.width());
-        Core.circle(colorImage, topLeft, 10, new Scalar(100, 255, 80), 3);
 
         Point botLeft = findIntersection(bottom, left, workImage.width());
-        Core.circle(colorImage, botLeft, 10, new Scalar(100, 255, 80), 3);
 
         Point botRight = findIntersection(bottom, right, workImage.width());
-        Core.circle(colorImage, botRight, 10, new Scalar(100, 255, 80), 3);
 
-        Highgui.imwrite("test_work_inters.jpg", colorImage);
         // sort of success!
-        // next: determine the inner grid line points from these points
-        double botDiffX = botRight.x - botLeft.x;
-        double botDiffY = botRight.y - botLeft.y;
-        Point bottomA = new Point(botLeft.x + botDiffX/3, botLeft.y + botDiffY/3);
-        Core.circle(colorImage, bottomA, 10, new Scalar(100, 255, 80), 3);
+        this.boardGrid = new Grid(topLeft, topRight, botLeft, botRight);
 
-        Point bottomB = new Point(botLeft.x + 2*botDiffX/3, botLeft.y + 2*botDiffY/3);
-        Core.circle(colorImage, bottomB, 10, new Scalar(100, 255, 80), 3);
+        boardGrid.printPoints(colorImage);
         Highgui.imwrite("test_work_grid.jpg", colorImage);
-        return false;
+        return true;
     }
 
     // for testing:
@@ -282,7 +294,8 @@ public class BoardReader {
 
         System.out.println("try loading test image");
         BoardReader breader = new BoardReader();
-        breader.findBoard();
+        boolean success = breader.findBoard();
+        System.out.println(success);
         System.out.println("ok!");
 
     }
