@@ -46,6 +46,14 @@ import main.Lines;
 public class BoardReader {
     private Grid boardGrid;
     private Mat origGray;
+    private Mat baseBoardImage;
+
+    // extreme lines of original board image
+    // rho theta
+    private double[] top    = {Double.MAX_VALUE, Double.MAX_VALUE};
+    private double[] bottom = {Double.MIN_VALUE, Double.MIN_VALUE};
+    private double[] left   = {Double.MAX_VALUE, Double.MAX_VALUE};
+    private double[] right  = {Double.MIN_VALUE, Double.MIN_VALUE};
 
     public BoardReader() {
         // constructor
@@ -108,12 +116,64 @@ public class BoardReader {
         // doesn't necessarily find the *best* extreme ones but good enough for starters
         // argh how would I get top, bottom, etc returned from a function neatly...?!
 
-        // extreme lines as double[2] arrays
-        // (rho, theta) ... how I love thee, Python tuple
-        double[] top = {Double.MAX_VALUE, Double.MAX_VALUE};
-        double[] bottom = {Double.MIN_VALUE, Double.MIN_VALUE};
-        double[] left = {Double.MAX_VALUE, Double.MAX_VALUE};
-        double[] right = {Double.MIN_VALUE, Double.MIN_VALUE};
+        boolean linesFound = findExtremeLines(lines);
+        if (!linesFound)
+            return false;
+
+        // printing, let's see if we succeeded
+        Scalar rgb = new Scalar(255, 50, 50);
+        Mat colorImage = new Mat();
+        Imgproc.cvtColor(workImage, colorImage, Imgproc.COLOR_GRAY2BGR);
+        Lines.printLine(top[0], top[1], colorImage, rgb);
+        Lines.printLine(bottom[0], bottom[1], colorImage, rgb);
+        Lines.printLine(left[0], left[1], colorImage, rgb);
+        Lines.printLine(right[0], right[1], colorImage, rgb);
+        Highgui.imwrite("test_work_extrem.jpg", colorImage);
+
+        // next: find the intersections of the four lines we found
+        // this I can do better than AI shack...
+        Point topRight = Lines.findIntersection(top, right, workImage.width());
+        Point topLeft = Lines.findIntersection(top, left, workImage.width());
+        Point botLeft = Lines.findIntersection(bottom, left, workImage.width());
+        Point botRight = Lines.findIntersection(bottom, right, workImage.width());
+
+        createGridAndBase(topLeft, topRight, botRight, botLeft);
+        return true;
+    }
+
+    private void createGridAndBase(Point topLeft, Point topRight, Point botRight, Point botLeft) {
+        // base image's side == board bottom side
+        double dx = botLeft.x - botRight.x;
+        double dy = botLeft.y - botLeft.y;
+        double maxLen = Math.sqrt(dx * dx + dy * dy);
+
+        List<Point> srcPts = new ArrayList<Point>();
+        srcPts.add(topLeft);
+        srcPts.add(topRight);
+        srcPts.add(botRight);
+        srcPts.add(botLeft);
+
+        Point newTopLeft = new Point(0,0);
+        Point newTopRight = new Point(maxLen - 1, 0);
+        Point newBotRight = new Point(maxLen - 1, maxLen - 1);
+        Point newBotLeft = new Point(0, maxLen - 1);
+
+        List<Point> targetPts = new ArrayList<Point>();
+        targetPts.add(newTopLeft);
+        targetPts.add(newTopRight);
+        targetPts.add(newBotRight);
+        targetPts.add(newBotLeft);
+
+        baseBoardImage = perspectiveCorrected(srcPts, targetPts, maxLen);
+        Highgui.imwrite("test_persp.jpg", baseBoardImage);
+
+        this.boardGrid = new Grid(baseBoardImage, newTopLeft, newTopRight, newBotRight, newBotLeft);
+        boardGrid.printPoints(baseBoardImage);
+        Highgui.imwrite("test_work_grid.jpg", baseBoardImage);
+    }
+
+    // find the board edges (== extreme lines) from all lines
+    private boolean findExtremeLines(Mat lines) {
         // another hackish solution
         boolean topFound, bottomFound, leftFound, rightFound;
         topFound = bottomFound = leftFound = rightFound = false;
@@ -153,59 +213,9 @@ public class BoardReader {
             }
         }
         if (!topFound || !bottomFound || !leftFound || !rightFound) {
-            // couldn't find some of the top/bottom/left/right extreme lines
             return false;
         }
 
-        // awkward printing, let's see if we succeeded
-        Scalar rgb = new Scalar(255, 50, 50);
-        Mat colorImage = new Mat();
-        Imgproc.cvtColor(workImage, colorImage, Imgproc.COLOR_GRAY2BGR);
-        Lines.printLine(top[0], top[1], colorImage, rgb);
-        Lines.printLine(bottom[0], bottom[1], colorImage, rgb);
-        Lines.printLine(left[0], left[1], colorImage, rgb);
-        Lines.printLine(right[0], right[1], colorImage, rgb);
-        Highgui.imwrite("test_work_extrem.jpg", colorImage);
-
-        // next: find the intersections of the four lines we found
-        // this I can do better than AI shack...
-        Point topRight = Lines.findIntersection(top, right, workImage.width());
-
-        Point topLeft = Lines.findIntersection(top, left, workImage.width());
-
-        Point botLeft = Lines.findIntersection(bottom, left, workImage.width());
-
-        Point botRight = Lines.findIntersection(bottom, right, workImage.width());
-
-        // assume bottom line is the longest
-        double dx = botLeft.x - botRight.x;
-        double dy = botLeft.y - botLeft.y;
-        double maxLen = Math.sqrt(dx * dx + dy * dy);
-
-        // correct the perspective
-        List<Point> srcPts = new ArrayList<Point>();
-        srcPts.add(topLeft);
-        srcPts.add(topRight);
-        srcPts.add(botRight);
-        srcPts.add(botLeft);
-
-        Point newTopLeft = new Point(0,0);
-        Point newTopRight = new Point(maxLen - 1, 0);
-        Point newBotRight = new Point(maxLen - 1, maxLen - 1);
-        Point newBotLeft = new Point(0, maxLen - 1);
-
-        List<Point> targetPts = new ArrayList<Point>();
-        targetPts.add(newTopLeft);
-        targetPts.add(newTopRight);
-        targetPts.add(newBotRight);
-        targetPts.add(newBotLeft);
-
-        Mat corrected = perspectiveCorrected(srcPts, targetPts, maxLen);
-        Highgui.imwrite("test_persp.jpg", corrected);
-
-        this.boardGrid = new Grid(newTopLeft, newTopRight, newBotRight, newBotLeft);
-        boardGrid.printPoints(corrected);
-        Highgui.imwrite("test_work_grid.jpg", corrected);
         return true;
     }
 
