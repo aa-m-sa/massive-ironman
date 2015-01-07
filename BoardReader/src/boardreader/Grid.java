@@ -75,11 +75,13 @@ public class Grid {
         makeCells(newImage, newCells, newHistograms, "new");
 
         System.out.println("finding changes");
-        for (int i = 0; i < 9; i++) {
-            // compare histograms
-            double v = Imgproc.compareHist(this.cellHistograms.get(i),
-                    newHistograms.get(i), Imgproc.CV_COMP_CORREL);
-            System.out.println(v);
+        for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 3; i++) {
+                // compare histograms
+                double v = Imgproc.compareHist(this.cellHistograms.get(i + j*3),
+                        newHistograms.get(i + j*3), Imgproc.CV_COMP_CORREL);
+                System.out.println(j + " " + i + " " + v);
+            }
         }
 
         return false;

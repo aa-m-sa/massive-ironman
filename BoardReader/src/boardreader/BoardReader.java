@@ -52,11 +52,14 @@ public class BoardReader {
     private Mat baseBoardImage;
     private Mat newBoardImage;
 
-
-    private Point newTopLeft;
-    private Point newTopRight;
-    private Point newBotRight;
-    private Point newBotLeft;
+    Point topRight;
+    Point topLeft ;
+    Point botLeft ;
+    Point botRight;
+    //private Point newTopLeft;
+    //private Point newTopRight;
+    //private Point newBotRight;
+    //private Point newBotLeft;
 
     public BoardReader(String imagePath) {
         // constructor
@@ -71,7 +74,7 @@ public class BoardReader {
         try {
             //this.origGray = getWorkImage();
             this.baseBoardImage = findBoard();
-            this.boardGrid = new Grid(baseBoardImage, getNewBasePoints());
+            this.boardGrid = new Grid(baseBoardImage, getNewBasePoints(botLeft, botRight));
             boardGrid.printPoints(baseBoardImage);
             Highgui.imwrite("test_work_grid.jpg", baseBoardImage);
         } catch (Exception e) {
@@ -144,16 +147,17 @@ public class BoardReader {
 
         // next: find the intersections of the four lines we found
         // this I can do better than AI shack...
-        Point topRight = Lines.findIntersection(exLines[0], exLines[3], workImage.width());
-        Point topLeft = Lines.findIntersection(exLines[0], exLines[2], workImage.width());
-        Point botLeft = Lines.findIntersection(exLines[1], exLines[2], workImage.width());
-        Point botRight = Lines.findIntersection(exLines[1], exLines[3], workImage.width());
+        topRight = Lines.findIntersection(exLines[0], exLines[3], workImage.width());
+        topLeft = Lines.findIntersection(exLines[0], exLines[2], workImage.width());
+        botLeft = Lines.findIntersection(exLines[1], exLines[2], workImage.width());
+        botRight = Lines.findIntersection(exLines[1], exLines[3], workImage.width());
 
-        return createBase(originalImage, topLeft, topRight, botRight, botLeft);
+        return createBase(originalImage);
     }
 
 
-    private Mat createBase(Mat originalImage, Point topLeft, Point topRight, Point botRight, Point botLeft) {
+    private Mat createBase(Mat originalImage) {
+
         // base image's side == board bottom side
 
         List<Point> srcPts = new ArrayList<Point>();
@@ -163,8 +167,8 @@ public class BoardReader {
         srcPts.add(botLeft);
 
 
-        setNewBasePoints(botLeft, botRight);
-        return perspectiveCorrected(originalImage, srcPts, getNewBasePoints(), getDist(botLeft, botRight));
+        //setNewBasePoints(botLeft, botRight);
+        return perspectiveCorrected(originalImage, srcPts, getNewBasePoints(botLeft, botRight), getDist(botLeft, botRight));
     }
 
     private double getDist(Point botLeft, Point botRight) {
@@ -173,7 +177,13 @@ public class BoardReader {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    private List<Point> getNewBasePoints() {
+
+    private List<Point> getNewBasePoints(Point botLeft, Point botRight) {
+        double maxLen = getDist(botLeft, botRight);
+        Point newTopLeft = new Point(0,0);
+        Point newTopRight = new Point(maxLen - 1, 0);
+        Point newBotRight = new Point(maxLen - 1, maxLen - 1);
+        Point newBotLeft = new Point(0, maxLen - 1);
 
         List<Point> targetPts = new ArrayList<Point>();
         targetPts.add(newTopLeft);
@@ -181,20 +191,15 @@ public class BoardReader {
         targetPts.add(newBotRight);
         targetPts.add(newBotLeft);
         return targetPts;
-    }
-
-    private void setNewBasePoints(Point botLeft, Point botRight) {
-        double maxLen = getDist(botLeft, botRight);
-        newTopLeft = new Point(0,0);
-        newTopRight = new Point(maxLen - 1, 0);
-        newBotRight = new Point(maxLen - 1, maxLen - 1);
-        newBotLeft = new Point(0, maxLen - 1);
 
     }
 
     public void setNewBoardImage(String path) {
         try {
-            this.newBoardImage = findBoard(path);
+            // okay this was a bad idea
+            // this.newBoardImage = findBoard(path);
+            // reuse original base points
+            this.newBoardImage = createBase(getWorkImage(path));
             Highgui.imwrite("test_new_board.jpg", newBoardImage);
         } catch (Exception e) {
             System.out.println("couldn't find new board");
