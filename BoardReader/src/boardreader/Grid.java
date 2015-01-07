@@ -125,7 +125,11 @@ public class Grid {
         // cell: 'mask away' the image outside the shape defined by points, add
         // to list
         Mat mask = new Mat(image.size(), CvType.CV_8UC1, new Scalar(0, 0, 0));
-        Core.rectangle(mask, ul, lr, new Scalar(255, 255, 255), -1);
+        int mb = 30;
+        Point maskPt1 = new Point(ul.x + mb, ul.y + mb);
+        Point maskPt2 = new Point(lr.x - mb, lr.y - mb);
+
+        Core.rectangle(mask, maskPt1, maskPt2, new Scalar(255, 255, 255), -1);
         Mat cell = new Mat();
         image.copyTo(cell, mask);
         cellList.add(cell);
