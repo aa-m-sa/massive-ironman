@@ -190,11 +190,15 @@ public class BoardReader {
 
         Mat src = Converters.vector_Point2f_to_Mat(srcPts);
 
+        Point newTopLeft = new Point(0,0);
+        Point newTopRight = new Point(maxLen - 1, 0);
+        Point newBotRight = new Point(maxLen - 1, maxLen - 1);
+        Point newBotLeft = new Point(0, maxLen - 1);
         List<Point> targetPts = new ArrayList<Point>();
-        targetPts.add(new Point(0,0));
-        targetPts.add(new Point(maxLen - 1, 0));
-        targetPts.add(new Point(maxLen - 1, maxLen - 1));
-        targetPts.add(new Point(0, maxLen - 1));
+        targetPts.add(newTopLeft);
+        targetPts.add(newTopRight);
+        targetPts.add(newBotRight);
+        targetPts.add(newBotLeft);
         Mat target = Converters.vector_Point2f_to_Mat(targetPts);
 
         Mat corrected = new Mat();
@@ -202,9 +206,9 @@ public class BoardReader {
                 Imgproc.getPerspectiveTransform(src, target), new Size(maxLen, maxLen));
         Highgui.imwrite("test_persp.jpg", corrected);
 
-        //this.boardGrid = new Grid(topLeft, topRight, botLeft, botRight);
-        //boardGrid.printPoints(colorImage);
-        //Highgui.imwrite("test_work_grid.jpg", colorImage);
+        this.boardGrid = new Grid(newTopLeft, newTopRight, newBotRight, newBotLeft);
+        boardGrid.printPoints(corrected);
+        Highgui.imwrite("test_work_grid.jpg", corrected);
         return true;
     }
 
