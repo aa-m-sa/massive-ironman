@@ -1,4 +1,4 @@
-package main;
+package boardreader;
 
 import java.lang.Math;
 import java.util.List;
@@ -14,8 +14,8 @@ import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
 
-import main.Grid;
-import main.Lines;
+import boardreader.Grid;
+import boardreader.Lines;
 
 /**
  * The actual attempt at Tic Tac Toe Board reading.

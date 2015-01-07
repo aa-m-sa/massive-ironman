@@ -1,4 +1,4 @@
-package main;
+package boardreader;
 
 import org.opencv.core.Point;
 import org.opencv.core.Mat;

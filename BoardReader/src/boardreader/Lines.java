@@ -1,4 +1,4 @@
-package main;
+package boardreader;
 // TODO change package -> utils
 
 import java.util.List;
