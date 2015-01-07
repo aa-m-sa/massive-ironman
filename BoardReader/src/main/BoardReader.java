@@ -21,7 +21,7 @@ import main.Lines;
  * The actual attempt at Tic Tac Toe Board reading.
  *
  * The Idea:
- *  - when the cam has been set up, grab a frame (or if more finesse is
+ *  - (assuming webcam up and running), grab a frame (or if more finesse is
  *  preferred, a bunch of frame and choose best / average) and find the tic tac
  *  toe board
  *  - by 'find' we mean: determine the outer lines of the box
@@ -74,25 +74,18 @@ public class BoardReader {
 
         /* the following procedure adapted from aishack tutorial
          * http://aishack.in/tutorials/sudoku-grabber-with-opencv-detection/
-         * */
+         */
 
         // blur the image with GaussianBlur to reduce noise (and make the
         // 'background' squares of the paper slightly less pronounced)
         Imgproc.GaussianBlur(workImage, workImage, new Size(21, 21), 0);
 
-        // adaptive threshold
-        // 'extract' the bold, dark lines of the tic tac toe game area / board
+        // adaptive threshold: 'extract' the bold, dark lines of the tic tac toe game area / board
         Imgproc.adaptiveThreshold(workImage, workImage, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 11, 2);
 
-        // invert colors so that the lines we're interested in are white (= large number, high intensity)
+        // invert colors so that the lines we're interested in are white (= large number = high intensity)
         Core.bitwise_not(workImage, workImage);
         Highgui.imwrite("test_work.jpg", workImage);
-
-        // try to remove small artefacts with morph. open (= dilate(erode(img)) )
-        Mat workImageOp = new Mat();
-        morphOpen(workImage, workImageOp);
-
-        Highgui.imwrite("test_work_op.jpg", workImageOp);
 
         // find all lines from wokrImage
         Mat lines = new Mat();
@@ -109,20 +102,17 @@ public class BoardReader {
         Highgui.imwrite("test_work_lines.jpg", workImage);
         // success!
 
-        // in retrospec morph. open wasn't that useful, even if it looks slightly better
-
         // next:
         // find the the extreme lines ( = bounding box =outer grid = board limits)
-        // still from AiShack tutorial (to get something to work, fast)
-        // doesn't necessarily find the *best* extreme ones but good enough for starters
-        // argh how would I get top, bottom, etc returned from a function neatly...?!
+        // also adapted from the AiShack tutorial (to get something to work, fast)
+        // doesn't necessarily find the *best* lines; but good enough for starters
 
         boolean linesFound = findExtremeLines(lines);
         if (!linesFound)
             return false;
 
-        printExtremeLines();
         // printing, let's see if we succeeded
+        printExtremeLines();
 
         // next: find the intersections of the four lines we found
         // this I can do better than AI shack...
