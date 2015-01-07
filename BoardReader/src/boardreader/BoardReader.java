@@ -20,7 +20,7 @@ import boardreader.Lines;
 /**
  * The actual attempt at Tic Tac Toe Board reading.
  *
- * The Idea:
+ * The Mighty Plan:
  *  - (assuming webcam up and running), grab a frame (or if more finesse is
  *  preferred, a bunch of frame and choose best / average) and find the tic tac
  *  toe board
@@ -31,13 +31,14 @@ import boardreader.Lines;
  *  are thus background noise
  *  - now we're ready for the main 'reading' part itself:
  *  - when the Game is waiting for the player input, start:
- *  - the loop: compare if there has been a significant change in the contents of
- *  any cell relative to all other cells; if such a change seems to persist,
+ *  - the loop: compare if there has been a significant change,
  *  most likely that means a X/O mark has been drawn in that cell
+ *  - significant change = L2 norm compared to previous cell
+ *  (no time for more intelligent heurestics)
  *  - when there's significant disturbance (human player's hand / pen, Penbot
  *  is on the board drawing its own mark, etc), discard the webcam input
- *  - a) do not confuse the human opponent's and Penbot's marks! or
- *  - b) report all new drawn marks, it's not BoardReader's job to determine
+ *  - significant disturbance == significant histogram change in (color) image?
+ *  - report all new drawn marks, it's not BoardReader's job to determine
  *  whose they are (the game knows whose turn it is anyway, so it can infer who
  *  did draw it)
  *
