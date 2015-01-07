@@ -1,12 +1,21 @@
 package boardreader;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.opencv.highgui.Highgui;
+import org.opencv.core.CvType;
 import org.opencv.core.Point;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfFloat;
+import org.opencv.core.MatOfInt;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Core;
+import org.opencv.core.Size;
 import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.utils.Converters;
 
 /**
  * Internal representation of the game board grid as a visual object.
@@ -24,30 +33,26 @@ public class Grid {
     private Point[] leftPts;
     private Point[] rightPts;
 
-    /* cell naming scheme
-     * 1 2 3
-     * 4 5 6
-     * 7 8 9
-     */
 
     private List<Mat> cells = new ArrayList<Mat>();
+    private List<Mat> cellHistograms = new ArrayList<Mat>();
 
-    private Mat boardImage;
+    private Mat baseImage;
 
     /**
      * Create a Grid over a image of a game board by specifying the corner points.
      */
-    public Grid(Mat boardImage, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight) {
+    public Grid(Mat baseImage, Point topLeft, Point topRight, Point bottomLeft, Point bottomRight) {
         if (!validate(topLeft, topRight, bottomLeft, bottomRight))
             throw new IllegalArgumentException("Can't construct a Grid from these points!");
         this.tl = topLeft;
         this.tr = topRight;
         this.bl = bottomLeft;
         this.br = bottomRight;
-        this.boardImage = boardImage;
+        this.baseImage = baseImage;
 
         determineGridPoints();
-        findCells();
+        makeCells();
     }
 
     public void printPoints(Mat outImage) {
@@ -75,9 +80,34 @@ public class Grid {
 
     }
 
-    private void findCells() {
-    
+    private void makeCells() {
+        Point[][] cellPoints = {topPts, secondRowPts, thirdRowPts, bottomPts};
+        for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 3; i++) {
+                makeCell(cellPoints[j][i], cellPoints[j][i+1], cellPoints[j+1][i], cellPoints[j+1][i+1]);
+                Highgui.imwrite("test_cell_mask" + i + j + ".jpg", cells.get(i+j*3));
+            }
+        }
     }
+
+    private void makeCell(Point ul, Point ur, Point ll, Point lr) {
+        // cell: 'mask away' the image outside the shape defined by points, add to list
+        Mat mask = new Mat(baseImage.size(), CvType.CV_8UC1, new Scalar(0, 0, 0));
+        Core.rectangle(mask, ul, lr, new Scalar(255, 255, 255), -1);
+        Mat cell = new Mat();
+        baseImage.copyTo(cell, mask);
+        cells.add(cell);
+
+        // also add its histogram to list
+        Mat hist = new Mat();
+        MatOfInt channel = new MatOfInt(0);
+        MatOfInt histSize = new MatOfInt(256);
+        MatOfFloat range = new MatOfFloat(0, 255);
+
+        Imgproc.calcHist(Arrays.asList(baseImage), channel, mask, hist, histSize, range);
+        cellHistograms.add(hist);
+    }
+
 
     // Point a should be closer to (0,0) than b
     // TODO choose a from two points
