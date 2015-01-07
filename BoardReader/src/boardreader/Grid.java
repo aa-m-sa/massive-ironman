@@ -79,7 +79,7 @@ public class Grid {
             for (int i = 0; i < 3; i++) {
                 // compare histograms
                 double v = Imgproc.compareHist(this.cellHistograms.get(i + j*3),
-                        newHistograms.get(i + j*3), Imgproc.CV_COMP_CORREL);
+                        newHistograms.get(i + j*3), Imgproc.CV_COMP_CHISQR);
                 System.out.println(j + " " + i + " " + v);
             }
         }

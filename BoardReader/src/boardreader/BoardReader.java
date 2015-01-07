@@ -94,6 +94,28 @@ public class BoardReader {
         return findBoard(stillImagePath);
     }
 
+    private Mat morphWorkImage(Mat src) {
+        Mat dst = new Mat();
+        // blur the image with GaussianBlur to reduce noise (and make the
+        // 'background' squares of the paper slightly less pronounced)
+        Imgproc.GaussianBlur(src, dst, new Size(21, 21), 0);
+
+        // adaptive threshold: 'extract' the bold, dark lines of the tic tac
+        // toe game area / board
+        Imgproc.adaptiveThreshold(dst, dst, 255,
+                Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 11, 2);
+
+        // invert colors so that the lines we're interested in are white (= large number = high intensity)
+        Core.bitwise_not(dst, dst);
+        Highgui.imwrite("test_work.jpg", dst);
+
+        // thresold 'breaks' some thin lines in the image, try to retrieve them
+        // with dilation and morph close
+        dst = dilated(dst, 5);
+        dst = morphClose(dst);
+        return dst;
+    }
+
     public Mat findBoard(String path) throws Exception {
         Mat workImage = getWorkImage(path);
         Mat originalImage = workImage.clone();
@@ -102,23 +124,7 @@ public class BoardReader {
          * http://aishack.in/tutorials/sudoku-grabber-with-opencv-detection/
          */
 
-        // blur the image with GaussianBlur to reduce noise (and make the
-        // 'background' squares of the paper slightly less pronounced)
-        Imgproc.GaussianBlur(workImage, workImage, new Size(21, 21), 0);
-
-        // adaptive threshold: 'extract' the bold, dark lines of the tic tac
-        // toe game area / board
-        Imgproc.adaptiveThreshold(workImage, workImage, 255,
-                Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 11, 2);
-
-        // invert colors so that the lines we're interested in are white (= large number = high intensity)
-        Core.bitwise_not(workImage, workImage);
-        Highgui.imwrite("test_work.jpg", workImage);
-
-        // thresold 'breaks' some thin lines in the image, try to retrieve them
-        // with dilation and morph close
-        workImage = dilated(workImage, 5);
-        workImage = morphClose(workImage);
+        workImage = morphWorkImage(workImage);
 
         // find all lines from wokrImage
         Mat lines = new Mat();
@@ -152,7 +158,7 @@ public class BoardReader {
         botLeft = Lines.findIntersection(exLines[1], exLines[2], workImage.width());
         botRight = Lines.findIntersection(exLines[1], exLines[3], workImage.width());
 
-        return createBase(originalImage);
+        return createBase(workImage);
     }
 
 
@@ -199,7 +205,9 @@ public class BoardReader {
             // okay this was a bad idea
             // this.newBoardImage = findBoard(path);
             // reuse original base points
-            this.newBoardImage = createBase(getWorkImage(path));
+            Mat im = getWorkImage(path);
+            Mat mim  = morphWorkImage(im);
+            this.newBoardImage = createBase(mim);
             Highgui.imwrite("test_new_board.jpg", newBoardImage);
         } catch (Exception e) {
             System.out.println("couldn't find new board");
