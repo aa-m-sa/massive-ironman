@@ -21,6 +21,13 @@ public class GameMove {
     }
 
     /**
+     * Create a GameMove with an unspecified Mark.
+     */
+    public GameMove(int x, int y) {
+        this(Mark.EMPTY, x, y);
+    }
+
+    /**
      * @return the mark
      */
     public Mark getMark() {
@@ -39,5 +46,9 @@ public class GameMove {
      */
     public int getY() {
         return y;
+    }
+
+    public String toString() {
+        return mark.toString() + ": x: " + x + ", y: " + y;
     }
 }
