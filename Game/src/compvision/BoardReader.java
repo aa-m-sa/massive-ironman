@@ -1,4 +1,4 @@
-package boardreader;
+package compvision;
 
 import java.lang.Math;
 import java.util.List;
@@ -16,9 +16,9 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.highgui.VideoCapture;
 import org.opencv.utils.Converters;
 
-import boardreader.Grid;
-import boardreader.Lines;
-import boardreader.Morphs;
+import compvision.Grid;
+import compvision.Lines;
+import compvision.Morphs;
 
 /**
  * The actual attempt at Tic Tac Toe Board reading.
@@ -355,23 +355,10 @@ public class BoardReader {
         System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
         System.out.println("ok!");
 
-        VideoCapture webcam = new VideoCapture(0);
-        System.out.println("lol");
-        while (!webcam.isOpened()) {
-            System.out.println("errar");
-            Thread.sleep(1000);
-        }
-        Mat camImage = new Mat();
-        String input = "";
-        for (int i = 0; input.equals("quit"); i++) {
-            input = scanner.nextLine();
-            webcam.retrieve(camImage);
-            System.out.println(i);
-            Highgui.imwrite("webcam-test-pic.jpg", camImage);
-        }
 
         //BoardReader breader = new BoardReader();
 
         scanner.close();
     }
+
 }

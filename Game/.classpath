@@ -5,6 +5,7 @@
 	<classpathentry kind="var" path="NXJ_HOME/lib/pc/pccomm.jar"/>
 	<classpathentry kind="var" path="NXJ_HOME/lib/pc/3rdparty/bluecove.jar"/>
 	<classpathentry kind="var" path="NXJ_HOME/lib/pc/3rdparty/bluecove-gpl.jar"/>
-	<classpathentry kind="var" path="NXJ_HOME"/>
+        <classpathentry kind="var" path="NXJ_HOME"/>
+        <classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/OpenCV-2.4.10"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
