@@ -7,7 +7,10 @@ import org.opencv.core.Core;
 import game.Game;
 import game.Player;
 import comms.BTComms;
+
+import game.ui.AssistedWebcamPlayer;
 import game.ui.StandardPlayer;
+
 import compvision.Webcam;
 
 public class Main {
@@ -35,9 +38,9 @@ public class Main {
         // player representation: for now, get player movements form stdin
         // set up stdin input
         Scanner reader = new Scanner(System.in);
-        Player player = new StandardPlayer(reader);
+        //Player player = new StandardPlayer(reader);
         // TODO determine player movements with OpenCV from webcam
-        // Player player = new WebcamPlayer(webcam) or something;
+        Player player = new AssistedWebcamPlayer(webcam);
 
         // create a Game and provide it a player
         Game game = new Game(player, botConn);
