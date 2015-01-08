@@ -20,6 +20,8 @@ import compvision.Grid;
 import compvision.Lines;
 import compvision.Morphs;
 
+import game.GameMove;
+
 /**
  * The actual attempt at Tic Tac Toe Board reading.
  *
@@ -108,6 +110,11 @@ public class BoardReader {
         Highgui.imwrite("test_new_board.jpg", newBoardImage);
     }
 
+    public boolean readBoardChanges(Mat image) {
+        setNewBoardImage(image);
+        return readBoardChanges();
+    }
+
 
     /**
      * Try to find if any cell in the board has changed.
@@ -124,12 +131,23 @@ public class BoardReader {
         boolean changed = this.boardGrid.findChanges(newBoardImage);
         if (changed) {
             int[] c = boardGrid.getLastChangedCell();
-            System.out.println("Changed: " + c[0] + " " + c[1]);
-            this.updateBaseBoard();
+            System.out.println("Read a change: " + c[0] + " " + c[1]);
+            //this.updateBaseBoard();
         } else {
             System.out.println("no change");
         }
         return changed;
+    }
+
+    /**
+     * Get the last changed cell in the board as a GameMove.
+     *
+     * @return GameMove where the Mark is Empty and Grid coordinates translated
+     * to GameMove format.
+     */
+    public GameMove getLastBoardChange() {
+        int[] gridCell = boardGrid.getLastChangedCell();
+        return new GameMove(gridCell[0], gridCell[1]);
     }
 
 
