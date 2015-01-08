@@ -26,7 +26,7 @@ public class Penbot {
     private static double outerCellSize = 20.0;
 
     // distance from pen tip point to the nearest board corner in mm
-    private double botDistToBoard = 50;
+    private double botDistToBoard = 90;
     // base coordinates:
     //  the coords of the board corner nearest to the bot
     private double boardBaseY = botDistToBoard;
@@ -43,12 +43,12 @@ public class Penbot {
 
 
     /* define size of marks PenBot draws*/
-    private double markSize = 10.0;
+    private double markSize = 14.0;
     // distance to move backwards - forwards
     private double crossLine = this.markSize;
     // angle to to rotate
     // TODO calculate from crossLine + penDist
-    private double crossRot = 10.0;
+    private double crossRot = 14.0;
 
     /* motors*/
     private NXTRegulatedMotor leftMotor = Motor.A;
