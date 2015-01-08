@@ -137,7 +137,7 @@ public class Grid {
         Mat cell = new Mat();
         image.copyTo(cell, mask);
         // morph open: get rid of small artefacts
-        cell = BoardReader.morphOpen(cell);
+        cell = Morphs.morphOpen(cell);
         cellList.add(cell);
 
         // also add its histogram to list

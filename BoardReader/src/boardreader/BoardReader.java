@@ -16,6 +16,7 @@ import org.opencv.utils.Converters;
 
 import boardreader.Grid;
 import boardreader.Lines;
+import boardreader.Morphs;
 
 /**
  * The actual attempt at Tic Tac Toe Board reading.
@@ -112,8 +113,8 @@ public class BoardReader {
 
         // thresold 'breaks' some thin lines in the image, try to retrieve them
         // with dilation and morph close
-        dst = dilated(dst, 5);
-        dst = morphClose(dst);
+        dst = Morphs.dilated(dst, 5);
+        dst = Morphs.morphClose(dst);
         return dst;
     }
 
@@ -331,43 +332,6 @@ public class BoardReader {
                 Imgproc.getPerspectiveTransform(src, target), new Size(width, width));
         return corrected;
     }
-
-    public static Mat morphOpen(Mat src) {
-        Mat dest = new Mat();
-        Mat ekernel = new Mat();
-        ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(11, 11));
-        Imgproc.erode(src, dest, ekernel);
-
-        Mat dkernel = new Mat();
-        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
-        Imgproc.dilate(dest, dest, dkernel);
-        return dest;
-
-    }
-
-    private static Mat morphClose(Mat src) {
-        Mat dest = new Mat();
-
-        Mat dkernel = new Mat();
-        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
-        Imgproc.dilate(src, dest, dkernel);
-
-        Mat ekernel = new Mat();
-        ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(3, 3));
-        Imgproc.erode(dest, dest, ekernel);
-
-        return dest;
-
-    }
-
-    public static Mat dilated(Mat src, int size) {
-        Mat dkernel = new Mat();
-        Mat dest = new Mat();
-        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(size, size));
-        Imgproc.dilate(src, dest, dkernel);
-        return dest;
-    }
-
 
     public static void main(String[] args) throws Exception {
     	// load native library
