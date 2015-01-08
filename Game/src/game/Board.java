@@ -10,7 +10,7 @@ import game.Mark;
  * 1,2|1,1|1,0
  * -----------
  * 0,2|0,1|0,0
- *            (bot)
+ *     cam    (bot)
  */
 public class Board {
     private Mark[][] board = new Mark[3][3];
