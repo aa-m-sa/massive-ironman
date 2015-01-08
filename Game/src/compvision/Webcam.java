@@ -6,10 +6,12 @@ import javax.swing.JLabel;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.util.Scanner;
 
 /**
  * Stuff related to reading webcam and displaying its video feed in a window.
@@ -20,6 +22,9 @@ public class Webcam implements Runnable {
     private JFrame window = new JFrame("Webcam");
     private ImageIcon image = new ImageIcon();
     private JLabel label = new JLabel();
+    private Mat camGrab = new Mat();
+
+    private volatile boolean running = true;
 
     public Webcam(int device) throws InterruptedException {
 
@@ -34,19 +39,42 @@ public class Webcam implements Runnable {
         label.setIcon(image);
         window.getContentPane().add(label);
         window.setResizable(false);
+        window.setVisible(true);
     }
 
     public void run() {
-        Mat camGrab = new Mat();
         System.out.println("waiting for cam to open...");
 
-        for (int i = 0; ; i++) {
-            boolean ok = webcam.read(camGrab);
-            image.setImage(toBufferedImage(camGrab));
-            window.pack();
-            label.updateUI();
-            window.setVisible(true);
+        while (running) {
+            updateCam();
+            Thread.yield();
         }
+
+        webcam.release();
+        window.dispose();
+    }
+
+    /**
+     * Quit reading webcam feed.
+     */
+    public void quit() {
+        this.running = false;
+    }
+
+    private synchronized void updateCam() {
+        boolean ok = webcam.read(camGrab);
+        image.setImage(toBufferedImage(camGrab));
+        window.pack();
+        label.updateUI();
+    }
+
+    /**
+     * Return a copy of current webcam grab.
+     * */
+    public synchronized Mat getGrab() {
+        Mat copyGrab = new Mat();
+        camGrab.copyTo(copyGrab);
+        return copyGrab;
     }
 
     /* credit due to https://github.com/master-atul/ImShow-Java-OpenCV */
@@ -66,6 +94,18 @@ public class Webcam implements Runnable {
 
     public static void main(String[] args) throws InterruptedException {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        (new Thread(new Webcam(1))).start();
+        Scanner scanner = new Scanner(System.in);
+        Webcam cam = new Webcam(1);
+        Thread wt =new Thread(cam);
+        wt.start();
+        String userIn = "";
+        while (!userIn.equals("quit")) {
+            userIn = scanner.nextLine();
+            Mat test = cam.getGrab();
+            Highgui.imwrite("webcam-threaded-test-.jpg", test);
+        }
+        System.out.println("quitting");
+        cam.quit();
+        wt.join();
     }
 }
