@@ -46,37 +46,38 @@ import boardreader.Morphs;
  * TODO: when able to read the board, combine this project with the Game
  */
 public class BoardReader {
-    private String stillImagePath;
+    // TODO: instead of using still image as a source, use webcam
+    private String sourceImagePath;
     private Grid boardGrid;
-    //private Mat origGray = new  Mat();
-    //private Mat workImage;
 
     private Mat baseBoardImage;
     private Mat newBoardImage;
+    private double baseBoardWidth;   // width of persp. corrected & cropped board im
 
-    Point topRight;
-    Point topLeft ;
-    Point botLeft ;
-    Point botRight;
-    //private Point newTopLeft;
-    //private Point newTopRight;
-    //private Point newBotRight;
-    //private Point newBotLeft;
+    // the extreme lines and their intersection points int the source image
+    private double[][] exLines;     // top, bottom, left, right
+    private Point topRight;
+    private Point topLeft;
+    private Point botLeft;
+    private Point botRight;
 
     public BoardReader(String imagePath) {
         // constructor
-        this.stillImagePath = imagePath;
+        this.sourceImagePath = imagePath;
     }
 
-    public void setStillImagePath(String newPath) {
-        this.stillImagePath = newPath;
+    public void setSourceImagePath(String newPath) {
+        this.sourceImagePath = newPath;
     }
 
+    /**
+     * Find the base tic tac toe board from source image.
+     */
     public void findBaseBoard() {
         try {
             //this.origGray = getWorkImage();
-            this.baseBoardImage = findBoard();
-            this.boardGrid = new Grid(baseBoardImage, getNewBasePoints(botLeft, botRight));
+            this.baseBoardImage = findBoard(sourceImagePath);
+            this.boardGrid = new Grid(baseBoardImage, getBaseBoardPoints());
             boardGrid.printPoints(baseBoardImage);
             Highgui.imwrite("test_work_grid.jpg", baseBoardImage);
         } catch (Exception e) {
@@ -84,41 +85,42 @@ public class BoardReader {
         }
     }
 
+    public void setNewBoardImage(String path) {
+        try {
+            // okay this was a bad idea
+            // this.newBoardImage = findBoard(path);
+            // reuse original base points
+            Mat im = getWorkImage(path);
+            Mat mim  = morphWorkImage(im);
+            this.newBoardImage = createBase(mim);
+            Highgui.imwrite("test_new_board.jpg", newBoardImage);
+        } catch (Exception e) {
+            System.out.println("couldn't find new board");
+            System.out.println(e);
+        }
+    }
+
+
     /**
-     * Recognize the tic tac toe board in webcam video (TODO, now use test jpg
-     * picture).
-     * Stores it's features internally as a Grid object for future handling.
+     * Try to find if any cell in the board has changed.
      *
-     * @return was the board found successfully
+     * Compares the baseBoardImage to newBoardImage
+     *
+     * @return if a change was detected
      */
-    public Mat findBoard() throws Exception {
-        //TODO webcam
-        return findBoard(stillImagePath);
+    public boolean readBoardChanges() {
+
+        if (this.newBoardImage == null || this.newBoardImage.empty())
+            return false;
+        System.out.println("trying to read changes");
+        this.boardGrid.findChanges(newBoardImage);
+        return false;
     }
 
-    private Mat morphWorkImage(Mat src) {
-        Mat dst = new Mat();
-        // blur the image with GaussianBlur to reduce noise (and make the
-        // 'background' squares of the paper slightly less pronounced)
-        Imgproc.GaussianBlur(src, dst, new Size(21, 21), 0);
 
-        // adaptive threshold: 'extract' the bold, dark lines of the tic tac
-        // toe game area / board
-        Imgproc.adaptiveThreshold(dst, dst, 255,
-                Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 11, 2);
-
-        // invert colors so that the lines we're interested in are white (= large number = high intensity)
-        Core.bitwise_not(dst, dst);
-        Highgui.imwrite("test_work.jpg", dst);
-
-        // thresold 'breaks' some thin lines in the image, try to retrieve them
-        // with dilation and morph close
-        dst = Morphs.dilated(dst, 5);
-        dst = Morphs.morphClose(dst);
-        return dst;
-    }
-
-    public Mat findBoard(String path) throws Exception {
+    // try to find a visual object resembling a tic tac toe board from image
+    // specified by the path
+    private Mat findBoard(String path) throws Exception {
         Mat workImage = getWorkImage(path);
         Mat originalImage = workImage.clone();
 
@@ -148,7 +150,7 @@ public class BoardReader {
         // also adapted from the AiShack tutorial (to get something to work, fast)
         // doesn't necessarily find the *best* lines; but good enough for starters
 
-        double[][] exLines = findExtremeLines(lines);
+        exLines  = findExtremeLines(lines);
 
         // printing, let's see if we succeeded
         printExtremeLines(workImage, exLines);
@@ -175,23 +177,25 @@ public class BoardReader {
         srcPts.add(botLeft);
 
 
-        //setNewBasePoints(botLeft, botRight);
-        return perspectiveCorrected(originalImage, srcPts, getNewBasePoints(botLeft, botRight), getDist(botLeft, botRight));
+        setBaseBoardWidth(botLeft, botRight);
+        return perspectiveCorrected(originalImage, srcPts, getBaseBoardPoints(), baseBoardWidth);
     }
 
-    private double getDist(Point botLeft, Point botRight) {
+    private static double getDist(Point botLeft, Point botRight) {
         double dx = botLeft.x - botRight.x;
         double dy = botLeft.y - botLeft.y;
         return Math.sqrt(dx * dx + dy * dy);
     }
 
+    private void setBaseBoardWidth(Point botLeft, Point botRight) {
+        this.baseBoardWidth = getDist(botLeft, botRight);
+    }
 
-    private List<Point> getNewBasePoints(Point botLeft, Point botRight) {
-        double maxLen = getDist(botLeft, botRight);
+    private List<Point> getBaseBoardPoints() {
         Point newTopLeft = new Point(0,0);
-        Point newTopRight = new Point(maxLen - 1, 0);
-        Point newBotRight = new Point(maxLen - 1, maxLen - 1);
-        Point newBotLeft = new Point(0, maxLen - 1);
+        Point newTopRight = new Point(baseBoardWidth - 1, 0);
+        Point newBotRight = new Point(baseBoardWidth - 1, baseBoardWidth - 1);
+        Point newBotLeft = new Point(0, baseBoardWidth - 1);
 
         List<Point> targetPts = new ArrayList<Point>();
         targetPts.add(newTopLeft);
@@ -200,36 +204,6 @@ public class BoardReader {
         targetPts.add(newBotLeft);
         return targetPts;
 
-    }
-
-    public void setNewBoardImage(String path) {
-        try {
-            // okay this was a bad idea
-            // this.newBoardImage = findBoard(path);
-            // reuse original base points
-            Mat im = getWorkImage(path);
-            Mat mim  = morphWorkImage(im);
-            this.newBoardImage = createBase(mim);
-            Highgui.imwrite("test_new_board.jpg", newBoardImage);
-        } catch (Exception e) {
-            System.out.println("couldn't find new board");
-            System.out.println(e);
-        }
-    }
-
-
-    /**
-     * Try to find if any cell in the board has changed.
-     *
-     * Compares the base to newBoardImage
-     *
-     * @return if a change was detected
-     */
-    public boolean readBoardChanges() {
-
-        System.out.println("trying to read changes");
-        this.boardGrid.findChanges(newBoardImage);
-        return false;
     }
 
     // find the board edges (== extreme lines) from all lines
@@ -301,7 +275,7 @@ public class BoardReader {
     // for testing:
     // get work image from a specified file
     private Mat getWorkImage() {
-        return getWorkImage(stillImagePath);
+        return getWorkImage(sourceImagePath);
     }
 
     private Mat getWorkImage(String path) {
@@ -333,10 +307,33 @@ public class BoardReader {
         return corrected;
     }
 
+    private static Mat morphWorkImage(Mat src) {
+        Mat dst = new Mat();
+        // blur the image with GaussianBlur to reduce noise (and make the
+        // 'background' squares of the paper slightly less pronounced)
+        Imgproc.GaussianBlur(src, dst, new Size(21, 21), 0);
+
+        // adaptive threshold: 'extract' the bold, dark lines of the tic tac
+        // toe game area / board
+        Imgproc.adaptiveThreshold(dst, dst, 255,
+                Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 11, 2);
+
+        // invert colors so that the lines we're interested in are white (= large number = high intensity)
+        Core.bitwise_not(dst, dst);
+        Highgui.imwrite("test_work.jpg", dst);
+
+        // thresold 'breaks' some thin lines in the image, try to retrieve them
+        // with dilation and morph close
+        dst = Morphs.dilated(dst, 5);
+        dst = Morphs.morphClose(dst);
+        return dst;
+    }
+
+
     public static void main(String[] args) throws Exception {
-    	// load native library
+        // load native library
         System.out.println("Load OpenCV native libs...");
-    	System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
+        System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
         System.out.println("ok!");
 
         System.out.println("try loading test image");
