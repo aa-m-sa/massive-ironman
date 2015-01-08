@@ -182,7 +182,7 @@ public class Grid {
         }
     }
 
-    private void makeCell(Mat image, Point ul, Point ur, Point ll, Point lr,
+    private void makeCell(Mat image, Point lr, Point ll, Point ur, Point ul,
             List<Mat> cellList, List<Mat> histList) {
         // cell: 'mask away' the image outside the shape defined by points, add
         // to list
