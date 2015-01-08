@@ -76,7 +76,10 @@ public class BoardReader {
     public void findBaseBoard() {
         try {
             //this.origGray = getWorkImage();
-            this.baseBoardImage = findBoard(sourceImagePath);
+            Mat sourceImage = getWorkImage(sourceImagePath);
+            findBoardPoints(sourceImage);
+            this.baseBoardImage = createBase(morphWorkImage(sourceImage));
+
             this.boardGrid = new Grid(baseBoardImage, getBaseBoardPoints());
             boardGrid.printPoints(baseBoardImage);
             Highgui.imwrite("test_work_grid.jpg", baseBoardImage);
@@ -120,9 +123,8 @@ public class BoardReader {
 
     // try to find a visual object resembling a tic tac toe board from image
     // specified by the path
-    private Mat findBoard(String path) throws Exception {
-        Mat workImage = getWorkImage(path);
-        Mat originalImage = workImage.clone();
+    private void findBoardPoints(Mat originalImage) throws Exception {
+        Mat workImage = originalImage.clone();
 
         /* the following procedure adapted from aishack tutorial
          * http://aishack.in/tutorials/sudoku-grabber-with-opencv-detection/
@@ -162,7 +164,6 @@ public class BoardReader {
         botLeft = Lines.findIntersection(exLines[1], exLines[2], workImage.width());
         botRight = Lines.findIntersection(exLines[1], exLines[3], workImage.width());
 
-        return createBase(morphWorkImage(originalImage));
     }
 
 
