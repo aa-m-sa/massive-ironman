@@ -3,6 +3,7 @@ package game.ui;
 import java.util.Scanner;
 
 import org.opencv.core.Mat;
+import org.opencv.highgui.Highgui;
 
 import game.Player;
 import game.Mark;
@@ -22,9 +23,10 @@ public class AssistedWebcamPlayer implements Player {
     private BoardReader breader;
     private Mark mark;
 
-    public AssistedWebcamPlayer(Webcam webcam, Mark mark) {
+    public AssistedWebcamPlayer(Webcam webcam, Scanner reader) {
         this.webcam = webcam;
-        this.mark = mark;
+        this.reader = reader;
+        this.mark = Mark.O_MARK;
         initializeVision();
     }
 
@@ -34,8 +36,18 @@ public class AssistedWebcamPlayer implements Player {
     public void initializeVision() {
         System.out.println("Please adjust the webcam. When ready, press ENTER.");
         reader.nextLine();
-        Mat initIm = webcam.getGrab();
+        Mat initIm;
+        while (webcam.getGrab().empty()) {
+            try {
+                Thread.sleep(50);
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        initIm = webcam.getGrab();
+        Highgui.imwrite("init-test.jpg", initIm);
         this.breader = new BoardReader(initIm);
+        breader.findBaseBoard();
     }
 
     public GameMove getMove() {

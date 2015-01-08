@@ -40,7 +40,7 @@ public class Main {
         Scanner reader = new Scanner(System.in);
         //Player player = new StandardPlayer(reader);
         // TODO determine player movements with OpenCV from webcam
-        Player player = new AssistedWebcamPlayer(webcam);
+        Player player = new AssistedWebcamPlayer(webcam, reader);
 
         // create a Game and provide it a player
         Game game = new Game(player, botConn);

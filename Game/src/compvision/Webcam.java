@@ -46,6 +46,7 @@ public class Webcam implements Runnable {
         window.getContentPane().add(label);
         window.setResizable(false);
         window.setVisible(true);
+        updateCam();
     }
 
     public void run() {

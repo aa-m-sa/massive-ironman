@@ -6,28 +6,28 @@ import org.opencv.imgproc.Imgproc;
 
 public class Morphs {
 
-    public static Mat morphOpen(Mat src) {
+    public static Mat morphOpen(Mat src, int ero, int dil) {
         Mat dest = new Mat();
         Mat ekernel = new Mat();
-        ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(11, 11));
+        ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(ero, ero));
         Imgproc.erode(src, dest, ekernel);
 
         Mat dkernel = new Mat();
-        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
+        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(dil, dil));
         Imgproc.dilate(dest, dest, dkernel);
         return dest;
 
     }
 
-    public static Mat morphClose(Mat src) {
+    public static Mat morphClose(Mat src, int dil, int ero) {
         Mat dest = new Mat();
 
         Mat dkernel = new Mat();
-        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(5, 5));
+        dkernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(dil, dil));
         Imgproc.dilate(src, dest, dkernel);
 
         Mat ekernel = new Mat();
-        ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(3, 3));
+        ekernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(ero, ero));
         Imgproc.erode(dest, dest, ekernel);
 
         return dest;

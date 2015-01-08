@@ -132,7 +132,7 @@ public class Grid {
         System.out.println("mad:" + mad);
 
         // handpicked guesstimates
-        if (histDiffs[maxDiff] < 1000 && mad < 300) {
+        if (histDiffs[maxDiff] < 400 && mad < 50) {
             System.out.println("no change in grid");
             return false;
         }
@@ -195,7 +195,7 @@ public class Grid {
         Mat cell = new Mat();
         image.copyTo(cell, mask);
         // morph open: get rid of small artefacts
-        cell = Morphs.morphOpen(cell);
+        cell = Morphs.morphOpen(cell, 3, 3);
         cellList.add(cell);
 
         // also add its histogram to list

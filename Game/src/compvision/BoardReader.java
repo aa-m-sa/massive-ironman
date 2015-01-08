@@ -69,6 +69,7 @@ public class BoardReader {
     private Point botRight;
 
     public BoardReader(Mat image) {
+        System.out.println("init BoardReader");
         this.originalImage = image;
     }
 
@@ -84,8 +85,8 @@ public class BoardReader {
      * Find the base tic tac toe board from the original.
      */
     public void findBaseBoard() {
-        Mat sourceImage = getWorkImage(originalImage);
         try {
+            Mat sourceImage = getWorkImage(originalImage);
             findBoardPoints(sourceImage);
             this.baseBoardImage = createBase(morphWorkImage(sourceImage));
 
@@ -102,7 +103,7 @@ public class BoardReader {
     /**
      * Set the new image (to which base is compared)
      */
-    public void setNewBoardImage(Mat image) {
+    public void setNewBoardImage(Mat image) throws Exception {
         this.newImage = image;
         Mat workim = getWorkImage(image);
         Mat morphed  = morphWorkImage(workim);
@@ -111,8 +112,14 @@ public class BoardReader {
     }
 
     public boolean readBoardChanges(Mat image) {
-        setNewBoardImage(image);
-        return readBoardChanges();
+        try {
+            setNewBoardImage(image);
+            return readBoardChanges();
+        } catch (Exception e) {
+            System.out.println("reading changes failed");
+            e.printStackTrace();
+            return false;
+        }
     }
 
 
@@ -154,7 +161,8 @@ public class BoardReader {
     // try to find a visual object resembling a tic tac toe board from image
     // specified by the path
     private void findBoardPoints(Mat originalImage) throws Exception {
-        Mat workImage = originalImage.clone();
+        Mat workImage = new Mat();
+        originalImage.copyTo(workImage);
 
         /* the following procedure adapted from aishack tutorial
          * http://aishack.in/tutorials/sudoku-grabber-with-opencv-detection/
@@ -162,9 +170,16 @@ public class BoardReader {
 
         workImage = morphWorkImage(workImage);
 
+        if (workImage.empty())
+            throw new Exception("can't find boardpts from empty image!");
+
+        Highgui.imwrite("test_workim.jpg", workImage);
         // find all lines from wokrImage
         Mat lines = new Mat();
-        Imgproc.HoughLines(workImage, lines, 1, Math.PI / 180, 350);
+        Imgproc.HoughLines(workImage, lines, 1, Math.PI / 180, 120);
+        if (lines.empty()) {
+            throw new Exception("wtf Hough");
+        }
         if (lines.cols() < 4) {
             // couldn't find enough lines to determine a board
             throw new Exception("can't find enough lines");
@@ -313,9 +328,13 @@ public class BoardReader {
         return image;
     }
 
-    private Mat getWorkImage(Mat image) {
+    private Mat getWorkImage(Mat image) throws Exception {
+        if (image.empty())
+            throw new Exception("can't work on empty image");
         Mat workImage = new Mat();
         Imgproc.cvtColor(image, workImage, Imgproc.COLOR_BGR2GRAY);
+        if (workImage.empty())
+            throw new Exception("creating workimage failed");
         return workImage;
 
     }
@@ -347,12 +366,11 @@ public class BoardReader {
 
         // invert colors so that the lines we're interested in are white (= large number = high intensity)
         Core.bitwise_not(dst, dst);
-        Highgui.imwrite("test_work.jpg", dst);
 
         // thresold 'breaks' some thin lines in the image, try to retrieve them
         // with dilation and morph close
-        dst = Morphs.dilated(dst, 5);
-        dst = Morphs.morphClose(dst);
+        //dst = Morphs.dilated(dst, 3);
+        dst = Morphs.morphClose(dst, 3, 3);
         return dst;
     }
 
