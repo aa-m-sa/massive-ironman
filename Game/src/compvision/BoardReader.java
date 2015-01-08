@@ -48,9 +48,11 @@ import compvision.Morphs;
  * TODO: when able to read the board, combine this project with the Game
  */
 public class BoardReader {
-    // TODO: instead of using still image as a source, use webcam
-    private String sourceImagePath;
-    private String newImagePath;
+    // TODO: instead of using paths to still images, use Mats
+    // -> agnostic to image source
+    private Mat originalImage;
+    private Mat newImage;
+
     private Grid boardGrid;
 
     private Mat baseBoardImage;
@@ -64,52 +66,46 @@ public class BoardReader {
     private Point botLeft;
     private Point botRight;
 
-    public BoardReader(String imagePath) {
-        // constructor
-        this.sourceImagePath = imagePath;
+    public BoardReader(Mat image) {
+        this.originalImage = image;
     }
 
-    public void setSourceImagePath(String newPath) {
-        this.sourceImagePath = newPath;
-    }
-
+    /**
+     * Replace the original with previously loaded newImage.
+     */
     public void updateBaseBoard() {
-        sourceImagePath = newImagePath;
+        originalImage = newImage;
         findBaseBoard();
     }
 
     /**
-     * Find the base tic tac toe board from source image.
+     * Find the base tic tac toe board from the original.
      */
     public void findBaseBoard() {
+        Mat sourceImage = getWorkImage(originalImage);
         try {
-            //this.origGray = getWorkImage();
-            Mat sourceImage = getWorkImage(sourceImagePath);
             findBoardPoints(sourceImage);
             this.baseBoardImage = createBase(morphWorkImage(sourceImage));
 
             this.boardGrid = new Grid(baseBoardImage, getBaseBoardPoints());
             boardGrid.printPoints(baseBoardImage);
             Highgui.imwrite("test_work_grid.jpg", baseBoardImage);
-        } catch (Exception e) {
-            System.out.println("couldn't find board");
+        } catch(Exception e){
+            System.out.println("couldn' find base board");
+            e.printStackTrace();
         }
     }
 
-    public void setNewBoardImage(String path) {
-        try {
-            // okay this was a bad idea
-            // this.newBoardImage = findBoard(path);
-            // reuse original base points
-            this.newImagePath = path;
-            Mat im = getWorkImage(path);
-            Mat mim  = morphWorkImage(im);
-            this.newBoardImage = createBase(mim);
-            Highgui.imwrite("test_new_board.jpg", newBoardImage);
-        } catch (Exception e) {
-            System.out.println("couldn't find new board");
-            System.out.println(e);
-        }
+
+    /**
+     * Set the new image (to which base is compared)
+     */
+    public void setNewBoardImage(Mat image) {
+        this.newImage = image;
+        Mat workim = getWorkImage(image);
+        Mat morphed  = morphWorkImage(workim);
+        this.newBoardImage = createBase(morphed);
+        Highgui.imwrite("test_new_board.jpg", newBoardImage);
     }
 
 
@@ -289,21 +285,17 @@ public class BoardReader {
         Highgui.imwrite("test_work_extrem.jpg", colorImage);
     }
 
-    // for testing:
-    // get work image from a specified file
-    private Mat getWorkImage() {
-        return getWorkImage(sourceImagePath);
-    }
-
-    private Mat getWorkImage(String path) {
-        // test using the a still image
+    private Mat loadImageFromFile(String path) {
         Mat image = Highgui.imread(path);  // OK
-        // TODO use webcam feed
 
         if (image.empty()) {
             System.out.println("error");
             throw new IllegalArgumentException("Couldn't read image from " + path);
         }
+        return image;
+    }
+
+    private Mat getWorkImage(Mat image) {
         Mat workImage = new Mat();
         Imgproc.cvtColor(image, workImage, Imgproc.COLOR_BGR2GRAY);
         return workImage;
