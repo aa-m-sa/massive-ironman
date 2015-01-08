@@ -1,14 +1,24 @@
 package main;
 
 import java.util.Scanner;
+
+import org.opencv.core.Core;
+
 import game.Game;
 import game.Player;
 import comms.BTComms;
 import game.ui.StandardPlayer;
+import compvision.Webcam;
 
 public class Main {
 
     public static void main(String[] args) {
+        // must load opencv native libraries
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        // webcam
+        Webcam webcam = new Webcam(1);
+        Thread camThread = new Thread(webcam);
+        camThread.start();
 
         System.out.println("I am a Tic Tac Toe Game");
         System.out.println("Ensure Penbot is calibrated, up and running!");
@@ -41,5 +51,15 @@ public class Main {
         botConn.closeConnections();
         reader.close();
         System.out.println("OK!");
+        System.out.print("Closing webcam...");
+        webcam.quit();
+        try {
+            camThread.join();
+        } catch (InterruptedException e) {
+            System.out.println("InterruptedException finishing camThread");
+            e.printStackTrace();
+            System.exit(1);
+        }
+        System.out.print("webcam closed.");
     }
 }
