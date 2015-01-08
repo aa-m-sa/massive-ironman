@@ -141,6 +141,9 @@ public class Grid {
         return true;
     }
 
+    /**
+     * @return the last changed cell, in bot coordinates
+     * */
     public int[] getLastChangedCell() {
         return lastChangedCell;
     }
@@ -152,12 +155,12 @@ public class Grid {
 
     // determine the other intersection points in the Grid
     private void determineGridPoints() {
-        bottomPts = getPointsOnLine(bl, br);
-        topPts = getPointsOnLine(tl, tr);
+        bottomPts = getPointsOnLine(br, bl);
+        topPts = getPointsOnLine(tr, tl);
         leftPts = getPointsOnLine(tl, bl);
         rightPts =  getPointsOnLine(tr, br);
-        secondRowPts = getPointsOnLine(leftPts[1], rightPts[1]);
-        thirdRowPts = getPointsOnLine(leftPts[2], rightPts[2]);
+        secondRowPts = getPointsOnLine(rightPts[1], leftPts[1]);
+        thirdRowPts = getPointsOnLine(rightPts[2], leftPts[2]);
 
     }
 
@@ -166,7 +169,8 @@ public class Grid {
     }
 
     private void makeCells(Mat image, List<Mat> cellList, List<Mat> histList, String imStr) {
-        Point[][] cellPoints = {topPts, secondRowPts, thirdRowPts, bottomPts};
+        //Point[][] cellPoints = {topPts, secondRowPts, thirdRowPts, bottomPts};
+        Point[][] cellPoints = {bottomPts, thirdRowPts, secondRowPts, topPts};
         for (int j = 0; j < 3; j++) {
             for (int i = 0; i < 3; i++) {
                 makeCell(image, cellPoints[j][i], cellPoints[j][i+1],
