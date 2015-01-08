@@ -26,11 +26,17 @@ public class Webcam implements Runnable {
 
     private volatile boolean running = true;
 
-    public Webcam(int device) throws InterruptedException {
+    public Webcam(int device) {
 
         System.out.println("Opening device...");
         webcam = new VideoCapture(device);
-        Thread.sleep(1000);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            System.out.println("InterruptedException");
+            System.out.println("webcam constructor couldn't sleep");
+            e.printStackTrace();
+        }
         if (!webcam.isOpened()) {
             System.out.println("Webcam not open!");
         }
