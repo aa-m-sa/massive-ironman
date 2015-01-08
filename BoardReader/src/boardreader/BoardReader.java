@@ -3,6 +3,7 @@ package boardreader;
 import java.lang.Math;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import org.opencv.core.Core;
 import org.opencv.core.Point;
@@ -48,6 +49,7 @@ import boardreader.Morphs;
 public class BoardReader {
     // TODO: instead of using still image as a source, use webcam
     private String sourceImagePath;
+    private String newImagePath;
     private Grid boardGrid;
 
     private Mat baseBoardImage;
@@ -68,6 +70,11 @@ public class BoardReader {
 
     public void setSourceImagePath(String newPath) {
         this.sourceImagePath = newPath;
+    }
+
+    public void updateBaseBoard() {
+        sourceImagePath = newImagePath;
+        findBaseBoard();
     }
 
     /**
@@ -93,6 +100,7 @@ public class BoardReader {
             // okay this was a bad idea
             // this.newBoardImage = findBoard(path);
             // reuse original base points
+            this.newImagePath = path;
             Mat im = getWorkImage(path);
             Mat mim  = morphWorkImage(im);
             this.newBoardImage = createBase(mim);
@@ -116,8 +124,15 @@ public class BoardReader {
         if (this.newBoardImage == null || this.newBoardImage.empty())
             return false;
         System.out.println("trying to read changes");
-        this.boardGrid.findChanges(newBoardImage);
-        return false;
+        boolean changed = this.boardGrid.findChanges(newBoardImage);
+        if (changed) {
+            int[] c = boardGrid.getLastChangedCell();
+            System.out.println("Changed: " + c[0] + " " + c[1]);
+            this.updateBaseBoard();
+        } else {
+            System.out.println("no change");
+        }
+        return changed;
     }
 
 
@@ -332,22 +347,36 @@ public class BoardReader {
 
 
     public static void main(String[] args) throws Exception {
+        Scanner scanner = new Scanner(System.in);
+
         // load native library
         System.out.println("Load OpenCV native libs...");
         System.loadLibrary( Core.NATIVE_LIBRARY_NAME );
         System.out.println("ok!");
 
         System.out.println("try loading test image");
-        BoardReader breader = new BoardReader("bin/resources/2015-01-07-series-1.jpg");
+        BoardReader breader = new BoardReader("bin/resources/2015-01-08-same-1a.jpg");
         System.out.println("try finding base board");
         breader.findBaseBoard();
         System.out.println("ok!");
-        System.out.println("try loading new test image");
-        breader.setNewBoardImage("bin/resources/2015-01-07-series-1.jpg");
+        scanner.nextLine();
+        System.out.println("try loading new test image 1");
+        breader.setNewBoardImage("bin/resources/2015-01-08-same-1b.jpg");
         breader.readBoardChanges();
-        System.out.println("...");
-        breader.setNewBoardImage("bin/resources/2015-01-07-series-2.jpg");
+        scanner.nextLine();
+        System.out.println("2");
+        breader.setNewBoardImage("bin/resources/2015-01-08-same-2a.jpg");
         breader.readBoardChanges();
+        //System.out.println("disturbance");
+        //breader.setNewBoardImage("bin/resources/2015-01-08-same-dist.jpg");
+        //breader.readBoardChanges();
+        for (int i = 3; i <= 10; i++) {
+            scanner.nextLine();
+            System.out.println(i);
+            breader.setNewBoardImage("bin/resources/2015-01-08-same-" + i + ".jpg");
+            breader.readBoardChanges();
+        }
 
+        scanner.close();
     }
 }

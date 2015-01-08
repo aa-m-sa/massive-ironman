@@ -35,6 +35,7 @@ public class Grid {
     private Point[] leftPts;
     private Point[] rightPts;
 
+    private int[] lastChangedCell = {-1, -1};
 
     private List<Mat> cells = new ArrayList<Mat>();
     private List<Mat> cellHistograms = new ArrayList<Mat>();
@@ -77,18 +78,71 @@ public class Grid {
         makeCells(newImage, newCells, newHistograms, "new");
 
         System.out.println("finding changes");
+        // set averages
+        double histSum = 0;
+        double[] histDiffs = new double[9];
+        // norms taken but not currently used
+        double normSum = 0;
+        double[] norms = new double[9];
         for (int j = 0; j < 3; j++) {
             for (int i = 0; i < 3; i++) {
+                int index = i + j*3;
                 // compare histograms
-                double v = Imgproc.compareHist(this.cellHistograms.get(i + j*3),
-                        newHistograms.get(i + j*3), Imgproc.CV_COMP_CHISQR);
-                System.out.println(j + " " + i + " " + v);
-                double norm = Core.norm(cells.get(i + j*3), newCells.get(i +j*3));
-                System.out.println(norm);
+                double hdiff = Imgproc.compareHist(this.cellHistograms.get(index),
+                        newHistograms.get(index), Imgproc.CV_COMP_CHISQR);
+                //System.out.println(j + " " + i + "(" + index +")" + "\n" + hdiff);
+                histSum += hdiff;
+                histDiffs[index] = hdiff;
+                double lnorm = Core.norm(cells.get(index), newCells.get(index), Core.NORM_L1);
+                //System.out.println(lnorm);
+                normSum += lnorm;
+                norms[index] = hdiff;
+
             }
         }
+        double histMean = histSum / 9;
+        double normMean = normSum / 9;
+        System.out.println("hist average:" + histSum/9);
+        // compare to averages
+        // variance and mean absolute deviation
+        double mad = 0;
+        double var = 0;
+        int maxDiff = 0;
+        int mdi, mdj;
+        mdi = mdj = 0;
+        for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 3; i++) {
+                int index = i + j*3;
+                //System.out.println(i);
+                double d = histDiffs[index] - histMean;
+                if (d >= histDiffs[maxDiff]) {
+                    maxDiff = index;
+                    mdi = i;
+                    mdj = j;
+                }
+                //System.out.println(d);
+                var += d * d;
+                mad += Math.abs(d);
+            }
+        }
+        System.out.println("maxDiff:" + histDiffs[maxDiff]);
+        var = var /9;
+        mad = mad /9;
+        //System.out.println("var:" + var );
+        System.out.println("mad:" + mad);
 
-        return false;
+        // handpicked guesstimates
+        if (histDiffs[maxDiff] < 1000 && mad < 300) {
+            System.out.println("no change in grid");
+            return false;
+        }
+        this.lastChangedCell[0] = mdj;
+        this.lastChangedCell[1] = mdi;
+        return true;
+    }
+
+    public int[] getLastChangedCell() {
+        return lastChangedCell;
     }
 
     // TODO
@@ -143,7 +197,7 @@ public class Grid {
         // also add its histogram to list
         Mat hist = new Mat();
         MatOfInt channel = new MatOfInt(0);
-        MatOfInt histSize = new MatOfInt(256);
+        MatOfInt histSize = new MatOfInt(64);
         MatOfFloat range = new MatOfFloat(0, 255);
 
         Imgproc.calcHist(Arrays.asList(image), channel, mask, hist, histSize, range);
