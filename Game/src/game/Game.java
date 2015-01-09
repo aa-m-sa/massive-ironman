@@ -58,6 +58,7 @@ public class Game {
             // from a webcam feed)
             GameMove playerMove = player.getMove();
             board.update(playerMove);
+            System.out.println(board);
             // check again (did player win?)
             if (board.hasGameEnded()) {
                 if (board.gameWin()) {
