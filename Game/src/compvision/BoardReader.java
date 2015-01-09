@@ -186,7 +186,6 @@ public class BoardReader {
         }
         System.out.println("test merging");
         Mat lines = mergeCloseLines(allLines);
-        System.out.println(lines.size());
 
         List<Point> lPts = new ArrayList<Point>();
         List<Point> rPts = new ArrayList<Point>();
@@ -328,8 +327,8 @@ public class BoardReader {
         double rhoDist = 30;
 
         // group by theta
-        // compare each line to already found groups, and put it into one of
-        // them or great a new group for it
+        // compare each line to the already found groups, and put it into one of
+        // them *or* create a new group for it
         for (int i = 1; i < lines.cols(); i++) {
             line = lines.get(0, i);
             rho = line[0];
@@ -381,7 +380,6 @@ public class BoardReader {
             finalGroups.addAll(rhoGroups);
         }
 
-        System.out.println("---");
 
         Mat merged = new Mat(1, finalGroups.size(), lines.type());
         for (int i = 0; i < finalGroups.size(); i++) {
@@ -392,10 +390,10 @@ public class BoardReader {
             //System.out.println(mergedLine[0] + " " + mergedLine[1]);
         }
 
-        System.out.println("merged lines into " + finalGroups.size());
+        System.out.println("merged " + lines.cols() + "  lines into " + finalGroups.size());
 
 
-        System.out.println(merged.size());
+        //System.out.println(merged.size());
         return merged;
     }
 
