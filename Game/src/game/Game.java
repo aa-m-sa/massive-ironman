@@ -33,6 +33,7 @@ public class Game {
         // game loop
         while (true) {
             // print board situation to stdout
+            System.out.println("Board situation:");
             System.out.println(board);
 
             // (bot makes the first move)
@@ -51,6 +52,7 @@ public class Game {
 
             // print board situation to stdout after bot move
             // (compare to actual bot movements)
+            System.out.println("Bot made a move:");
             System.out.println(board);
             // wait for player move
             // (a stdin player just gives a move by writing a cmd to stdin)
@@ -58,6 +60,7 @@ public class Game {
             // from a webcam feed)
             GameMove playerMove = player.getMove();
             board.update(playerMove);
+            System.out.println("You made a move:");
             System.out.println(board);
             // check again (did player win?)
             if (board.hasGameEnded()) {
