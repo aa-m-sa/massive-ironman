@@ -12,12 +12,12 @@ Osatavoitteet:
     - [ ] piirto-käskyjen ("piirrä ruksi ruutuun 0, 1") antaminen robotille läppäriltä USB:n yli **ei onnistu toistaiseksi**
     - [x] sama bluetoothilla **mutta tämä OK!!**
 2. Pelilaudan tilanteen webkameralla (+ OpenCV) tunnistava robo. Kuvantunnistukseen käytetään OpenCV:tä läppärillä.
-    - [ ] JavaCV-ympäristön pystytys niin että jonkinlainen kuvaa käsittelevä softa ylipäätään kääntyy
-    - [ ] webkamera kuvaa peliruudukon + OpenCV + Java -softa läppärillä joka hahmottaa kuvan perustella pelitilanteen (ruudukko, ruksit, ympyrät)
-    - [ ] mahdollisesti hyödynnetään webkameraa piirtimen kalibrointiin?
+    - [x] JavaCV-ympäristön pystytys niin että jonkinlainen kuvaa käsittelevä softa ylipäätään kääntyy
+    - [x] webkamera kuvaa peliruudukon + OpenCV + Java -softa läppärillä joka hahmottaa kuvan perustella pelitilanteen (ruudukko, ruksit, ympyrät)
+    - [ ] mahdollisesti hyödynnetään webkameraa piirtimen kalibrointiin? **ei tarvetta tälle**
 3. Ristinolla-pelitekoäly kuvantunnistuksen päälle
     - [x] läppärin softa pelaa ristinollaa tyhmästi (osaa tunnistaa tyhjän ruuduun ja piirtää siihen ruksin)
-    - [ ] softa pelaa ristinollaa vähemmän tyhmästi (jonkin sortin ristinollatekoäly)
+    - [ ] softa pelaa ristinollaa vähemmän tyhmästi (jonkin sortin ristinollatekoäly) **aika loppui** (jokin minmax olisi ollut tarkoituksena toteuttaa)
 
 ##Haasteet?
 
@@ -25,10 +25,12 @@ Osatavoitteet:
     - kynän nosto / laskeminen piirtopinnalle **OK!**
     - kynän liikuttaminen tarpeeksi tarkasti **Luultavasti OK!**
 2. Paperin lukeminen webbikameralla.
-    - OpenCV:n käyttäminen ylipäätään
-    - Kameran sijoittelu, jotta ruudukon muodot eivät vääristy liikaa, tai OpenCV:n 3d-muunnosten käyttäminen
+    - OpenCV:n käyttäminen ylipäätään **OK!**
+    - Kameran sijoittelu, jotta ruudukon muodot eivät vääristy liikaa, tai OpenCV:n 3d-muunnosten käyttäminen **OpenCV osaa muunnokset helposti**
 
 ##Fallback?
+
+**ei onneksi tarvetta tälle**
 
 Mitäs sitten jos haasteet osoittautuvat liian haastellisiksi, ts jos tarpeeksi tarkan & toimivan merkkejä piirtävän robotin kokoaminen tarpeeksi nopeasti (eli jotta koodaukselle jää aikaa, siis ennen viikkoraportti 2 dedistä) ei onnistu?
 
