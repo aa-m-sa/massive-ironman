@@ -175,15 +175,18 @@ public class BoardReader {
 
         Highgui.imwrite("test_workim.jpg", workImage);
         // find all lines from wokrImage
-        Mat lines = new Mat();
-        Imgproc.HoughLines(workImage, lines, 1, Math.PI / 180, 120);
-        if (lines.empty()) {
+        Mat allLines = new Mat();
+        Imgproc.HoughLines(workImage, allLines, 1, Math.PI / 90, 120);
+        if (allLines.empty()) {
             throw new Exception("wtf Hough");
         }
-        if (lines.cols() < 4) {
+        if (allLines.cols() < 4) {
             // couldn't find enough lines to determine a board
             throw new Exception("can't find enough lines");
         }
+        System.out.println("test merging");
+        Mat lines = mergeCloseLines(allLines);
+        System.out.println(lines.size());
 
         List<Point> lPts = new ArrayList<Point>();
         List<Point> rPts = new ArrayList<Point>();
@@ -198,6 +201,8 @@ public class BoardReader {
         // doesn't necessarily find the *best* lines; but good enough for starters
 
         exLines  = findExtremeLines(lines);
+        if (exLines == null)
+            throw new Exception("didn't find exlines");
 
         // printing, let's see if we succeeded
         printExtremeLines(workImage, exLines);
@@ -274,7 +279,7 @@ public class BoardReader {
 
             // the rho-theta normal form is useful for determining whether line
             // is horizontal / vertical
-            if (theta > Math.PI * 3 / 8 && theta <  Math.PI * 5 / 8 ) {
+            if (theta > Math.PI * 80 / 180 && theta <  Math.PI * 100 / 180 ) {
                 // vertical case
                 if (rho < top[0]) {
                     top = line;
@@ -284,7 +289,7 @@ public class BoardReader {
                     bottom = line;
                     bottomFound = true;
                 }
-            } else if (theta < Math.PI * 1 / 8 || theta > Math.PI * 7 / 8) {
+            } else if (theta < Math.PI * 20 / 180 || theta > Math.PI * 160 / 180) {
                 // else horizontal
                 if (xIntercept > rightXintercept) {
                     rightXintercept = xIntercept;
@@ -307,14 +312,102 @@ public class BoardReader {
         return extremeLines;
     }
 
+    // the hackiest hack of all hacks
+    private Mat mergeCloseLines(Mat lines) {
+        // group all lines
+        // first by theta, then lines with similar theta by rho
+        List<LineGroup> thetaGroups = new ArrayList<LineGroup>();
+
+        // first case is special
+        double[] line = lines.get(0, 0);
+        double rho = line[0];
+        double theta = line[1];
+        thetaGroups.add(new LineGroup(rho, theta));
+
+        double thetaDist = Math.PI * 15 / 180;
+        double rhoDist = 30;
+
+        // group by theta
+        // compare each line to already found groups, and put it into one of
+        // them or great a new group for it
+        for (int i = 1; i < lines.cols(); i++) {
+            line = lines.get(0, i);
+            rho = line[0];
+            theta = line[1];
+            //System.out.println(rho + " " + theta);
+            // try to fit line into a group by theta
+            int bestGroup = -1;
+            double bestDist = Double.MAX_VALUE;
+            // the comparision
+            for (int j = 0; j < thetaGroups.size(); j++) {
+                double curDist = Math.abs(thetaGroups.get(j).getThetaMean() - theta);
+                if (curDist < thetaDist && curDist <= bestDist) {
+                    bestGroup = j;
+                }
+            }
+            // if -1 -> no good group; else -> add to the best group
+            if (bestGroup == -1) {
+                thetaGroups.add(new LineGroup(rho,  theta));
+            } else {
+                thetaGroups.get(bestGroup).addLine(rho, theta);
+            }
+        }
+
+        // divide each thetaGroup to groups by rho
+        // similar than theta grouping, bu now done for each thetaGroup by rho
+        // TODO refactor into something more sensible?
+        List<LineGroup> finalGroups = new ArrayList<LineGroup>();
+        for (int i = 0; i < thetaGroups.size(); i++) {
+            LineGroup lg = thetaGroups.get(i);
+            List<LineGroup> rhoGroups = new ArrayList<LineGroup>();
+            rhoGroups.add(new LineGroup(lg.getLineRho(0), lg.getLineTheta(0)));
+            for (int j = 1; j < lg.size(); j++) {
+                double temptheta = lg.getLineTheta(j);
+                double temprho = lg.getLineRho(j);
+                int bestGroup = -1;
+                double bestDist = Double.MAX_VALUE;
+                for (int k = 0; k < rhoGroups.size(); k++) {
+                    double cur = Math.abs(rhoGroups.get(k).getRhoMean() - temprho);
+                    if (cur < rhoDist && cur <= bestDist) {
+                        bestGroup = k;
+                    }
+                }
+                if (bestGroup == -1) {
+                    rhoGroups.add(new LineGroup(temprho,  temptheta));
+                } else {
+                    rhoGroups.get(bestGroup).addLine(temprho, temptheta);
+                }
+            }
+            finalGroups.addAll(rhoGroups);
+        }
+
+        System.out.println("---");
+
+        Mat merged = new Mat(1, finalGroups.size(), lines.type());
+        for (int i = 0; i < finalGroups.size(); i++) {
+            double[] mergedLine = new double[2];
+            mergedLine[0] = finalGroups.get(i).getRhoMean();
+            mergedLine[1] = finalGroups.get(i).getThetaMean();
+            merged.put(0, i, mergedLine);
+            //System.out.println(mergedLine[0] + " " + mergedLine[1]);
+        }
+
+        System.out.println("merged lines into " + finalGroups.size());
+
+
+        System.out.println(merged.size());
+        return merged;
+    }
+
     private void printExtremeLines(Mat image, double[][] exLines) {
-        Scalar rgb = new Scalar(255, 50, 50);
+        Scalar rgb1 = new Scalar(255, 50, 50);
+        Scalar rgb2 = new Scalar(0, 0, 255);
         Mat colorImage = new Mat();
         Imgproc.cvtColor(image, colorImage, Imgproc.COLOR_GRAY2BGR);
-        Lines.printLine(exLines[0][0], exLines[0][1], colorImage, rgb);
-        Lines.printLine(exLines[1][0], exLines[1][1], colorImage, rgb);
-        Lines.printLine(exLines[2][0], exLines[2][1], colorImage, rgb);
-        Lines.printLine(exLines[3][0], exLines[3][1], colorImage, rgb);
+        Lines.printLine(exLines[0][0], exLines[0][1], colorImage, rgb1);
+        Lines.printLine(exLines[1][0], exLines[1][1], colorImage, rgb1);
+        Lines.printLine(exLines[2][0], exLines[2][1], colorImage, rgb2);
+        Lines.printLine(exLines[3][0], exLines[3][1], colorImage, rgb2);
         Highgui.imwrite("test_work_extrem.jpg", colorImage);
     }
 
