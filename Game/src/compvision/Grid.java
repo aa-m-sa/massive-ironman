@@ -132,7 +132,7 @@ public class Grid {
         System.out.println("mad:" + mad);
 
         // handpicked guesstimates
-        if (histDiffs[maxDiff] < 400 && mad < 50) {
+        if (histDiffs[maxDiff] < 350 && mad < 40) {
             System.out.println("no change in grid");
             return false;
         }
