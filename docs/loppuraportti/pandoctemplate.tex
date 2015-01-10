@@ -1,0 +1,74 @@
+% pandoc template for md (-> tex) -> pdf
+% adapted from the default pandoc latex template
+
+\documentclass[11pt,a4paper,leqno]{article}
+
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amsthm}
+
+\usepackage{hyperref}          % linkit ja pdf-toc
+\usepackage{fontspec}
+\setmainfont[Ligatures=TeX]{TeX Gyre Pagella}
+
+\usepackage{unicode-math}
+\setmathfont[math-style=TeX]{Asana Math}
+
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{microtype}
+
+\usepackage{polyglossia}
+\setdefaultlanguage{finnish}
+
+\usepackage{listings}          % Koodilistaukset
+
+\lstset{                       % Koodilistausten säätöä
+    extendedchars=true,
+    inputencoding=utf8,
+    showstringspaces=false,
+    basicstyle=\footnotesize\ttfamily
+}
+
+\usepackage[margin=1.4in, a4paper]{geometry}
+
+\usepackage{graphicx}
+% FROM DEFAULT PANDOC TEMPL.
+% Redefine \includegraphics so that, unless explicit options are
+% given, the image width will not exceed the width of the page.
+% Images get their normal width if they fit onto the page, but
+% are scaled down if they would overflow the margins.
+\makeatletter
+\def\ScaleIfNeeded{%
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+\let\Oldincludegraphics\includegraphics
+{%
+ \catcode`\@=11\relax%
+ \gdef\includegraphics{\@ifnextchar[{\Oldincludegraphics}{\Oldincludegraphics[width=\ScaleIfNeeded]}}%
+}%
+
+\begin{document}
+\input{./title}
+
+\tableofcontents
+\newpage
+$body$
+
+
+\hypersetup{
+    pdfencoding=auto,
+    colorlinks=false,
+    hidelinks,
+    pdftitle={$title$},
+    pdfauthor={$author$}
+}
+
+
+\end{document}
