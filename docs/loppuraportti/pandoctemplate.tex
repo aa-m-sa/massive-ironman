@@ -8,7 +8,17 @@
 \usepackage{mathtools}
 \usepackage{amsthm}
 
+\usepackage{xcolor}
 \usepackage{hyperref}          % linkit ja pdf-toc
+\hypersetup{
+    pdfencoding=auto,
+    colorlinks,
+    linkcolor=black,
+    urlcolor=blue!50!black,
+    pdftitle={$title$},
+    pdfauthor={$author$}
+}
+
 \usepackage{fontspec}
 \setmainfont[Ligatures=TeX]{TeX Gyre Pagella}
 
@@ -61,14 +71,6 @@
 \newpage
 $body$
 
-
-\hypersetup{
-    pdfencoding=auto,
-    colorlinks=false,
-    hidelinks,
-    pdftitle={$title-meta$},
-    pdfauthor={$author-meta$}
-}
 
 
 \end{document}
