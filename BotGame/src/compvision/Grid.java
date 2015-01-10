@@ -21,6 +21,8 @@ import compvision.BoardReader;
 
 /**
  * Internal representation of the game board grid as a visual object.
+ *
+ * Compare this the game board represented by this Grid to another with findChanges.
  * */
 public class Grid {
     private Point tl;
@@ -72,16 +74,24 @@ public class Grid {
         }
     }
 
+    /**
+     * Detect if some cell in the newImage differs from the this Grid's
+     * respective cell.
+     *
+     * Compares the histograms of respective cells' inner content.
+     *
+     * @return true if a change was found
+     */
     public boolean findChanges(Mat newImage) {
         List<Mat> newCells = new ArrayList<Mat>();
         List<Mat> newHistograms = new ArrayList<Mat>();
         makeCells(newImage, newCells, newHistograms, "new");
 
         System.out.println("finding changes");
-        // set averages
+        // get histogram difference between each cell in the new and old image
         double histSum = 0;
         double[] histDiffs = new double[9];
-        // norms taken but not currently used
+        // image norms taken but not currently used
         double normSum = 0;
         double[] norms = new double[9];
         for (int j = 0; j < 3; j++) {
@@ -90,10 +100,10 @@ public class Grid {
                 // compare histograms
                 double hdiff = Imgproc.compareHist(this.cellHistograms.get(index),
                         newHistograms.get(index), Imgproc.CV_COMP_CHISQR);
-                //System.out.println(j + " " + i + "(" + index +")" + "\n" + hdiff);
                 histSum += hdiff;
                 histDiffs[index] = hdiff;
-                double lnorm = Core.norm(cells.get(index), newCells.get(index), Core.NORM_L1);
+                double lnorm = Core.norm(cells.get(index), newCells.get(index),
+                        Core.NORM_L1);
                 //System.out.println(lnorm);
                 normSum += lnorm;
                 norms[index] = hdiff;
@@ -103,10 +113,10 @@ public class Grid {
         double histMean = histSum / 9;
         double normMean = normSum / 9;
         System.out.println("hist average:" + histSum/9);
-        // compare to averages
-        // variance and mean absolute deviation
+        // compare to averages:
+        // calculate variance and mean absolute deviation
         double mad = 0;
-        double var = 0;
+        double var = 0;     // currently not used for anything, but calculated
         int maxDiff = 0;
         int mdi, mdj;
         mdi = mdj = 0;
@@ -131,7 +141,10 @@ public class Grid {
         //System.out.println("var:" + var );
         System.out.println("mad:" + mad);
 
-        // handpicked guesstimates
+        // if none of the histograms between new and old differ too much
+        // and deviations between differences from the 'mean difference' (mas)
+        // are small, -> no change
+        // constants are handpicked guesstimates
         if (histDiffs[maxDiff] < 350 && mad < 40) {
             System.out.println("no change in grid");
             return false;
@@ -168,8 +181,8 @@ public class Grid {
         makeCells(this.baseImage, this.cells, this.cellHistograms, "base");
     }
 
+    // populate cells
     private void makeCells(Mat image, List<Mat> cellList, List<Mat> histList, String imStr) {
-        //Point[][] cellPoints = {topPts, secondRowPts, thirdRowPts, bottomPts};
         Point[][] cellPoints = {bottomPts, thirdRowPts, secondRowPts, topPts};
         for (int j = 0; j < 3; j++) {
             for (int i = 0; i < 3; i++) {
@@ -182,6 +195,7 @@ public class Grid {
         }
     }
 
+    // create a cell
     private void makeCell(Mat image, Point lr, Point ll, Point ur, Point ul,
             List<Mat> cellList, List<Mat> histList) {
         // cell: 'mask away' the image outside the shape defined by points, add
@@ -210,8 +224,6 @@ public class Grid {
     }
 
 
-    // Point a should be closer to (0,0) than b
-    // TODO choose a from two points
     private Point[] getPointsOnLine(Point a, Point b) {
         Point[] pts = new Point[4];
         pts[0] = a;
