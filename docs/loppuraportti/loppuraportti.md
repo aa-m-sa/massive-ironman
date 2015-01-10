@@ -2,6 +2,8 @@
 % Aaro Salosensaari
 %
 
+Tämä on joulun 2014 robottikurssin loppuraportti. Luettavin versio on [pdf](loppuraportti.pdf).
+
 # Ristinollarobotin kuvaus
 
 Kuvaus tähän.
