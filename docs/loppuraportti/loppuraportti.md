@@ -4,7 +4,7 @@ Tämä on joulun 2014 robottikurssin loppuraportti. Luettavin versio on [pdf](lo
 
 Ristinollarobotti on ristinollaa web-kameran avulla pelaava Lego Mindstorms -robotti.
 
-Robotti koostuu varsinaisesta piirtorobotista (`PenBot`) ja erillisestä tietokoneella (= kannettava tietokone) ajettavasta varsinaisesta peliohjelmasta (`BotGame`). Ohjelmointikieli on Java ([LeJOS](https://www.lejos.org)), ja kuvantunnistukseen käytetään [OpenCV](http://opencv.org/):n Java-API:ia.
+Robotti koostuu varsinaisesta piirtorobotista (`PenBot`) ja erillisestä tietokoneella (= kannettava tietokone) ajettavasta varsinaisesta peliohjelmasta (`BotGame`). Ohjelmointikieli on molemmissa Java (piirtobotissa [LeJOS](https://www.lejos.org)), ja kuvantunnistukseen käytetään [OpenCV](http://opencv.org/):n Java-API:ia.
 
 Peliohjelma osaa tunnistaa ulkoisen web-kameran avulla paperille piirretyn pelilaudan ja pelaajien (robotti ja sen vastustaja) sille piirtämät merkit, ja tämän avulla pelata ristinollaa ihmisvastustajaa vastaan. Peliohjelma lähettää tekoälyn valitsemat siirrot Bluetoothin yli piirtorobotille, jolla on valmiit rutiinit ruksin piirtämiseksi kuhunkin ruutuun.
 
@@ -31,7 +31,9 @@ Rakenteeltaan robotti on kahden moottorin avulla liikkuva auto, joka pystyy kä�
 
 Koska ns. rullapyöräksi sopivia pieniä renkaita ei allekirjoittaneelle päätyneessä sarjassa ollut mukana ja käytettävissä olevien suurehkojen pyörien sijoittaminen perusrunkoon osoittautui varsin haastavaksi (ilman kumia taas pyörien liike oli liian tökkivää), robotissa ei ole tukena tavanomaista rullapyörää (*castor wheel*), vaan yksinkertainen pyödän pintaa  pitkin liukuva tuki.
 
-Kynän liikuttelumekanismin toiminnan ymmärtänee parhaiten oheisista kuvista. Käytännössä kynä on kiinnitetty kumilenkillä telineeseen, jonka liike on rajoitettu ylös-alas -suuntaiseksi kiskojen avulla. Lisäksi kynän edessä ja takana on rajoittavat tuet jotka pitävät sen asennon vakaasti paikoillaan piirtämisen aikana. Kumilenkkikiinnitys mahdollistaa teoriassa pienen hätävaran väärin kalibroidun moottorin varalta, sillä jos moottori yrittäisi painaa kynää alemmas kuin turvalliseen käyttöön on suunniteltu, kumilenkit teoriassa joustaisivat sen sijaan että moottoriin tai rakenteeseen kohdistuisi haitallista rasitusta.
+Kynän liikuttelumekanismin toiminnan ymmärtänee parhaiten oheisista kuvista. Käytännössä kynä on kiinnitetty kumilenkillä telineeseen, jonka liike on rajoitettu ylös-alas -suuntaiseksi kiskojen avulla. Lisäksi kynän edessä ja takana on rajoittavat tuet jotka pitävät sen asennon vakaasti paikoillaan piirtämisen aikana.
+
+Kumilenkkikiinnitys mahdollistaa teoriassa pienen hätävaran siltä varalta että käyttäjä menee ja poistaa turvarajat PenBotin ohjelmakoodista ja kalibroi moottorin väärin väärin: jos moottori yrittäisi painaa kynää alemmas kuin turvalliseen käyttöön on suunniteltu, kumilenkit teoriassa joustaisivat sen sijaan että moottoriin tai rakenteeseen kohdistuisi haitallista rasitusta. (Robotin toiminta voidaan myös välittömästi keskeyttää hätäseis-nappulaa painamalla.)
 
 Lisäksi kynän vierässä on pieni työkalu, joka helpottaa robotin asettamista oikeaan suuntaan ruutupaperin päälle.
 
@@ -58,7 +60,7 @@ TODO kuvat tähän
 
 Kuvantunnistusmenetelmän pääinspiraationa oli [AI Shackin Sudoku-lukija](http://aishack.in/tutorials/sudoku-grabber-with-opencv-plot/), jota tosin on sovellettu varsin paljon. Menetelmän idea on yleisellä tasolla seuraava:
 
-1. Ensin etsitään peruskuva, johon mahdollisia muutoksia verrataan:
+1. Ensin etsitään taustakuva, johon mahdollisia muutoksia verrataan:
 2. Muunnetaan kuva harmaasävykuvaksi.
 3. Ruutupaperin ruutujen häivyttämiseksi sumennetaan kuvaa Gauss-sumennoksella, jonka jälkeen tehdään harmaasävykuvasta mustavalkoinen muuttamalla  ([adaptive threshold](https://en.wikipedia.org/wiki/Thresholding_%28image_processing%29)), jolloin kuvaan jää jäljelle vain pääasiassa merkitseviä viivoja ja merkkejä. Tämän 'binäärikuvan' värit käännetään jatkoa varten.
 4. Aiemmassa vaiheessa jotkut tärkeätkin ruudukon viivat saattavat 'katketa', joten niitä yritetään palauttaa morphologisella sulkemisella ([morphological closing](https://en.wikipedia.org/wiki/Closing_%28morphology%29)).
@@ -67,10 +69,62 @@ Kuvantunnistusmenetelmän pääinspiraationa oli [AI Shackin Sudoku-lukija](http
 7. Yhdistetyistä viivoista etsitään äärimmäiset (tietyn marginaalin puitteissa) vaaka- ja pystyviivat, jotka vastaavat pelilaudan reunoja. Näiden leikkauspisteet (= peliruudukon nurkat) lasketaan.
 8. Leikkauspisteiden avulla kuvan perspektiivi korjataan ja se jaetaan 3x3 -ruudukoksi. Kunkin ruudun reunoista  'leikataan pois' pieni kaistale (jotka sisältävät piirretyn ruudukon viivat)  ja (alkutilanteessa tyhjä) sisäalue ja sen histogrammi talletetaan.
 9. Jokaiselle verrattavalle kuvalle tehdään sama prosessi, ja kuvien vastaavia alueille verrataan toisiinsa. Mikäli jonkin solun histogrammeissa peruskuvan ja verrattavan välillä on suuri ero, todetaan että tähän ruutuun on verrattavassa kuvassa piirretty uusi merkki.
+10. Mikäli havaittu merkki hyväksytään oikein luetuksi siirroksi, se päivitetään uudeksi peruskuvaksi seuraavan siirron lukemista varten.
 
 TODO Kuvia laudan hahmottamisesta.
 
 # Testaus
+
+Kaikkea mitä olisi voinut testata, ei tullut testattua. Erityisesti matematiikkametodeja ja kuvanhahmotustoimintaa varten olisi voinut kirjoittaa suoranaisia yksikkötestejä.
+
+Käytännössä robotin kehittäminen oli iteratiivinen prosessi: "testataan toimiiko jokin toiminnallisuus näin" -> "korjataan kunnes toimii" -> "kun toimii, lisätään toiminnallisuus". Valitettavasti tälläisestä epä-TDD 'patternista' ei jäänyt hirveästi varsinaista testikoodia.
+
+## Ohjelmallisia testi'skriptejä'
+
+Eri toiminnallisuuksien kokeilemista ja säätöä varten on ohjelmissa erityisen `test`-paketin luokissa muutama `main`-metodeja, joita ajamalla varsinaisen `main`:n sijaan voi testata robotin eri toiminnallisuuksien toimintaa.
+
+### PenBotin kynänliikuttelun testaus ja säätö
+
+`PenBot`: n `test.PenConfigureTest` sisältää testin kynän kalibrointirutiinille, jonka avulla voi kokeilla yleisesti kynänliikuttelun toimivuutta ("liikkuuko kynä oikein? piirtääkö se jäljen paperille?").
+
+Lisäksi `PenConfigureTest` mahdollisti piirtobotin kynänliikuttelun ohjelmallisten turvarajojen testaamisen. Tulos: turvarajat toimivat, kalibrointiskriptin (= normaali käyttö) avulla bottia ei saatu kääntämään kynämoottoria yli 20 astetta alaspäin, joka oli todettu vielä täysin turvalliseksi asennoksi.
+
+### Kuvananalysointitoiminnallisuuden testaus ja säätö
+
+`BotGame`:n `test.BoardReaderCamTest`:ia voi käyttää web-kameran kuvankaappauksen toiminnan testaamiseen käynnistämättä varsinaista pelirutiinia. Esimerkiksi tarkistin ennen demotilaisuutta että kuvankäsittelymetodit toimivat myös yliopiston tilojen valaistuksessa.
+
+Vastaavankaltaista koodinpätkää käytettiin merkintunnistustoiminnallisuutta koodatessa myös eri raja-arvojen ja kuvaruutujen vertailumenetelmien tutkimiseen. Lopulta päädyttiin koodin tämänhetkisessä versiossa oleviin vakioihin ja metodeihin.
+
+
+### Käskyjen välittäminen tietokoneelta PenBotille ja piirtäminen
+
+Bluetooth-kommunikaation testaamista varten on erillinen komentoriviohjelma `BotCommander`, jonka avulla käyttäjä voi suoraan komentoriviltä käskyttämällä lähettää viestintäprotokollan mukaisia komentoja `PenBot`:ille.
+
+`BotCommanderin` avulla tehtiin seuraavat testit:
+
+1. Bluetooth-yhteyden muodostaminen ja `Input/OutputStream`:n avaaminen `PenBotin` ja `BotCommanderin ` välillä onnistuu.
+
+2. `PenBot` vastaanottaa ja lukee Bluetoothin kautta lähetettyjä käskybittejä onnistuneesti.
+
+3. `PenBot` suorittaa käskyn mukaisen komennon oikein (piirtää ruksin oikeaan koordinaattiin).
+
+## Testibotit
+
+Varsinaisen `PenBot`-ohjelman lisäksi jäljelle jäi pari pientä 'testibottia' jotka voitiin myös ladata Lego-robotin brickille LeJOS:n yms. eri ominaisuuksien testaamiseksi.
+
+### Hello Ironman!
+
+Käytettiin testaamaan toimiiko yksinkertaisen "hello world" -ohjelman kääntäminnen ja lataaminen robottiin eri ympäristöissä ja  yhteysmenetelmillä. Jouduttiin mm. toteamaan että Ubuntun ajureilla ei saanut toimivaa USB-yhteyttä Lego-robottiin.
+
+### Hello BT!
+
+Testattiin viestibittien vastaanottamisen lisäksi myös lähettämistä robotilta tietokoneelle, mutta tätä ominaisuutta ei sitten varsinaisessa pelirobotin toteutuksessa hyödynnetty.
+
+## Muita testiskenaarioita
+
+### Hätäpysäytys
+
+`PenBot`:iin asetettua vaadittua hatäpysäytystoiminnallisuutta testattiin painamalla kesken ohjelman suorituksen pysäytysnapiksi valittua `ESCAPE`-nappulaa. Hätäpysäytys toimi.
 
 # Rajoitukset ja tulevaisuus
 
