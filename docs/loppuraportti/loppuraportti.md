@@ -20,7 +20,7 @@ Robotin toteuttamiseen käytettiin
     * (NXT:n omia sensoreita ei tarvittu / käytetty)
 * Web-kamera: Logitech C270
 * Tussikynä: Stabilo Pen 68
-* Kannettava tietokone (Ubuntu Linux) jossa Bluetooth
+* Kannettava tietokone jossa Bluetooth
 * Kuminauhaa, paperia, teippiä, korotettu alusta kameralle
 
 ## Piirtobotti
@@ -35,11 +35,18 @@ Kynän liikuttelumekanismin toiminnan ymmärtänee parhaiten oheisista kuvista. 
 
 Lisäksi kynän vierässä on pieni työkalu, joka helpottaa robotin asettamista oikeaan suuntaan ruutupaperin päälle.
 
-Varsinaista erillisen rakennusohjeen sijasta lukijaa pyydetään seuraamaan NXTPrograms.com:n [ohjeen](http://nxtprograms.com/3-motor_chassis/steps.html) vaiheita 1 -- 4 ja 12 --, ja vertailemaan eroavaisuuksien kohdalla alla oleviin kuviin. Huom. erityisesti että rullapyörän korvaavan tuen kiinnitys on erilainen.
+Varsinaisen erillisen rakennusohjeen sijasta lukijaa pyydetään seuraamaan NXTPrograms.com:n [ohjeen](http://nxtprograms.com/3-motor_chassis/steps.html) vaiheita 1 -- 4 ja 12 --, ja vertailemaan eroavaisuuksien kohdalla alla oleviin kuviin. Huom. erityisesti että rullapyörän korvaavan tuen kiinnitys on erilainen.
 
 ## Kuvia
 
 TODO kuvat tähän
+
+## Strategiset mitat
+
+* Renkaiden välinen etäisyys ~120 mm
+* Etäisyys keulasta perään ~210 mm
+* Säkäkorkeus ~75 mm
+* Kynän kärjen etäisyys akselista piirtoasennossa ~70 mm
 
 # Ohjelmakoodi
 
