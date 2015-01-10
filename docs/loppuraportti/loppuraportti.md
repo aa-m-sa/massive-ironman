@@ -4,7 +4,7 @@ Tämä on joulun 2014 robottikurssin loppuraportti. Luettavin versio on [pdf](lo
 
 Ristinollarobotti on ristinollaa web-kameran avulla pelaava Lego Mindstorms -robotti.
 
-Robotti koostuu varsinaisesta piirtorobotista (`Penbot`) ja erillisestä tietokoneella (= kannettava tietokone) ajettavasta varsinaisesta peliohjelmasta (`BotGame`). Ohjelmointikieli on Java ([LeJOS](https://www.lejos.org)), ja kuvantunnistukseen käytetään [OpenCV](http://opencv.org/):n Java-API:ia.
+Robotti koostuu varsinaisesta piirtorobotista (`PenBot`) ja erillisestä tietokoneella (= kannettava tietokone) ajettavasta varsinaisesta peliohjelmasta (`BotGame`). Ohjelmointikieli on Java ([LeJOS](https://www.lejos.org)), ja kuvantunnistukseen käytetään [OpenCV](http://opencv.org/):n Java-API:ia.
 
 Peliohjelma osaa tunnistaa ulkoisen web-kameran avulla paperille piirretyn pelilaudan ja pelaajien (robotti ja sen vastustaja) sille piirtämät merkit, ja tämän avulla pelata ristinollaa ihmisvastustajaa vastaan. Peliohjelma lähettää tekoälyn valitsemat siirrot Bluetoothin yli piirtorobotille, jolla on valmiit rutiinit ruksin piirtämiseksi kuhunkin ruutuun.
 
@@ -12,7 +12,34 @@ Peliohjelma osaa tunnistaa ulkoisen web-kameran avulla paperille piirretyn pelil
 
 ## Materiaalit ja tarvikkeet
 
-## Rakennusohje
+Robotin toteuttamiseen käytettiin
+
+* (hieman vajaa) Lego Mindstorms NXT -sarja
+    * NXT Brick, kolme moottoria
+    * sekalaisia Mindstorms -legoja
+    * (NXT:n omia sensoreita ei tarvittu / käytetty)
+* Web-kamera: Logitech C270
+* Tussikynä: Stabilo Pen 68
+* Kannettava tietokone (Ubuntu Linux) jossa Bluetooth
+* Kuminauhaa, paperia, teippiä, korotettu alusta kameralle
+
+## Piirtobotti
+
+Piirtobotin perusrunko perustuu NXTPrograms.com [3-Motor Chassis](http://nxtprograms.com/3-motor_chassis/index.html) -rakenteeseen, jota jouduttiin hieman muokkaamaan osien puutteesta johtuen (esim. samanlaista rullapyörää ei ollut käytettävissä, joten piti soveltaa) ja johon lisättiin ylös ja alas liikkuva kynä.
+
+Rakenteeltaan robotti on kahden moottorin avulla liikkuva auto, joka pystyy kääntymään pyörittämällä vasenta ja oikeaa moottoria eri nopeuksilla. Pyörittämällä moottoreita samalla nopeudella eri suuntiin robotti pystyy kääntymään paikoillaan renkaiden välisen kuvaannollisen 'akselin' keskipisteen ympäri.
+
+Koska ns. rullapyöräksi sopivia pieniä renkaita ei allekirjoittaneelle päätyneessä sarjassa ollut mukana ja käytettävissä olevien suurehkojen pyörien sijoittaminen perusrunkoon osoittautui varsin haastavaksi (ilman kumia taas pyörien liike oli liian tökkivää), robotissa ei ole tukena tavanomaista rullapyörää (*castor wheel*), vaan yksinkertainen pyödän pintaa  pitkin liukuva tuki.
+
+Kynän liikuttelumekanismin toiminnan ymmärtänee parhaiten oheisista kuvista. Käytännössä kynä on kiinnitetty kumilenkillä telineeseen, jonka liike on rajoitettu ylös-alas -suuntaiseksi kiskojen avulla. Lisäksi kynän edessä ja takana on rajoittavat tuet jotka pitävät sen asennon vakaasti paikoillaan piirtämisen aikana. Kumilenkkikiinnitys mahdollistaa teoriassa pienen hätävaran väärin kalibroidun moottorin varalta, sillä jos moottori yrittäisi painaa kynää alemmas kuin turvalliseen käyttöön on suunniteltu, kumilenkit teoriassa joustaisivat sen sijaan että moottoriin tai rakenteeseen kohdistuisi haitallista rasitusta.
+
+Lisäksi kynän vierässä on pieni työkalu, joka helpottaa robotin asettamista oikeaan suuntaan ruutupaperin päälle.
+
+Varsinaista erillisen rakennusohjeen sijasta lukijaa pyydetään seuraamaan NXTPrograms.com:n [ohjeen](http://nxtprograms.com/3-motor_chassis/steps.html) vaiheita 1 -- 4 ja 12 --, ja vertailemaan eroavaisuuksien kohdalla alla oleviin kuviin. Huom. erityisesti että rullapyörän korvaavan tuen kiinnitys on erilainen.
+
+## Kuvia
+
+TODO kuvat tähän
 
 # Ohjelmakoodi
 
@@ -31,9 +58,10 @@ Kuvantunnistusmenetelmän pääinspiraationa oli [AI Shackin Sudoku-lukija](http
 5. Näin käsitellystä kuvasta etsitään [Hough-muunnoksella](https://en.wikipedia.org/wiki/Hough_transform) kaikki viivat.
 6. Koska OpenCV:n Hough-rutiini löytää sellaisilla parametreilla joilla varmasti saadaan kaikki *tärkeät* viivat myös *paljon* viivoja jokaista pelilaudan oikeaa viivaa kohti, lähellä toisiaan olevien viivojen parvet yhdistetään yhdeksi viivaksi per parvi (keskiarvo).
 7. Yhdistetyistä viivoista etsitään äärimmäiset (tietyn marginaalin puitteissa) vaaka- ja pystyviivat, jotka vastaavat pelilaudan reunoja. Näiden leikkauspisteet (= peliruudukon nurkat) lasketaan.
-8. Leikkauspisteiden avulla kuvan perspektiivi korjataan ja se jaetaan 3x3 -ruudukoksi. Kunkin ruudun reunat (jotka sisältävät piirretyn ruudukon viivat) 'leikataan pois' ja (alkutilanteessa tyhjä) sisäalue ('solu') ja sen histogrammi talletetaan.
-9. Jokaiselle verrattavalle kuvalle tehdään sama prosessi, ja kuvien vastaavia soluja verrataan toisiinsa. Mikäli jonkin solun histogrammeissa peruskuvan ja verrattavan välillä on suuri ero, todetaan että tähän ruutuun on verrattavassa kuvassa piirretty uusi merkki.
+8. Leikkauspisteiden avulla kuvan perspektiivi korjataan ja se jaetaan 3x3 -ruudukoksi. Kunkin ruudun reunoista  'leikataan pois' pieni kaistale (jotka sisältävät piirretyn ruudukon viivat)  ja (alkutilanteessa tyhjä) sisäalue ja sen histogrammi talletetaan.
+9. Jokaiselle verrattavalle kuvalle tehdään sama prosessi, ja kuvien vastaavia alueille verrataan toisiinsa. Mikäli jonkin solun histogrammeissa peruskuvan ja verrattavan välillä on suuri ero, todetaan että tähän ruutuun on verrattavassa kuvassa piirretty uusi merkki.
 
+TODO Kuvia laudan hahmottamisesta.
 
 # Testaus
 
