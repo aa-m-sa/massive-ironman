@@ -2,8 +2,7 @@ package game;
 
 import comms.BTComms;
 import comms.Command;
-
-import game.GameMove;
+import game.domain.GameMove;
 
 /**
  * Provides game domain object friendly 'interface' to low-level bot draw commands

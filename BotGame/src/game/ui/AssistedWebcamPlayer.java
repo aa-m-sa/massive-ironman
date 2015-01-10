@@ -6,8 +6,8 @@ import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
 
 import game.Player;
-import game.Mark;
-import game.GameMove;
+import game.domain.GameMove;
+import game.domain.Mark;
 import compvision.BoardReader;
 import compvision.Webcam;
 

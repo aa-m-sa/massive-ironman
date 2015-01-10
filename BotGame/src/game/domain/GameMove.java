@@ -1,6 +1,5 @@
-package game;
+package game.domain;
 
-import game.Mark;;
 
 public class GameMove {
     private Mark mark;

@@ -2,9 +2,11 @@ package game;
 
 import comms.BTComms;
 import game.Player;
-import game.GameMove;
 import game.BotControl;
 import game.ai.SimpleBotAI;
+import game.domain.Board;
+import game.domain.GameMove;
+import game.domain.Mark;
 
 /**
  * The main Tic Tac Toe Game class

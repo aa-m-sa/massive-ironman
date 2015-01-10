@@ -1,10 +1,11 @@
 package test;
 
-import game.GameMove;
+import game.domain.GameMove;
 
 import java.util.Scanner;
 // no proper unit testing,
 // rather a 'script' for testing BoardReader with the webcam
+
 
 
 

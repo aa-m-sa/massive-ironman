@@ -1,7 +1,5 @@
-package game;
+package game.domain;
 
-import game.GameMove;
-import game.Mark;
 /**
  * Game board representation.
  * Board x,y coordinate legend:

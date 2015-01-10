@@ -1,9 +1,10 @@
 package game.ui;
 
 import java.util.Scanner;
+
 import game.Player;
-import game.Mark;
-import game.GameMove;
+import game.domain.GameMove;
+import game.domain.Mark;
 
 /**
  * a player that reads movements from the provided Scanner

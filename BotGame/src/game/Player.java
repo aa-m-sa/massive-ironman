@@ -1,5 +1,7 @@
 package game;
 
+import game.domain.GameMove;
+
 public interface Player {
 
     /**

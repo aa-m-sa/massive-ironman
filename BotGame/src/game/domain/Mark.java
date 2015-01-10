@@ -1,4 +1,4 @@
-package game;
+package game.domain;
 
 public enum Mark {
     X_MARK ('X'),

@@ -20,7 +20,7 @@ import compvision.Grid;
 import compvision.Morphs;
 import compvision.lineutils.LineGroup;
 import compvision.lineutils.Lines;
-import game.GameMove;
+import game.domain.GameMove;
 
 /**
  * The actual attempt at Tic Tac Toe Board reading.

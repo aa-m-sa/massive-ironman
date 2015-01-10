@@ -1,9 +1,9 @@
 package game.ai;
 
 import game.Player;
-import game.GameMove;
-import game.Board;
-import game.Mark;
+import game.domain.Board;
+import game.domain.GameMove;
+import game.domain.Mark;
 
 
 /**
