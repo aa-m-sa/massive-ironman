@@ -23,45 +23,49 @@ import compvision.lineutils.Lines;
 import game.domain.GameMove;
 
 /**
- * The actual attempt at Tic Tac Toe Board reading.
+ * Tic Tac Toe game board vision functionality.
  *
- * The Mighty Plan:
- *  - (assuming webcam up and running), grab a frame (or if more finesse is
- *  preferred, a bunch of frame and choose best / average) and find the tic tac
- *  toe board
- *  - by 'find' we mean: determine the outer lines of the box
- *  - then recognize the box: find / try to fit the inner lines (= that divide
- *  the board box in to cells) and thus find the board cells
- *  - game hasn't started yet, so the cells are *empty*; their current contents
- *  are thus background noise
- *  - now we're ready for the main 'reading' part itself:
- *  - when the Game is waiting for the player input, start:
- *  - the loop: compare if there has been a significant change,
- *  most likely that means a X/O mark has been drawn in that cell
- *  - significant change = L2 norm compared to previous cell
- *  (no time for more intelligent heurestics)
- *  - when there's significant disturbance (human player's hand / pen, Penbot
- *  is on the board drawing its own mark, etc), discard the webcam input
- *  - significant disturbance == significant histogram change in (color) image?
- *  - report all new drawn marks, it's not BoardReader's job to determine
- *  whose they are (the game knows whose turn it is anyway, so it can infer who
- *  did draw it)
+ * Must call findBaseBoard() first to find the initial board.
+ * Compare the original image to the new board images with readBoardChanges.
  *
- * TODO: when able to read the board, combine this project with the Game
+ * How it works:
+ *
+ *  1. find the outer lines (extreme horizontal + vertical lines) of the grid
+ *  from the original image provided (image processing + morphology + Hough
+ *  transform)
+ *
+ *  2. use the 'extreme lines' to determine the corners of game board; create a
+ *  perspective corrected image, where the cells in the board grid can be
+ *  determined easily with 'linear interpolation' ( = cell dist 1/3rd the
+ *  distance between the corners; this is done by the Grid abstraction).
+ *
+ *  3. the Grid abstraction also provides the methods to compare is there's
+ *  been changes in the grid cells.
+ *
+ *  Sans the grid structure, BoardReader is agnostic to the actual game
+ *  mechanics of Tic Tac Toe; it only reports if it has detected a change the
+ *  between originalImage and newImage
+ *
+ *  Got the idea from aishack:
+ *  http://aishack.in/tutorials/sudoku-grabber-with-opencv-detection/
+
+ *
  */
 public class BoardReader {
-    // TODO: instead of using paths to still images, use Mats
-    // -> agnostic to image source
+
     private Mat originalImage;
-    private Mat newImage;
+    private Mat newImage;			// the image to compare originalImage against
 
     private Grid boardGrid;
 
+    // boardImages:
+    // perspective corrected, cropped, morph'd, etc images of the game board
     private Mat baseBoardImage;
     private Mat newBoardImage;
     private double baseBoardWidth;   // width of persp. corrected & cropped board im
 
     // the extreme lines and their intersection points int the source image
+    // lines in the rho-theta form
     private double[][] exLines;     // top, bottom, left, right
     private Point topRight;
     private Point topLeft;
@@ -74,7 +78,7 @@ public class BoardReader {
     }
 
     /**
-     * Replace the original with previously loaded newImage.
+     * Replace the original with the previously loaded newImage.
      */
     public void updateBaseBoard() {
         originalImage = newImage;
@@ -82,7 +86,14 @@ public class BoardReader {
     }
 
     /**
-     * Find the base tic tac toe board from the original.
+     * Replace the original with a specified newImage.
+     */
+    public void updateBaseBoard(Mat newImage) throws Exception {
+    	setNewBoardImage(newImage);
+        updateBaseBoard();
+    }
+    /**
+     * Find the base tic tac toe board in the originalImage.
      */
     public void findBaseBoard() {
         try {
@@ -103,7 +114,7 @@ public class BoardReader {
     /**
      * Set the new image (to which base is compared)
      */
-    public void setNewBoardImage(Mat image) throws Exception {
+    private void setNewBoardImage(Mat image) throws Exception {
         this.newImage = image;
         Mat workim = getWorkImage(image);
         Mat morphed  = morphWorkImage(workim);
@@ -111,6 +122,11 @@ public class BoardReader {
         Highgui.imwrite("test_new_board.jpg", newBoardImage);
     }
 
+    /**
+     * Try to find if any cell in the board has changed relative to the given image.
+     *
+     * @return if a change was detected
+     */
     public boolean readBoardChanges(Mat image) {
         try {
             setNewBoardImage(image);
@@ -149,8 +165,8 @@ public class BoardReader {
     /**
      * Get the last changed cell in the board as a GameMove.
      *
-     * @return GameMove where the Mark is Empty and Grid coordinates translated
-     * to GameMove format.
+     * @return a GameMove where the Mark is Empty and coordinates point to the
+     * cell changed.
      */
     public GameMove getLastBoardChange() {
         int[] gridCell = boardGrid.getLastChangedCell();
@@ -158,8 +174,7 @@ public class BoardReader {
     }
 
 
-    // try to find a visual object resembling a tic tac toe board from image
-    // specified by the path
+    // try to find a visual object resembling a tic tac toe board from originalImage
     private void findBoardPoints(Mat originalImage) throws Exception {
         Mat workImage = new Mat();
         originalImage.copyTo(workImage);
@@ -192,11 +207,9 @@ public class BoardReader {
         Lines.linesToPoints(lines, 0, workImage.width(), lPts, rPts);
         Lines.printPointLines(lPts, rPts, workImage, new Scalar(255, 255, 255));
         Highgui.imwrite("test_work_lines.jpg", workImage);
-        // success!
 
         // next:
         // find the the extreme lines ( = bounding box =outer grid = board limits)
-        // also adapted from the AiShack tutorial (to get something to work, fast)
         // doesn't necessarily find the *best* lines; but good enough for starters
 
         exLines  = findExtremeLines(lines);
@@ -207,7 +220,6 @@ public class BoardReader {
         printExtremeLines(workImage, exLines);
 
         // next: find the intersections of the four lines we found
-        // this I can do better than AI shack...
         topRight = Lines.findIntersection(exLines[0], exLines[3], workImage.width());
         topLeft = Lines.findIntersection(exLines[0], exLines[2], workImage.width());
         botLeft = Lines.findIntersection(exLines[1], exLines[2], workImage.width());
@@ -216,6 +228,7 @@ public class BoardReader {
     }
 
 
+    // create a base image (that Grid can use) from the originalImage
     private Mat createBase(Mat originalImage) {
 
         // base image's side == board bottom side
@@ -279,7 +292,8 @@ public class BoardReader {
             // the rho-theta normal form is useful for determining whether line
             // is horizontal / vertical
             if (theta > Math.PI * 80 / 180 && theta <  Math.PI * 100 / 180 ) {
-                // vertical case
+                // line was horizontal enough, see if it's our best guess for top
+                // line or bottom line
                 if (rho < top[0]) {
                     top = line;
                     topFound = true;
@@ -289,7 +303,9 @@ public class BoardReader {
                     bottomFound = true;
                 }
             } else if (theta < Math.PI * 20 / 180 || theta > Math.PI * 160 / 180) {
-                // else horizontal
+                // similarly for the vertical (left / right) case
+                // except use the coordinate where the line intercepts the X
+                // axis the determine how far left /right it is
                 if (xIntercept > rightXintercept) {
                     rightXintercept = xIntercept;
                     right = line;
@@ -312,6 +328,7 @@ public class BoardReader {
     }
 
     // the hackiest hack of all hacks
+    // in other words, quite ugly way of doing this.
     private Mat mergeCloseLines(Mat lines) {
         // group all lines
         // first by theta, then lines with similar theta by rho
@@ -327,8 +344,9 @@ public class BoardReader {
         double rhoDist = 30;
 
         // group by theta
-        // compare each line to the already found groups, and put it into one of
-        // them *or* create a new group for it
+        // compare each line to the already found groups, and either put it
+        // into one of them *or* create a new group for it (if it doesn't fit
+        // any of them)
         for (int i = 1; i < lines.cols(); i++) {
             line = lines.get(0, i);
             rho = line[0];
@@ -353,8 +371,8 @@ public class BoardReader {
         }
 
         // divide each thetaGroup to groups by rho
-        // similar than theta grouping, bu now done for each thetaGroup by rho
-        // TODO refactor into something more sensible?
+        // similar to theta grouping, bu now done for each thetaGroup by rho
+        // TODO refactor into something more sensible -> code reusability?
         List<LineGroup> finalGroups = new ArrayList<LineGroup>();
         for (int i = 0; i < thetaGroups.size(); i++) {
             LineGroup lg = thetaGroups.get(i);
@@ -466,6 +484,7 @@ public class BoardReader {
     }
 
 
+    // a main for testing
     public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
 
