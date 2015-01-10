@@ -17,9 +17,9 @@ import org.opencv.highgui.VideoCapture;
 import org.opencv.utils.Converters;
 
 import compvision.Grid;
-import compvision.Lines;
 import compvision.Morphs;
-
+import compvision.lineutils.LineGroup;
+import compvision.lineutils.Lines;
 import game.GameMove;
 
 /**

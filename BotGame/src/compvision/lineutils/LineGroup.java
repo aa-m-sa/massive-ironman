@@ -1,4 +1,4 @@
-package compvision;
+package compvision.lineutils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
