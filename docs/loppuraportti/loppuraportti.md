@@ -82,7 +82,7 @@ Robotti osaa piirtää pelilaudalle ruksin edestakaisella liikkeellä ja sivusuu
 
 ### Kameran sijoittaminen
 
-Ristinollapelikentän näkevä kamera on sijoitettu (perästä päin katsoen) robotin vasemmalle puolelle noin 15 cm korkealle alustalle. `BotGame`:n kuvankäsittelyrutiinit osaavat tehdä kameran kuvalle perspektiivikorjauksen, mutta tunnistuksen luotettavuuden kannalta on suotavaa että kuva peliruudukosta ei ole liiaksi vääristynyt. Erityisesti vaaditaan että kameran näköpiirissä on mahdollisimman muita mahdollisesti pysty- tai vaakasuuntaisilta viivoilta näyttäviä kohteita (paperin reuna, varjot, jne) jotka saattavat erehdyttää `BotGame`:n pelialueen hahmotusmetodeja.
+Ristinollapelikentän näkevä kamera on sijoitettu (perästä päin katsoen) robotin vasemmalle puolelle noin 15 cm korkealle alustalle. `BotGame`:n kuvankäsittelyrutiinit osaavat tehdä kameran kuvalle perspektiivikorjauksen, mutta tunnistuksen luotettavuuden kannalta on suotavaa että kuva peliruudukosta ei ole liiaksi vääristynyt. Erityisesti vaaditaan että kameran näköpiirissä on mahdollisimman vähän muita mahdollisesti pysty- tai vaakasuuntaisilta viivoilta näyttäviä kohteita (paperin reuna, varjot, jne) jotka saattavat erehdyttää `BotGame`:n pelialueen hahmotusmetodeja.
 
 ![Kameran asettelu, sivukuva](kuvat/kameran-sijoitus-1.jpg)
 
@@ -94,13 +94,13 @@ Kuvantunnistusmenetelmän pääinspiraationa oli [AI Shackin Sudoku-lukija](http
 
 1. Ensin etsitään taustakuva, johon mahdollisia muutoksia verrataan:
 2. Muunnetaan kuva harmaasävykuvaksi.
-3. Ruutupaperin ruutujen häivyttämiseksi sumennetaan kuvaa Gauss-sumennoksella, jonka jälkeen tehdään harmaasävykuvasta mustavalkoinen muuttamalla  ([adaptive threshold](https://en.wikipedia.org/wiki/Thresholding_%28image_processing%29)), jolloin kuvaan jää jäljelle vain pääasiassa merkitseviä viivoja ja merkkejä. Tämän 'binäärikuvan' värit käännetään jatkoa varten.
+3. Ruutupaperin ruutujen häivyttämiseksi sumennetaan kuvaa Gauss-sumennoksella, jonka jälkeen tehdään harmaasävykuvasta mustavalkoinen mukautuvalla kynnystyksellä (suomennos??, siis [adaptive threshold](https://en.wikipedia.org/wiki/Thresholding_%28image_processing%29)), jolloin kuvaan jää jäljelle vain pääasiassa merkitseviä viivoja ja merkkejä. Tämän 'binäärikuvan' värit käännetään jatkoa varten.
 4. Aiemmassa vaiheessa jotkut tärkeätkin ruudukon viivat saattavat 'katketa', joten niitä yritetään palauttaa morphologisella sulkemisella ([morphological closing](https://en.wikipedia.org/wiki/Closing_%28morphology%29)).
 5. Näin käsitellystä kuvasta etsitään [Hough-muunnoksella](https://en.wikipedia.org/wiki/Hough_transform) kaikki viivat.
-6. Koska OpenCV:n Hough-rutiini löytää sellaisilla parametreilla joilla varmasti saadaan kaikki *tärkeät* viivat myös *paljon* viivoja jokaista pelilaudan oikeaa viivaa kohti, lähellä toisiaan olevien viivojen parvet yhdistetään yhdeksi viivaksi per parvi (keskiarvo).
-7. Yhdistetyistä viivoista etsitään äärimmäiset (tietyn marginaalin puitteissa) vaaka- ja pystyviivat, jotka vastaavat pelilaudan reunoja. Näiden leikkauspisteet (= peliruudukon nurkat) lasketaan.
-8. Leikkauspisteiden avulla kuvan perspektiivi korjataan ja se jaetaan 3x3 -ruudukoksi. Kunkin ruudun reunoista  'leikataan pois' pieni kaistale (jotka sisältävät piirretyn ruudukon viivat)  ja (alkutilanteessa tyhjä) sisäalue ja sen histogrammi talletetaan.
-9. Jokaiselle verrattavalle kuvalle tehdään sama prosessi, ja kuvien vastaavia alueille verrataan toisiinsa. Mikäli jonkin solun histogrammeissa peruskuvan ja verrattavan välillä on suuri ero, todetaan että tähän ruutuun on verrattavassa kuvassa piirretty uusi merkki.
+6. Koska OpenCV:n Hough-rutiini löytää sellaisilla parametreilla, joilla varmasti saadaan kaikki *tärkeät* viivat, myös *paljon* ylimääräisiä viivoja jokaista pelilaudan todellista viivaa kohti, lähellä toisiaan olevien viivojen parvet yhdistetään yhdeksi viivaksi per parvi (keskiarvo).
+7. Yhdistetyistä viivoista etsitään äärimmäiset (tietyn marginaalin puitteissa) vaaka- ja pystyviivat, ts ääriviivat jotka vastaavat pelilaudan reunoja. Näiden leikkauspisteet (= peliruudukon nurkat) lasketaan.
+8. Leikkauspisteiden avulla kuvan perspektiivi korjataan ja se jaetaan 3x3 -ruudukoksi. Kunkin ruudun reunoista  'leikataan pois' pieni kaistale (jotka sisältävät piirretyn ruudukon viivat)  ja sen sisäalue ja sisäalueen histogrammi talletetaan.
+9. Jokaiselle verrattavalle kuvalle tehdään sama prosessi, ja kuvien vastaavia alueita verrataan toisiinsa. Mikäli jonkin solun histogrammeissa peruskuvan ja verrattavan välillä on suuri ero, todetaan että tähän ruutuun on verrattavassa kuvassa piirretty uusi merkki.
 10. Mikäli havaittu merkki hyväksytään oikein luetuksi siirroksi, se päivitetään uudeksi peruskuvaksi seuraavan siirron lukemista varten.
 
 
@@ -112,6 +112,8 @@ Kuvantunnistusmenetelmän pääinspiraationa oli [AI Shackin Sudoku-lukija](http
 
 
 # Ohjelmakoodi
+
+TODO
 
 ## Penbot
 
@@ -226,7 +228,7 @@ Pelitoiminnallisuus on edelleen hieman raakile.
 Olettaen että `PenBot`:n lähdekoodiin on kirjoitettu oikeat pelialueen ja robotin mitat (robotin etäisyys ruudukosta, ruutujen koko, robotin mitat):
 
 1. Aseta `PenBot` oikealle etäisyydelle (säädä lähdekoodia) ruudukosta, tarkalleen ruudukon lävistäjän kautta kulkevalle suoralle (ks kuvat), ja kohdista web-kamera.
-2. Käynnistä `PenBot` NXT:llä. Näytölle ilmestyy teksti `I AM IRONMAN`. Paina mitä tahansa näppäintä paitsi harmaa `ESCAPE` (joka keskeyttää ohjelman toiminnan).
+2. Käynnistä `PenBot` NXT:llä. Näytölle ilmestyy teksti `I AM IRONMAN`. Paina mitä tahansa näppäintä paitsi harmaa `ESCAPE` (joka kaikissa tilanteissa keskeyttää ohjelman toiminnan).
 3. `PenBot` siirtyy kynän kalibrointitilaan. Säädä kynämoottorin kääntökulma nuolinäppäimillä niin että kynä piirtää selkeän jäljen paperille, ja paina oranssi `ENTER`.
 4. Näytölle ilmestyy teksti `WAITING FOR CONNECTION`. Käynnistä `BotGame` (tai `BotCommander`).
 5. Kun yhteys on luotu, `BotGame` tulostaa stdout:iin `Connected!` ja pyytää tarkistamaan webkameran asennon. Tätä varten aukeaa ikkuna web-kameran näkymästä. Kun kamera on kohdallaan, paina rivinvaihtoa. Tämän jälkeen `BotGame` yrittää etsiä kameran kuvasta ruudukon, ja onnistuessaan tulostaa lyötämänsä ääriviivat.
