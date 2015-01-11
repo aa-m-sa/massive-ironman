@@ -29,7 +29,7 @@ Piirtobotin perusrunko perustuu NXTPrograms.com [3-Motor Chassis](http://nxtprog
 
 Rakenteeltaan robotti on kahden moottorin avulla liikkuva auto, joka pystyy kääntymään pyörittämällä vasenta ja oikeaa moottoria eri nopeuksilla. Pyörittämällä moottoreita samalla nopeudella eri suuntiin robotti pystyy kääntymään paikoillaan renkaiden välisen kuvaannollisen 'akselin' keskipisteen ympäri.
 
-Koska ns. rullapyöräksi sopivia pieniä renkaita ei allekirjoittaneelle päätyneessä sarjassa ollut mukana ja käytettävissä olevien suurehkojen pyörien sijoittaminen perusrunkoon osoittautui varsin haastavaksi (ilman kumia taas pyörien liike oli liian tökkivää), robotissa ei ole tukena tavanomaista rullapyörää (*castor wheel*), vaan yksinkertainen pyödän pintaa  pitkin liukuva tuki.
+Koska ns. rullapyöräksi sopivia pieniä renkaita ei allekirjoittaneelle päätyneessä sarjassa ollut mukana ja käytettävissä olevien suurehkojen kumipyörien sijoittaminen perusrunkoon osoittautui varsin haastavaksi (ilman kumiosaa pyörien liike oli liian tökkivää), robotissa ei ole tukena tavanomaista rullapyörää (*castor wheel*), vaan yksinkertainen pyödän pintaa  pitkin liukuva tuki.
 
 Kynän liikuttelumekanismin toiminnan ymmärtänee parhaiten oheisista kuvista. Käytännössä kynä on kiinnitetty kumilenkillä telineeseen, jonka liike on rajoitettu ylös-alas -suuntaiseksi kiskojen avulla. Lisäksi kynän edessä ja takana on rajoittavat tuet jotka pitävät sen asennon vakaasti paikoillaan piirtämisen aikana.
 
