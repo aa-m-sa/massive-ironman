@@ -128,7 +128,7 @@ Käytännössä robotin kehittäminen oli iteratiivinen prosessi: "testataan toi
 
 ## Ohjelmallisia testi'skriptejä'
 
-Eri toiminnallisuuksien kokeilemista ja säätöä varten on ohjelmissa erityisen `test`-paketin luokissa muutama `main`-metodeja, joita ajamalla varsinaisen `main`:n sijaan voi testata robotin eri toiminnallisuuksien toimintaa.
+Eri toiminnallisuuksien kokeilemista ja säätöä varten on ohjelmissa erityisen `test`-paketin luokissa muutamia `main`-metodeja, joita ajamalla varsinaisen `Main.main`:n sijaan voi testata ko. luokkien toimintaa.
 
 ### PenBotin kynänliikuttelun testaus ja säätö
 
@@ -138,7 +138,7 @@ Lisäksi `PenConfigureTest` mahdollisti piirtobotin kynänliikuttelun ohjelmalli
 
 ### Kuvanhahmotuksen testaus ja säätö
 
-`BotGame`:n `test.BoardReaderCamTest`:ia voi käyttää web-kameran kuvankaappauksen toiminnan testaamiseen ("havaitseeko kuvantunnistusmenetelmä ruudukkoon piirretyn uuden X- tai O-merkin oikein?") käynnistämättä varsinaista pelirutiinia. Esimerkiksi tarkistin ennen demotilaisuutta että kuvankäsittelymetodit toimivat myös yliopiston tiloissa, joiden valaistus.
+`BotGame`:n `test.BoardReaderCamTest`:ia voi käyttää web-kameran kuvankaappauksen toiminnan testaamiseen ("havaitseeko kuvantunnistusmenetelmä ruudukkoon piirretyn uuden X- tai O-merkin oikein?") käynnistämättä varsinaista pelirutiinia. Esimerkiksi tarkistin ennen demotilaisuutta että kuvankäsittelymetodit toimivat myös yliopiston tiloissa (jossa olisi voinat olla esim. eri valaistusolot kuin kotona).
 
 Vastaavankaltaista koodinpätkää käytettiin merkintunnistustoiminnallisuutta koodatessa myös eri raja-arvojen ja kuvaruutujen vertailumenetelmien tutkimiseen. Lopulta päädyttiin koodin tämänhetkisessä versiossa oleviin vakioihin ja metodeihin.
 
