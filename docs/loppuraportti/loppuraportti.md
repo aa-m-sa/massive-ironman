@@ -2,13 +2,15 @@ Tämä on joulun 2014 robottikurssin loppuraportti. Luettavin versio on [pdf](lo
 
 # Ristinollarobotin kuvaus
 
+![Ristinollarobotti](kuvat/yläviisto-1.jpg)
+
 Ristinollarobotti on ristinollaa web-kameran avulla pelaava Lego Mindstorms -robotti.
 
 Robotti koostuu varsinaisesta piirtorobotista (`PenBot`) ja erillisestä tietokoneella (= kannettava tietokone) ajettavasta varsinaisesta peliohjelmasta (`BotGame`). Ohjelmointikieli on molemmissa Java (piirtobotissa [LeJOS](https://www.lejos.org)), ja kuvantunnistukseen käytetään [OpenCV](http://opencv.org/):n Java-API:ia.
 
 Peliohjelma osaa tunnistaa ulkoisen web-kameran avulla paperille piirretyn pelilaudan ja pelaajien (robotti ja sen vastustaja) sille piirtämät merkit, ja tämän avulla pelata ristinollaa ihmisvastustajaa vastaan. Peliohjelma lähettää tekoälyn valitsemat siirrot Bluetoothin yli piirtorobotille, jolla on valmiit rutiinit ruksin piirtämiseksi kuhunkin ruutuun.
 
-# Robotin rakenne
+# Robotin rakenne ja toiminta
 
 ## Materiaalit ja tarvikkeet
 
@@ -25,36 +27,66 @@ Robotin toteuttamiseen käytettiin
 
 ## Piirtobotti
 
-Piirtobotin perusrunko perustuu NXTPrograms.com [3-Motor Chassis](http://nxtprograms.com/3-motor_chassis/index.html) -rakenteeseen, jota jouduttiin hieman muokkaamaan osien puutteesta johtuen (esim. samanlaista rullapyörää ei ollut käytettävissä, joten piti soveltaa) ja johon lisättiin ylös ja alas liikkuva kynä.
-
-Rakenteeltaan robotti on kahden moottorin avulla liikkuva auto, joka pystyy kääntymään pyörittämällä vasenta ja oikeaa moottoria eri nopeuksilla. Pyörittämällä moottoreita samalla nopeudella eri suuntiin robotti pystyy kääntymään paikoillaan renkaiden välisen kuvaannollisen 'akselin' keskipisteen ympäri.
-
-Koska ns. rullapyöräksi sopivia pieniä renkaita ei allekirjoittaneelle päätyneessä sarjassa ollut mukana ja käytettävissä olevien suurehkojen kumipyörien sijoittaminen perusrunkoon osoittautui varsin haastavaksi (ilman kumiosaa pyörien liike oli liian tökkivää), robotissa ei ole tukena tavanomaista rullapyörää (*castor wheel*), vaan yksinkertainen pyödän pintaa  pitkin liukuva tuki.
-
-Kynän liikuttelumekanismin toiminnan ymmärtänee parhaiten oheisista kuvista. Käytännössä kynä on kiinnitetty kumilenkillä telineeseen, jonka liike on rajoitettu ylös-alas -suuntaiseksi kiskojen avulla. Lisäksi kynän edessä ja takana on rajoittavat tuet jotka pitävät sen asennon vakaasti paikoillaan piirtämisen aikana.
-
-Kumilenkkikiinnitys mahdollistaa teoriassa pienen hätävaran siltä varalta että käyttäjä menee ja poistaa turvarajat PenBotin ohjelmakoodista ja kalibroi moottorin väärin väärin: jos moottori yrittäisi painaa kynää alemmas kuin turvalliseen käyttöön on suunniteltu, kumilenkit teoriassa joustaisivat sen sijaan että moottoriin tai rakenteeseen kohdistuisi haitallista rasitusta. (Robotin toiminta voidaan myös välittömästi keskeyttää hätäseis-nappulaa painamalla.)
-
-Lisäksi kynän vierässä on pieni työkalu, joka helpottaa robotin asettamista oikeaan suuntaan ruutupaperin päälle.
-
-Varsinaisen erillisen rakennusohjeen sijasta lukijaa pyydetään seuraamaan NXTPrograms.com:n [ohjeen](http://nxtprograms.com/3-motor_chassis/steps.html) vaiheita 1 -- 4 ja 12 --, ja vertailemaan eroavaisuuksien kohdalla alla oleviin kuviin. Huom. erityisesti että rullapyörän korvaavan tuen kiinnitys on erilainen.
-
-## Kuvia
-
-TODO kuvat tähän
-
-## Strategiset mitat
+### Strategiset mitat
 
 * Renkaiden välinen etäisyys ~120 mm
 * Etäisyys keulasta perään ~210 mm
 * Säkäkorkeus ~75 mm
 * Kynän kärjen etäisyys akselista piirtoasennossa ~70 mm
 
-# Ohjelmakoodi
 
-## Penbot
+### Rakenne
 
-## BotGame
+Piirtobotin perusrunko perustuu NXTPrograms.com [3-Motor Chassis](http://nxtprograms.com/3-motor_chassis/index.html) -rakenteeseen, jota jouduttiin hieman muokkaamaan osien puutteesta johtuen (esim. samanlaista rullapyörää ei ollut käytettävissä, joten piti soveltaa) ja johon lisättiin ylös ja alas liikkuva kynä.
+
+Rakenteeltaan robotti on kahden moottorin avulla liikkuva auto, joka pystyy kääntymään säätelemällä vasemman ja oikeaan pyörän moottoreiden pyörimisnopeutta. Pyörittämällä moottoreita samalla nopeudella eri suuntiin robotti pystyy kääntymään paikoillaan renkaiden välisen kuvaannollisen 'akselin' keskipisteen ympäri.
+
+Koska ns. rullapyöräksi sopivia pieniä renkaita ei ollut mukana allekirjoittaneelle päätyneessä sarjassa, ja käytettävissä olevien suurehkojen kumipyörien sijoittaminen perusrunkoon osoittautui varsin haastavaksi (kumirenkaan kanssa pyörät olivat aivan liian suuria ja ilman kumiosaa sylinterimäisten pyörien liike oli liian tökkivää piirtämiseen), robotissa ei ole tukena tällaisessa Lego-autossa tavanomaista rullapyörää (*castor wheel*), vaan yksinkertainen pyödän pintaa pitkin liukuva tuki.
+
+Kynän liikuttelumekanismi käyttää kolmatta moottoria kynän nostamiseen ja laskemiseen paperille piirtämistä varten. Käytännössä kynä on kiinnitetty kumilenkillä telineeseen, jonka liike on rajoitettu ylös-alas -suuntaiseksi kiskojen avulla; telineeseen on kiinnitetty tapit, joiden avulla moottoriin kiinnitetyt varret voivat painaa kynän alas tai kohottaa sen ylös. Lisäksi kynän edessä ja takana on kynän heilumista rajoittavat tuet, jotka pitävät kynän tukevasti paikoillaan piirtämisen aikana.
+
+[Video kynän liikuttelumekanismin toiminnasta.](https://drive.google.com/file/d/0B1_61yv8HENsbnNzMTUzMGl3d3c/view?usp=sharing)
+
+Kumilenkkikiinnitys mahdollistaa teoriassa pienen hätävaran siltä varalta että käyttäjä menee ja poistaa turvarajat PenBotin ohjelmakoodista ja kalibroi moottorin väärin: jos moottori yrittäisi painaa kynää alemmas kuin turvalliseen käyttöön on suunniteltu, kumilenkit teoriassa joustaisivat sen sijaan että moottoriin tai rakenteeseen kohdistuisi haitallista rasitusta. (Robotin toiminta voidaan myös välittömästi keskeyttää hätäseis-nappulaa painamalla.)
+
+Lisäksi kynän vierässä on pieni työkalu, joka helpottaa robotin asettamista oikeaan suuntaan ruutupaperin päälle.
+
+Varsinaisen erillisen rakennusohjeen sijasta lukijaa pyydetään seuraamaan NXTPrograms.com:n [ohjeen](http://nxtprograms.com/3-motor_chassis/steps.html) vaiheita 1 -- 4 ja 12 --, ja vertailemaan eroavaisuuksien kohdalla alla oleviin kuviin. Huom. erityisesti että rullapyörän korvaavan tuen kiinnitys on erilainen.
+
+![Edestä.](kuvat/edestä-3.jpg)
+
+![Toinen kuva edestä (kynämekanismi)](kuvat/edestä-4.jpg)
+
+![Sivusta.](kuvat/sivukuva-paapuuri-1.jpg)
+
+![Toiselta sivulta.](kuvat/sivukuva-tyyrpuuri-1.jpg)
+
+![Takaa.](kuvat/takaviisto-1.jpg)
+
+![Peräosa](kuvat/perä-1.jpg)
+
+![Robotin asennon tarkistaminen.](kuvat/suunnistus-väline-2.jpg)
+
+
+### Ruksin piirtäminen
+
+Robotti osaa piirtää pelilaudalle ruksin edestakaisella liikkeellä ja sivusuuntaisilla käännöksillä.
+
+Robotti piirtää yhden ruksin.
+
+Robotti piirtää toisen ruksin.
+
+Väärin suunnattu robotti piirtää ruksin hieman sivuun ruudun keskipisteestä.
+
+## Kamera ja kuvantunnistus
+
+### Kameran sijoittaminen
+
+Ristinollapelikentän näkevä kamera on sijoitettu (perästä päin katsoen) robotin vasemmalle puolelle noin 15 cm korkealle alustalle. `BotGame`:n kuvankäsittelyrutiinit osaavat tehdä kameran kuvalle perspektiivikorjauksen, mutta tunnistuksen luotettavuuden kannalta on suotavaa että kuva peliruudukosta ei ole liiaksi vääristynyt. Erityisesti vaaditaan että kameran näköpiirissä on mahdollisimman muita mahdollisesti pysty- tai vaakasuuntaisilta viivoilta näyttäviä kohteita (paperin reuna, varjot, jne) jotka saattavat erehdyttää `BotGame`:n pelialueen hahmotusmetodeja.
+
+![Kameran asettelu, sivukuva](kuvat/kameran-sijoitus-1.jpg)
+
+![Kameran asettelu, edestä](kuvat/kameran-sijoitus-2.jpg)
 
 ### Kuvantunnistuksen toimintaidea
 
@@ -72,6 +104,20 @@ Kuvantunnistusmenetelmän pääinspiraationa oli [AI Shackin Sudoku-lukija](http
 10. Mikäli havaittu merkki hyväksytään oikein luetuksi siirroksi, se päivitetään uudeksi peruskuvaksi seuraavan siirron lukemista varten.
 
 TODO Kuvia laudan hahmottamisesta.
+
+![Kameran näkymä](kuvat/webkameran-näkymä-1.jpg)
+
+![Kameran näkymästä tunnistetut pelilaudan ääriviivat](kuvat/näkymä-tunnistettu.jpg)
+
+![Perspektiivikorjaus ja ruudukon hahmottaminen](kuvat/näkymä-perspektiivi-korjattu.jpg)
+
+
+# Ohjelmakoodi
+
+## Penbot
+
+## BotGame
+
 
 # Testaus
 
