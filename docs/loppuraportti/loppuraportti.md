@@ -72,11 +72,11 @@ Varsinaisen erillisen rakennusohjeen sijasta lukijaa pyydetään seuraamaan NXTP
 
 Robotti osaa piirtää pelilaudalle ruksin edestakaisella liikkeellä ja sivusuuntaisilla käännöksillä.
 
-Robotti piirtää yhden ruksin.
+[Video: Robotti piirtää yhden ruksin.](https://drive.google.com/file/d/0B1_61yv8HENsd2xyX05UbkxOV28/view?usp=sharing)
 
-Robotti piirtää toisen ruksin.
+[Video: Robotti piirtää toisen ruksin.](https://drive.google.com/file/d/0B1_61yv8HENsbF9YTGVja3RDVHc/view?usp=sharing)
 
-Väärin suunnattu robotti piirtää ruksin hieman sivuun ruudun keskipisteestä.
+[Video: Väärin suunnattu robotti piirtää ruksin hieman sivuun ruudun keskipisteestä.](https://drive.google.com/file/d/0B1_61yv8HENsVWVyTVQ1ZlVLMGs/view?usp=sharing)
 
 ## Kamera ja kuvantunnistus
 
@@ -103,7 +103,6 @@ Kuvantunnistusmenetelmän pääinspiraationa oli [AI Shackin Sudoku-lukija](http
 9. Jokaiselle verrattavalle kuvalle tehdään sama prosessi, ja kuvien vastaavia alueille verrataan toisiinsa. Mikäli jonkin solun histogrammeissa peruskuvan ja verrattavan välillä on suuri ero, todetaan että tähän ruutuun on verrattavassa kuvassa piirretty uusi merkki.
 10. Mikäli havaittu merkki hyväksytään oikein luetuksi siirroksi, se päivitetään uudeksi peruskuvaksi seuraavan siirron lukemista varten.
 
-TODO Kuvia laudan hahmottamisesta.
 
 ![Kameran näkymä](kuvat/webkameran-näkymä-1.jpg)
 
@@ -121,7 +120,7 @@ TODO Kuvia laudan hahmottamisesta.
 
 # Testaus
 
-Kaikkea mitä olisi voinut testata, ei tullut testattua. Erityisesti matematiikkametodeja ja kuvanhahmotustoimintaa varten olisi voinut kirjoittaa suoranaisia yksikkötestejä.
+Kaikkea mitä olisi voinut testata, ei tullut testattua. Erityisesti matematiikkametodeja ja kuvanhahmotustoimintaa varten olisi voinut kirjoittaa suoranaisia yksikkötestejä esim. JUnitilla.
 
 Käytännössä robotin kehittäminen oli iteratiivinen prosessi: "testataan toimiiko jokin toiminnallisuus näin" -> "korjataan kunnes toimii" -> "kun toimii, lisätään toiminnallisuus". Valitettavasti tälläisestä epä-TDD 'patternista' ei jäänyt hirveästi varsinaista testikoodia.
 
@@ -135,9 +134,9 @@ Eri toiminnallisuuksien kokeilemista ja säätöä varten on ohjelmissa erityise
 
 Lisäksi `PenConfigureTest` mahdollisti piirtobotin kynänliikuttelun ohjelmallisten turvarajojen testaamisen. Tulos: turvarajat toimivat, kalibrointiskriptin (= normaali käyttö) avulla bottia ei saatu kääntämään kynämoottoria yli 20 astetta alaspäin, joka oli todettu vielä täysin turvalliseksi asennoksi.
 
-### Kuvananalysointitoiminnallisuuden testaus ja säätö
+### Kuvanhahmotuksen testaus ja säätö
 
-`BotGame`:n `test.BoardReaderCamTest`:ia voi käyttää web-kameran kuvankaappauksen toiminnan testaamiseen käynnistämättä varsinaista pelirutiinia. Esimerkiksi tarkistin ennen demotilaisuutta että kuvankäsittelymetodit toimivat myös yliopiston tilojen valaistuksessa.
+`BotGame`:n `test.BoardReaderCamTest`:ia voi käyttää web-kameran kuvankaappauksen toiminnan testaamiseen ("havaitseeko kuvantunnistusmenetelmä ruudukkoon piirretyn uuden X- tai O-merkin oikein?") käynnistämättä varsinaista pelirutiinia. Esimerkiksi tarkistin ennen demotilaisuutta että kuvankäsittelymetodit toimivat myös yliopiston tiloissa, joiden valaistus.
 
 Vastaavankaltaista koodinpätkää käytettiin merkintunnistustoiminnallisuutta koodatessa myös eri raja-arvojen ja kuvaruutujen vertailumenetelmien tutkimiseen. Lopulta päädyttiin koodin tämänhetkisessä versiossa oleviin vakioihin ja metodeihin.
 
@@ -170,7 +169,7 @@ Testattiin viestibittien vastaanottamisen lisäksi myös lähettämistä robotil
 
 ### Hätäpysäytys
 
-`PenBot`:iin asetettua vaadittua hatäpysäytystoiminnallisuutta testattiin painamalla kesken ohjelman suorituksen pysäytysnapiksi valittua `ESCAPE`-nappulaa. Hätäpysäytys toimi.
+`PenBot`:iin asetettua vaadittua hatäpysäytystoiminnallisuutta testattiin painamalla kesken ohjelman suorituksen pysäytysnapiksi valittua `ESCAPE`-nappulaa. Hätäpysäytys toimi. [Video testistä](https://drive.google.com/file/d/0B1_61yv8HENsY3EtOFNwVTdfUzg/view?usp=sharing)
 
 # Rajoitukset ja tulevaisuus
 
@@ -199,10 +198,40 @@ Kuvan analysointimenetelmät ovat teoriatasolla yleistettävissä, mutta koodiss
 # Käyttöohjeet
 
 
-## Ohjelmistojen kääntäminen
+## Ohjelmistojen kääntäminen ja lataaminen NXT:lle
 
-### Penbot
+### PenBot
+
+Tarvitaan:
+
+* LeJOS 0.9.1 (omine vaatimuksineen, ts. tuore JDK); LeJOS täytyy kirjoittaa Legon oman firmwaren päälle NXT-brickille (LeJOS:in omien ohjeiden mukaisesti).
+* Uusin Ant.
+* Toimiva Bluetooth- tai USB-yhteys kääntöympäristön ja NXT:n välillä.
+
+Koodin mukana tulee LeJOS:in käyttöesimerkkien mukainen Ant-skripti. Aja esim. `ant uploadandrun` kansiossa `PenBot`.
+
+Kääntäminen toimii ainakin Ubuntu 14.10:llä, mutta todennäköisesti onnistuu myös Windows / Mac OS. (Ei kokeiltu.)
 
 ### BotGame
 
+* Edellisten lisäksi LeJOS tarvitsemat OS-natiivit Bluetooth-kirjastot (seuraa LeJOS:in asennusohjeita).
+* OpenCV 2.4.4+ (toimii ainakin 2.4.9.0.) vaatimuksineen. Käännä OpenCV:n kirjastot asennusohjeiden mukaisesti.
+
+BotGamea varten ei ole kätevää Ant-skriptiä; sen sijaan GitHubissa on valmis Eclipse-projekti, johon täytyy linkata vaaditut LeJOS- ja OpenCV-kirjastot.
+
 ## Pelaaminen
+
+Pelitoiminnallisuus on edelleen hieman raakile.
+
+Olettaen että `PenBot`:n lähdekoodiin on kirjoitettu oikeat pelialueen ja robotin mitat (robotin etäisyys ruudukosta, ruutujen koko, robotin mitat):
+
+1. Aseta `PenBot` oikealle etäisyydelle (säädä lähdekoodia) ruudukosta, tarkalleen ruudukon lävistäjän kautta kulkevalle suoralle (ks kuvat), ja kohdista web-kamera.
+2. Käynnistä `PenBot` NXT:llä. Näytölle ilmestyy teksti `I AM IRONMAN`. Paina mitä tahansa näppäintä paitsi harmaa `ESCAPE` (joka keskeyttää ohjelman toiminnan).
+3. `PenBot` siirtyy kynän kalibrointitilaan. Säädä kynämoottorin kääntökulma nuolinäppäimillä niin että kynä piirtää selkeän jäljen paperille, ja paina oranssi `ENTER`.
+4. Näytölle ilmestyy teksti `WAITING FOR CONNECTION`. Käynnistä `BotGame` (tai `BotCommander`).
+5. Kun yhteys on luotu, `BotGame` tulostaa stdout:iin `Connected!` ja pyytää tarkistamaan webkameran asennon. Tätä varten aukeaa ikkuna web-kameran näkymästä. Kun kamera on kohdallaan, paina rivinvaihtoa. Tämän jälkeen `BotGame` yrittää etsiä kameran kuvasta ruudukon, ja onnistuessaan tulostaa lyötämänsä ääriviivat.
+6. `PenBot` puolestaan ilmoittaa että se on valmis kommunikoimaan `BotGame`:n kanssa viestillä `READY TO READ`: paina taas jotain NXT:n näppäintä.
+7. Paina rivinvaihtoa; `BotGame` aloittaa pelin.
+8. Konsoliin tulostuu `BotGame`:n tekemä siirto ja `PenBot` piirtää sen. Mikäli kamera toimii, se pienen viiveen jälkeen (jonka aikana robotti ehtii toivottavasti ajaa pois kameran edestä) havaitsee laudalla muutoksen ja kysyy onko se robotin vai pelajaan merkki (vai virheellinen havainto). Vastaa `bot` jos havaittu siirto on oikea (tarkista suorituskansioon tulostetut debug-kuvat) tai `no` jos robotti ei ehtinyt alta pois.
+9. Tee oma siirtosi. Merkin havaittuaan `BotGame`:n pitäisi jälleen kysyä kenen se on; vastaa jälleen. `BotGame` tulostaa konsoliin missä se mielestään näki symbolisi.
+10. Robotti vastaa omalla siirrollaan. Jatketaan samaan tapaan, kunnes jompi kumpi on voittanut pelin (jolloin robotti ilmoitta kumpi voitti, ja lopettaa).
