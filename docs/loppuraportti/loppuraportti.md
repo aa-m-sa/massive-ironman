@@ -1,4 +1,4 @@
-Tämä on joulun 2014 robottikurssin loppuraportti. Luettavin versio on [pdf](loppuraportti.pdf).
+Tämä on joulun 2014 robottikurssin ([GitHub](https://github.com/aa-m-sa/massive-ironman)) loppuraportti. Luettavin versio on [pdf](loppuraportti.pdf).
 
 # Ristinollarobotin kuvaus
 
@@ -110,14 +110,72 @@ Kuvantunnistusmenetelmän pääinspiraationa oli [AI Shackin Sudoku-lukija](http
 
 ![Perspektiivikorjaus ja ruudukon hahmottaminen](kuvat/näkymä-perspektiivi-korjattu.jpg)
 
+\newpage
+
+\FloatBarrier
 
 # Ohjelmakoodi
 
-TODO
+Koodia mielestäni kommentoitu runsaasti ja sillä on JavaDoc (kunhan keksin minne uploadaan ne), joten tässä esittelen ohjelmakoodia melko yleisellä tasolla.
 
-## Penbot
+## PenBot
+
+`PenBot`:in ohjelmakoodin rakenne on seuraava:
+
+* `comms`
+    * `Command.java` bluetooth-kommunikaatiokomennot
+* `penbot` varsinainen piirtotoiminnallisuus
+    * `Penbot.java` robotin päätoiminnot: piirturin liikkuminen, kynän ohjaus; tarjoaa julkiset metodit merkin piirtämiseksi tiettyyn koordinaattiin
+    * `Board.java` pelilaudan sisäinen malli: tarjoaa `Penbot.java`:n käyttämät liikkumisohjeet kuhunkin pelilaudan ruudukkoon
+* `main` pääpakkaus
+    * `BotControl.java` piirturin käskyttäminen LeJOS:n Bluetooth-yhteyden tarjoaman `InputStream`:n kautta saapuvien komentojen mukaisesti
+    * `Main.java` Ohjelman käynnistys (Bluetooth-yhteyden avaus) ja lopetus, hätäseis `ButtonListener`:n asettaminen
+* `test`
+    * `PenConfigureTest` testiohjelma kynämoottorin säätämiseen
+
+### Huomioita
+
+* pelikentän ulottuvuuksia (ruutujen koko, botin etäisyys ruudukosta, jne) voi toistaiseksi säätää vain asettamalla vastaavan `Penbot.java`:n vakiot sopiviksi.
+* bluetooth-InputStreamista luetaan käskyjä vain piirtosuoritusten välissä: ensimmäistä vastaanotettua käskyä aletaan toteuttaa välittömästi
+* hätäpysäytys toteutettu `ButtonListenerillä`
 
 ## BotGame
+
+* `comms` viestintäpakkaus
+    * `Command.java` bluetooth-kommunikaatiokomennot
+    * `BTComms.java` abstraktio komentojen lähettämiseksi bluetoothin yli
+* `compvision` keinonäköpaketti
+    * `BoardReader.java` varsinainen pelilaudan hahmotus ('lukeminen' kuvasta)
+    * `Grid.java` peliruudukon sisäinen malli ja vertailumetodit
+    * `Morphs.java` morphologisia operaatiota
+    * `Webcam.java` web-kameran kuvan käsittely
+    * `compvision.lineutils` lineaarialgebran työkaluja:
+        * `Lines.java` staattisia metodeja viivojen käsittelyyn (tulostus, leikkauskohtien laskeminen)
+        * `LineGroups.jva` viivaryhmäolio
+* `game` varsinainen peli
+    * `BotControl.java` (*huono nimi ja hieman turha*) PenBot:in `BotControl`:n vastinpari, AI:n siirtojen suorittaminen `BTComms`:n avulla
+    * `Game.java` varsinainen peliloop
+    * `Player.java` interface, jonka kaikki erilaiset 'pelaajat' (AI:t tai käyttöliittymä pelaajat) toteuttavat, jotta `Game.java` osaa viestiä eri niiden kanssa
+    * `game.ui` käyttäjäinteraktiopaketti
+        * `StandardPlayer.java` ristinollan pelaaminen 'pelkkänä' konsolissa ilman web-kameraa (käyttäjä antaa käsin koordinaatit siirroilleen)
+        * `AssistedWebcamPlayer.java` laajennettu `StandardPlayer`: pelaajan liikkeiden lukeminen web-kamerasta `compvision`:n avulla ja lukemien vahvistusten pyytäminen (tätä käytetään)
+    * `game.ai` pelitekoälypaketti
+        * `SimpleBotAi.java` toistaiseksi ainoa tekoäly; täyttää ruudukosta seuraavan vapaan ruudun omalla merkillään
+    * `game.domain` peliobjektien mallinnus
+        * `Board.java` pelilaudan tilanne
+        * `GameMove.java` pelisiirtoa kuvaava olio (X vai O, koordinaatti)
+        * `Mark.java` pelimerkkiä (X, O) kuvaava enum
+* `main`
+    * `Main.java` ohjelman käynnistys, lopetus
+* `test` sisältää testiohjelman `compvision`:n kokeiluun
+
+### Huomioita
+
+* `Webcam.java` ajaa web-kameran kuvasyötteen lukua omassa säikeessään, jossa pyytää kameralta uusia frameja sitä mukaa kuin kamera niitä osaa antaa ja pitää uusinta 'puskurissa'. `Webcam.java` tarjoaa julkisen metodin, jolla saadaan kopio ko. muistiin säilötystä framesta jatkokäyttöä varten. Säikeistys oli minulle uusi asia, mutta kopioinnin pitäisi toimia 'säieturvallisesti' (*thread safe*): `Webcamin` sisäinen frame -puskuri lukitaan `synchronized`-metodeilla kopioinnin ajaksi.
+
+* Kuvanlukua käytetään hieman typerästi vain `AssistedWebcamPlayer`:stä käsin, jonka vuoksi mm. botti-AI:n omien siirtojen aiheuttamia muutoksia ei voi suoraan ohittaa. Jälkikäteen järkevämpi tapa olisi ollut että keinonäköä olisi käyttänyt peli itse (`Game.java`), joka olisi tarjonnut pelaajille mahdollisuuden saada tietoa keinonäön käsityksestä pelitilanteesta tms. Syy nykyiseen huonoon ratkaisuun on että kirjoitin nopeasti `Assisted`:n `StandardPlayer`:n päälle saadakseni nopeasti jotain toimivaa demotilaisuutta varten.
+
+* Keinonäön matemaattista toimintaa on selostettu yleisellä tasolla edellisissä kappaleissa.
 
 
 # Testaus
