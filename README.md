@@ -7,6 +7,8 @@ Lego Mindstroms robot course, Christmas Break 2014 @ CS / University of Helsinki
 
 [Course webpage.](http://www.cs.helsinki.fi/courses/582326/2014/s/a/1)
 
+See directory `docs` for more extensive documentation, in Finnish. The final report `loppuraportti.pdf` has some vids!
+
 ##objective
 
 Tic-Tac-Toe bot using Lego Mindstorms NXT, Java (LeJOS), OpenCV and webcam.
